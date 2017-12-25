@@ -454,8 +454,14 @@ var pollChannels = [];
 var groupIds     = {};
 var pollGroups   = [];
 
+// Add for sensors
+var channelSensorIds = {};
+var pollSensorIds= [];
+var pollSensorChannels = [];
+
 function connect() {
     api.getFullState(function (err, config) {
+		
         if (err) {
             adapter.log.warn('could not connect to ip');
             setTimeout(connect, 5000);
@@ -602,6 +608,10 @@ function connect() {
                         lobj.common.type = 'string';
                         lobj.common.role = 'command';
                         break;
+					case 'mode':
+                    	lobj.common.type = 'string';
+                    	lobj.common.role = 'mode';
+                    	break;
                     default:
                         adapter.log.info('skip: ' + state);
                         break;
@@ -805,6 +815,123 @@ function connect() {
         }
         adapter.log.info('created/updated ' + count + ' light groups');
 
+        var sensors = config.sensors;
+        for (var sid in sensors) {
+            
+            if (!sensors.hasOwnProperty(sid)) {
+                continue;
+            }
+            count++;
+            var sensor = sensors[sid];
+            if (sensor.type=='Daylight' || sensor.type=='ZLLSwitch' || sensor.type=='ZLLTemperature' || sensor.type=='ZLLPresence' || sensor.type=='ZLLLightLevel')
+            { //
+            } else {
+              continue;
+            }
+
+			
+            var channelName = config.config.name + '.' + sensor.name;
+            if (channelNames.indexOf(channelName) !== -1) {
+                adapter.log.warn('channel "' + channelName + '" already exists, skipping sensor');
+                continue;
+            } else {
+                channelNames.push(channelName);
+            }
+            channelSensorIds[channelName.replace(/\s/g, '_')] = sid;
+			adapter.log.debug('sid: ' + channelName + " --"  + sid + "--");
+            pollSensorIds.push(sid);
+            pollSensorChannels.push(channelName.replace(/\s/g, '_'));
+
+            for (var state in sensor.state) {
+			
+                if (!sensor.state.hasOwnProperty(state)) {
+                    continue;
+                }
+                var objId = channelName + '.' + state;
+				
+
+                var lobj = {
+                    _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                    type:       'state',
+                    common: {
+                        name:   objId.replace(/\s/g, '_'),
+                        read:   true,
+                        write:  true
+                    },
+                    native: {
+                        id:     lid
+                    }
+                };
+				//adapter.log.warn('exists: ' + state);
+                switch (state) {
+                    case 'daylight':
+                        lobj.common.type = 'boolean';
+                        lobj.common.role = 'switch';
+                        break;
+                    case 'dark':
+                        lobj.common.type = 'boolean';
+                        lobj.common.role = 'switch';
+                        break;
+					case 'presence':
+						lobj.common.type = 'boolean';
+                        lobj.common.role = 'switch';
+                        break;
+                    case 'lightlevel':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'lightlevel';
+                        lobj.common.min  = 0;
+                        lobj.common.max  = 17000;
+                        break;
+                    case 'lastupdated':
+                        lobj.common.type = 'string';
+                        lobj.common.role = 'lastupdated';
+                        break;
+                    case 'temperature':
+                    	lobj.common.type = 'number';
+                    	lobj.common.role = 'indicator.temperature';
+                    	break;
+					case 'buttonevent':
+						lobj.common.type = 'number';
+                    	lobj.common.role = 'state';
+                    	break;
+                    default:
+                        adapter.log.info('skip: ' + state);
+                        break;
+                }
+
+                objs.push(lobj);
+                var value = sensor.state[state];
+                if (state === "temperature"){
+                	value = value.toString();
+	                var last = value.substring(value.length - 2, value.length);
+	                var first = value.substring(0, value.length - 2);
+                	value = first + "." + last;
+                }
+                states.push({id: lobj._id, val: value});
+            }
+            var role = 'light.sensor';
+        
+            role = 'sensor';
+            objs.push({
+              _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
+              type: 'channel',
+              common: {
+                  name:           channelName.replace(/\s/g, '_'),
+                  role:           role
+              },
+              native: {
+                  id:             sid,
+                  type:           sensor.type,
+                  name:           sensor.name,
+                  modelid:        sensor.modelid,
+                  swversion:      sensor.swversion
+            }
+          });
+        
+        }
+
+        adapter.log.info('created/updated ' + count + ' sensors');
+
         // Create/update device
         adapter.log.info('creating/updating bridge device');
         objs.push({
@@ -905,14 +1032,66 @@ function main() {
 
     if (adapter.config.polling && adapter.config.pollingInterval > 0) {
         setTimeout(pollSingle, 5000, 0);
+		setTimeout(pollSensors, 5000, 0);
     }
     connect();
+}
+
+function pollSensors(count) {
+	if (count >= pollSensorIds.length) {
+        count = 0;
+    } else {
+	
+		var sid = pollSensorIds[count];
+		
+		var allSensors = api.getSensorStatus(sid);
+		api.getSensorStatus(sid, function (err, result) {
+			var values = [];
+			
+			if (err) {
+                adapter.log.error(err);
+            }
+            if (!result) {
+                adapter.log.error('Cannot get result for sensorStatus' + pollSensorIds[count]);
+            } else {
+				// adapter.log.debug('RESULT ' + JSON.stringify(result, null, 2));
+                var states = {};
+				
+				for (var stateA in result.state) {
+                    if (!result.state.hasOwnProperty(stateA)) {
+                        continue;
+                    }
+                    states[stateA] = result.state[stateA];
+                }
+				if (states.temperature !== undefined) {
+					var value = states.temperature.toString();
+					var last = value.substring(value.length - 2, value.length);
+					var first = value.substring(0, value.length - 2);
+					value = first + "." + last;
+					states.temperature = value;
+				}
+				
+				for (var stateB in states) {
+                    if (!states.hasOwnProperty(stateB)) {
+                        continue;
+                    }
+					var id = adapter.namespace + '.' + pollSensorChannels[count] + '.' + stateB
+                    values.push({id: id, val: states[stateB]});
+                }
+			}
+			syncStates(values, true, function () {
+					setTimeout(pollSensors, 50, ++count);
+			});
+		});
+	
+	}
 }
 
 function pollGroup(count) {
     if (count >= pollGroups.length) {
         count = 0;
         setTimeout(pollSingle, adapter.config.pollingInterval * 1000, 0);
+		setTimeout(pollSensors, adapter.config.pollingInterval * 1000, 0);
     } else {
         adapter.log.debug('polling light ' + pollGroups[count].name);
 
