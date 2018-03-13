@@ -10,6 +10,8 @@ systemDictionary = {
     "Bridge port":      {"en": "Bridge port",    "de": "Bridge-Port",      "ru": "Порт HUE bridge"},
     "Bridge User":      {"en": "Bridge User",    "de": "Bridge-Anwender",  "ru": "Пользователь hue bridge"},
     "Polling":          {"en": "Polling",        "de": "Polling",          "ru": "Опрос"},
+    "ignoreOsram":      {"en": "ignore Osram",   "de": "ignoriere Osram",  "ru": "игнорировать Osram"},
+
     "Polling interval (sec)": {
         "en": "Polling interval(sec)",
         "de": "Pollintervall(sek)",

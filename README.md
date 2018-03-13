@@ -25,6 +25,10 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 Required node.js >= 0.12.
 
 ## Changelog
+### 0.7.0 (2018.03.13)
+* (arteck) Enable/Disable OSRAM check from HUE Bridge
+* (arteck) polling ZLLSwitch and ZGPSwitch     
+
 ### 0.6.9 (2017.05.18)
 * (bluefox) Enable adapter by default
 
