@@ -324,7 +324,7 @@ adapter.on('stateChange', function (id, state) {
 
             if (obj.common.role === 'LightGroup' || obj.common.role === 'Room') {
                 // log final changes / states
-                adapter.log.info('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
                 api.setGroupLightState(groupIds[id], lightState, function (err, res) {
                     if (err || !res) {
                         adapter.log.error('error: ' + err);
@@ -348,7 +348,7 @@ adapter.on('stateChange', function (id, state) {
                 if (finalLS.hasOwnProperty('on')) {
                     finalLS = {on:finalLS.on};
                     // log final changes / states
-                    adapter.log.info('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                    adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
                     lightState = hue.lightState.create();
                     lightState.on(finalLS.on);
@@ -364,7 +364,7 @@ adapter.on('stateChange', function (id, state) {
                 }
             } else {
                 // log final changes / states
-                adapter.log.info('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
                 api.setLightState(channelIds[id], lightState, function (err, res) {
                     if (err || !res) {
                         adapter.log.error('error: ' + err);
@@ -448,11 +448,15 @@ function createUser(ip, callback) {
 var HueApi = hue.HueApi;
 var api;
 
-var channelIds   = {};
-var pollIds      = [];
-var pollChannels = [];
-var groupIds     = {};
-var pollGroups   = [];
+var channelIds     = {};
+var channelSWIds     = {};
+var pollIds        = [];
+var pollSWIds      = [];
+var pollSWOrgIds      = [];
+var pollChannels   = [];
+var pollSWChannels = [];
+var groupIds       = {};
+var pollGroups     = [];
 
 function connect() {
     api.getFullState(function (err, config) {
@@ -469,12 +473,100 @@ function connect() {
         var channelNames = [];
 
         // Create/update lamps
-        adapter.log.info('creating/updating light channels');
+        adapter.log.info('creating/updating switch channels');
 
         var lights  = config.lights;
+        var sensors = config.sensors;
         var count   = 0;
         var objs    = [];
         var states  = [];
+
+        for (var sid in sensors) {
+            if (!sensors.hasOwnProperty(sid)) {
+                continue;
+            }
+
+            count++;
+            var sensor = sensors[sid];
+
+            var channelName = config.config.name + '.' + sensor.name;
+            if (channelNames.indexOf(channelName) !== -1) {
+                adapter.log.warn('channel "' + channelName + '" already exists, skipping lamp');
+                continue;
+            } else {
+                channelNames.push(channelName);
+            }
+            channelSWIds[channelName.replace(/\s/g, '_')] = sid;
+            pollSWChannels.push(channelName.replace(/\s/g, '_'));
+
+            if (sensor.type=='ZLLSwitch' || sensor.type=='ZGPSwitch') {
+
+               pollSWIds.push(count);
+               pollSWOrgIds.push(sid);
+
+               var sensorName =  sensor.name.replace(/\s/g, '');
+               
+               for (var state in sensor.state) {
+                  if (!sensor.state.hasOwnProperty(state)) {
+                      continue;
+                  }
+                  var objId = channelName  + '.' + state;
+  
+                  var lobj = {
+                      _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                      type:       'state',
+                      common: {
+                          name:   objId.replace(/\s/g, '_'),
+                          read:   true,
+                          write:  true
+                      },
+                      native: {
+                          id:     sid
+                      }
+                  };
+  
+                  switch (state) {
+                      case 'on':
+                          lobj.common.type = 'boolean';
+                          lobj.common.role = 'switch';
+                          break;
+                      case 'reachable':
+                          lobj.common.type  = 'boolean';
+                          lobj.common.write = false;
+                          lobj.common.role  = 'indicator.reachable';
+                          break;
+                      case 'buttonevent': 
+                          lobj.common.type = 'number';
+                          lobj.common.role = 'state';
+                          break;
+                      case 'lastupdated': 
+                          lobj.common.type = 'string';
+                          lobj.common.role = 'date';
+                          break;
+                      case 'battery': 
+                          lobj.common.type = 'number';
+                          lobj.common.role = 'config';
+                          break;
+                      case 'pending': 
+                          lobj.common.type = 'number';
+                          lobj.common.role = 'config';
+                          break;
+                
+                      default:
+                          adapter.log.info('skip switch: ' + objId);
+                          break;
+                  }
+  
+                  objs.push(lobj);
+                  states.push({id: lobj._id, val: sensor.state[state]});
+               }
+           }
+        }
+
+        adapter.log.info('created/updated ' + count + ' switch channels');
+
+        count = 0;
+
         for (var lid in lights) {
             if (!lights.hasOwnProperty(lid)) {
                 continue;
@@ -602,8 +694,17 @@ function connect() {
                         lobj.common.type = 'string';
                         lobj.common.role = 'command';
                         break;
+                    case 'pending':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'config';
+                        break;
+                    case 'mode':
+                        lobj.common.type = 'string';
+                        lobj.common.role = 'text';
+                        break;
+
                     default:
-                        adapter.log.info('skip: ' + state);
+                        adapter.log.info('skip light: ' + objId);
                         break;
                 }
 
@@ -780,7 +881,7 @@ function connect() {
                         gobj.common.role = 'command';
                         break;
                     default:
-                        adapter.log.info('skip: ' + action);
+                        adapter.log.info('skip group: ' + gobjId);
                         continue;
                         break;
                 }
@@ -906,6 +1007,7 @@ function main() {
     if (adapter.config.polling && adapter.config.pollingInterval > 0) {
         setTimeout(pollSingle, 5000, 0);
     }
+
     connect();
 }
 
@@ -967,17 +1069,20 @@ function pollSingle(count) {
     if (count >= pollIds.length) {
         count = 0;
         pollGroup(0);
+        pollSwitch(0);
+
     } else {
         adapter.log.debug('polling light ' + pollChannels[count]);
 
         api.lightStatus(pollIds[count], function (err, result) {
-            var values = [];
-            if (err) {
-                adapter.log.error(err);
-            }
-            if (!result) {
-                adapter.log.error('Cannot get result for lightStatus' + pollIds[count]);
-            } else {
+
+                var values = [];
+                if (err) {
+                    adapter.log.error(err);
+                }
+                if (!result) {
+                    adapter.log.error('Cannot get result for lightStatus' + pollIds[count]);
+                } else {
                 var states = {};
                 for (var stateA in result.state) {
                     if (!result.state.hasOwnProperty(stateA)) {
@@ -985,10 +1090,14 @@ function pollSingle(count) {
                     }
                     states[stateA] = result.state[stateA];
                 }
-                if (states.reachable === false && states.bri !== undefined) {
-                    states.bri = 0;
-                    states.on = false;
+
+                if (!adapter.config.ignoreOsram) {
+                    if (states.reachable === false && states.bri !== undefined) {
+                        states.bri = 0;
+                        states.on = false;
+                    }
                 }
+
                 if (states.on === false && states.bri !== undefined) {
                     states.bri = 0;
                 }
@@ -1012,6 +1121,58 @@ function pollSingle(count) {
             }
             syncStates(values, true, function () {
                 setTimeout(pollSingle, 50, ++count);
+            });
+        });
+
+    }
+}
+
+function pollSwitch(count) {
+
+    if (count >= pollSWOrgIds.length) {
+        count = 0;
+
+    } else {
+        adapter.log.debug('polling switch ' + pollSWChannels[count]);
+        api.getFullState(function (err, config) {
+
+            adapter.log.debug('updating switch');
+
+            var sensors = config.sensors;
+            var states  = [];
+
+            for (var ind = 0; ind <= pollSWOrgIds.length;ind++) {
+                if (!pollSWOrgIds.hasOwnProperty(ind)) {
+                    continue;
+                }
+                var sid = pollSWOrgIds[ind];
+                var sensor = sensors[sid];
+
+                var channelName = config.config.name + '.' + sensor.name;
+
+                for (var state in sensor.state) {
+                    if (!sensor.state.hasOwnProperty(state)) {
+                        continue;
+                    }
+                    var objId = channelName + '.' + state;
+
+                    var lobj = {
+                        _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                        type:       'state',
+                        common: {
+                            name:   objId.replace(/\s/g, '_'),
+                            read:   true,
+                            write:  true
+                        },
+                        native: {
+                            id:     sid
+                        }
+                    };
+                    states.push({id: lobj._id, val: sensor.state[state]});
+                }
+            }
+            syncStates(states, true, function () {
+                setTimeout(pollSwitch, 50, ++count);
             });
         });
     }
