@@ -11,8 +11,6 @@
 <script type="text/javascript" src="words.js"></script>
 
 <script type="text/javascript">
-    var bridges = [];
-
     var active   = false;
 
     function setValue(id, value, onChange) {
@@ -43,7 +41,9 @@
             }
         });
         for (var key in settings) {
-            if (settings.hasOwnProperty(key)) setValue(key, settings[key], onChange);
+            if (settings.hasOwnProperty(key)) {
+                setValue(key, settings[key], onChange);
+            }
         }
         // read if instance is active or enabled
         getIsAdapterAlive(function (isAlive) {
@@ -54,8 +54,7 @@
 
         onChange(false);
 
-        $('#tabs').tabs();
-        $('#create').button().click(function () {
+        $('#create').button().on('click', function () {
             if (!active) {
                 showMessage(_('Enable adapter first'), 'Warning', 'info');
                 return;
@@ -91,7 +90,7 @@
             })();
         });
 
-        $('#find').button().click(function () {
+        $('#find').button().on('click', function () {
             if (!active) {
                 showMessage(_('Enable adapter first'), 'Warning', 'info');
                 return;
@@ -113,7 +112,7 @@
                     }
                     $('#dialog-bridges').html(popup);
                 } catch (e) {
-                    alert ("error finding bridge");
+                    alert('error finding bridge');
                 }
             });
         });
@@ -124,22 +123,23 @@
         if (settings.user) {
             $('#create').button('disable');
         }
-        $('#bridge').change(function () {
+        $('#bridge').on('change', function () {
             if ($(this).val()) {
                 $('#find').button('disable');
             } else {
                 $('#find').button('enable');
             }
-        }).keyup(function () {
+        }).on('keyup', function () {
             $(this).trigger('change');
         });
+
         $('#user').change(function () {
             if ($(this).val()) {
                 $('#create').button('disable');
             } else {
                 $('#create').button('enable');
             }
-        }).keyup(function () {
+        }).on('keyup', function () {
             $(this).trigger('change');
         });
     }
@@ -183,22 +183,22 @@
                     <td></td>
                 </tr>
                 <tr>
-                    <td><label  class="translate" for="bridge">Bridge User</label></td>
+                    <td><label  class="translate" for="user">Bridge User</label></td>
                     <td><input type="text" id="user" class="value" /></td>
-                    <td><button id="create"><span class="translate">Create User</label></span></button></td>
+                    <td><button id="create"><span class="translate">Create User</span></button></td>
                 </tr>
                 <tr>
-                    <td><label  class="translate" for="bridge">ignoreOsram</label></td>
+                    <td><label  class="translate" for="ignoreOsram">ignoreOsram</label></td>
                     <td><input type="checkbox" id="ignoreOsram" class="value" /></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><label  class="translate" for="bridge">Polling</label></td>
+                    <td><label  class="translate" for="polling">Polling</label></td>
                     <td><input type="checkbox" id="polling" class="value" /></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><label  class="translate" for="bridge">Polling interval (sec)</label></td>
+                    <td><label  class="translate" for="pollingInterval">Polling interval (sec)</label></td>
                     <td><input type="text" id="pollingInterval" class="value" /></td>
                     <td></td>
                 </tr>

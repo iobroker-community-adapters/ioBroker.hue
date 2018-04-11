@@ -1,10 +1,9 @@
-Gruntfile.js
+gulpfile.js
 tasks
-node_modules
-.idea
-.gitignore
-.git
-.DS_Store
+tmp
 test
 .travis.yml
 appveyor.yml
+admin/i18n
+iob_npm.done
+package-lock.json

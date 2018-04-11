@@ -2,13 +2,14 @@
  *
  *      ioBroker Philips Hue Bridge Adapter
  *
- *      (c) 2014-2016 hobbyquaker
+ *      (c) 2014-2018 hobbyquaker
  *
  *      MIT License
  *
  */
-/* jshint -W097 */// jshint strict:false
-/*jslint node: true */
+/* jshint -W097 */
+/* jshint strict: false */
+/* jslint node: true */
 'use strict';
 
 var hue       = require('node-hue-api');
