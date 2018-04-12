@@ -391,9 +391,9 @@ adapter.on('stateChange', (id, state) => {
                         }
                         if (finalState in alls) {
                             if (finalState === 'effect') {
-                                adapter.setState([context.id, 'effect'].join('.'), {val: context.finalLSfinalLS[finalState] === 'colorloop', ack: true});
+                                adapter.setState([context.id, 'effect'].join('.'), {val: context.finalLS[finalState] === 'colorloop', ack: true});
                             } else {
-                                adapter.setState([context.id, finalState].join('.'), {val: context.finalLSfinalLS[finalState], ack: true});
+                                adapter.setState([context.id, finalState].join('.'), {val: context.finalLS[finalState], ack: true});
                             }
                         }
                     }
@@ -439,20 +439,21 @@ function processCommands() {
 
     // we may send only 10 commands in 10 seconds
     if (times.length >= 10) {
-        const diff = now - times[0] - 11000;
+        const diff = now - times[0] - 10500;
 
         if (diff < 0) {
+            adapter.log.debug(`Too many commands. Wait for ${-diff} ms`);
             setTimeout(processCommands, -diff);
             return;
         }
     }
 
     // delete all commands older than 11 seconds
-    while (times.length && now - times[0] > 11000) {
-        times.unshift();
+    while (times.length && now - times[0] > 10500) {
+        times.shift();
     }
 
-    let command = commands.unshift();
+    let command = commands.shift();
     times.push(now);
 
     if (!command.args || command.args.length === 0) {
@@ -460,13 +461,13 @@ function processCommands() {
             command.cb && command.cb(err, result, command.context);
             setTimeout(processCommands, 50);
         });
-    } else if (commands.args.length === 1) {
-        api[command.func](commands.args[0], function (err, result) {
+    } else if (command.args.length === 1) {
+        api[command.func](command.args[0], function (err, result) {
             command.cb && command.cb(err, result, command.context);
             setTimeout(processCommands, 50);
         });
-    } else if (commands.args.length === 2) {
-        api[command.func](commands.args[0], commands.args[1], function (err, result) {
+    } else if (command.args.length === 2) {
+        api[command.func](command.args[0], command.args[1], function (err, result) {
             command.cb && command.cb(err, result, command.context);
             setTimeout(processCommands, 50);
         });
@@ -512,15 +513,15 @@ let pollSWChannels = [];
 let groupIds       = {};
 let pollGroups     = [];
 
-function connect() {
+function connect(cb) {
     api.getFullState((err, config) => {
         if (err) {
             adapter.log.warn('could not connect to ip');
-            setTimeout(connect, 5000);
+            setTimeout(connect, 5000, cb);
             return;
         } else if (!config) {
             adapter.log.warn('Cannot get the configuration from hue bridge');
-            setTimeout(connect, 5000);
+            setTimeout(connect, 5000, cb);
             return;
         }
 
@@ -969,7 +970,7 @@ function connect() {
             native: config.config
         });
 
-        syncObjects(objs, () => syncStates(states))
+        syncObjects(objs, () => syncStates(states, false, cb))
     });
 }
 
@@ -1029,32 +1030,33 @@ function syncStates(states, isChanged, callback) {
     }
 }
 
-function main() {
-    adapter.subscribeStates('*');
-    if (!adapter.config.port) {
-        adapter.config.port = 80;
-    } else {
-        adapter.config.port = parseInt(adapter.config.port, 10);
+function pollGroup(count, callback) {
+    if (typeof count === 'function') {
+        callback = count;
+        count = 0;
     }
-
-    api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
-
-    if (adapter.config.polling && adapter.config.pollingInterval > 0) {
-        setTimeout(pollSingle, 5000, 0);
-    }
-
-    connect();
-}
-
-function pollGroup(count) {
     count = count || 0;
 
     if (count >= pollGroups.length) {
-        setTimeout(pollSingle, adapter.config.pollingInterval * 1000, 0);
+        callback && callback();
     } else {
-        adapter.log.debug('polling light ' + pollGroups[count].name);
+        adapter.log.debug('polling group ' + pollGroups[count].name);
 
-        commands.push({func: 'getGroup', args: [pollGroups[count].id], context: {count: count}, cb: function (err, result, context) {
+        let context = {
+            count: count,
+            // give 10 seconds to bridge for answer
+            timeout: setTimeout(() => {
+                adapter.log.error('Timeout for polling group ' + pollGroups[count].id);
+                context.timeout = null;
+                pollGroup(count + 1, callback);
+            }, 30000)
+        };
+
+        commands.push({func: 'getGroup', args: [pollGroups[count].id], context: context, cb: function (err, result, context) {
+            adapter.log.debug('polling group result ' + JSON.stringify(result));
+            if (!context.timeout) return;
+            clearTimeout(context.timeout);
+
             let values = [];
             if (err) {
                 adapter.log.error(err);
@@ -1094,20 +1096,39 @@ function pollGroup(count) {
                     values.push({id: adapter.namespace + '.' + pollGroups[context.count].name + '.' + stateB, val: states[stateB]});
                 }
             }
-            syncStates(values, true, () => setTimeout(pollGroup, 50, ++context.count));
+            syncStates(values, true, () => setTimeout(pollGroup, 50, context.count + 1, callback));
         }});
         if (commands.length === 1) processCommands();
     }
 }
 
-function pollSingle(count) {
+function pollSingle(count, callback) {
+    if (typeof count === 'function') {
+        callback = count;
+        count = 0;
+    }
+    count = count || 0;
+
     if (count >= pollIds.length) {
-        pollGroup();
-        pollSwitch();
+        callback && callback();
     } else {
         adapter.log.debug('polling light ' + pollChannels[count]);
 
-        commands.push({func: 'lightStatus', args: [pollIds[count]], context: {count: count}, cb: function (err, result, context) {
+        let context = {
+            count: count,
+            // give 10 seconds to bridge for answer
+            timeout: setTimeout(() => {
+                adapter.log.error('Timeout for polling light ' + pollChannels[count]);
+                context.timeout = null;
+                pollSingle(count + 1, callback);
+            }, 30000)
+        };
+
+        commands.push({func: 'lightStatus', args: [pollIds[count]], context: context, cb: function (err, result, context) {
+            if (!context.timeout) return;
+            clearTimeout(context.timeout);
+            adapter.log.debug('polling light result ' + JSON.stringify(result));
+
             let values = [];
             if (err) {
                 adapter.log.error(err);
@@ -1151,18 +1172,40 @@ function pollSingle(count) {
                     values.push({id: adapter.namespace + '.' + pollChannels[context.count] + '.' + stateB, val: states[stateB]});
                 }
             }
-            syncStates(values, true, () => setTimeout(pollSingle, 50, ++context.count));
+            syncStates(values, true, () => setTimeout(pollSingle, 50, context.count + 1, callback));
         }});
 
         if (commands.length === 1) processCommands();
     }
 }
 
-function pollSwitch(count) {
+function pollSwitch(count, callback) {
+    if (typeof count === 'function') {
+        callback = count;
+        count = 0;
+    }
     count = count || 0;
-    if (count < pollSWOrgIds.length) {
+
+    if (count >= pollSWOrgIds.length) {
+        callback && callback();
+    } else {
         adapter.log.debug('polling switch ' + pollSWChannels[count]);
-        commands.push({func: 'getFullState', args: [], context: {count: count}, cb: function (err, config, context) {
+
+        let context = {
+            count: count,
+            // give 10 seconds to bridge for answer
+            timeout: setTimeout(() => {
+                adapter.log.error('Timeout for polling switch ' + pollSWChannels[count]);
+                context.timeout = null;
+                pollSwitch(count + 1, callback);
+            }, 30000)
+        };
+
+        commands.push({func: 'getFullState', args: [], context: context, cb: function (err, config, context) {
+            adapter.log.debug('polling group switch ' + JSON.stringify(config));
+            if (!context.timeout) return;
+            clearTimeout(context.timeout);
+
             adapter.log.debug('updating switch');
 
             let sensors = config.sensors;
@@ -1198,8 +1241,36 @@ function pollSwitch(count) {
                     states.push({id: lobj._id, val: sensor.state[state]});
                 }
             }
-            syncStates(states, true, () => setTimeout(pollSwitch, 50, ++context.count));
+            syncStates(states, true, () => setTimeout(pollSwitch, 50, context.count + 1, callback));
         }});
         if (commands.length === 1) processCommands();
     }
+}
+function poll() {
+    pollSingle(() => {
+        pollGroup(() => {
+            pollSwitch(() => {
+                if (adapter.config.polling && adapter.config.pollingInterval > 0) {
+                    setTimeout(poll, adapter.config.pollingInterval * 1000);
+                }
+            });
+        })
+    })
+}
+
+function main() {
+    adapter.subscribeStates('*');
+    if (!adapter.config.port) {
+        adapter.config.port = 80;
+    } else {
+        adapter.config.port = parseInt(adapter.config.port, 10);
+    }
+
+    api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
+
+    connect(() => {
+        if (adapter.config.polling) {
+            poll();
+        }
+    });
 }

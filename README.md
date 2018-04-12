@@ -7,8 +7,7 @@
 
 [![NPM](https://nodei.co/npm/iobroker.hue.png?downloads=true)](https://nodei.co/npm/iobroker.hue/)
 
-English
---------------------
+## English :gb:
 Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other 
 SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges to ioBroker.
 
@@ -16,18 +15,16 @@ You must first link you HUE bridge with ioBroker.
 1. For that find first the IP address by pressing "Find Bridge" button. It is only enabled if no IP address entered.
 2. After IP address is found the USER must be created. For that press the "Create User" button and then press "Link" button on HUE bridge. "Create User" button is only enabled if no USER entered
 
-Deutsch
--------------
+## Deutsch :de:
 Bindet Philips Hue / LivingColors / LivingWhites Lampen ein. 
-In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden. 
-
-## Notice
-Required node.js >= 0.12.
+In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden.
 
 ## Changelog
-### 0.7.0 (2018.03.13)
+### 1.0.0 (2018.04.12)
 * (arteck) Enable/Disable OSRAM check from HUE Bridge
 * (arteck) polling ZLLSwitch and ZGPSwitch     
+* (bluefox) admin3
+* (bluefox) do not send commands ofter than 10 in 10 seconds
 
 ### 0.6.9 (2017.05.18)
 * (bluefox) Enable adapter by default
