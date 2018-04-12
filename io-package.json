@@ -80,7 +80,7 @@
             "smartlink",
             "zigbee"
         ],
-        "materialize": false,
+        "materialize": true,
         "icon": "hue.jpeg",
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.hue/master/admin/hue.jpeg",
         "type": "lighting"

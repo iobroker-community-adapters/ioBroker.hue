@@ -35,15 +35,8 @@
         function load(settings, onChange) {
             if (settings.port === undefined) settings.port = 80;
 
-            $('#dialog-bridges').dialog({
-                autoOpen: false,
-                modal:    true,
-                position: {my: 'center top', at: 'center top', of: $('#adapter-container')},
-                open:     function (event) {
-                    $(event.target).parent().find('.ui-dialog-titlebar-close .ui-button-text').html('');
-                }
-            });
-            
+            $('#dialog-bridges').modal();
+
             for (var key in settings) {
                 if (settings.hasOwnProperty(key)) {
                     setValue(key, settings[key], onChange);
@@ -53,11 +46,14 @@
             getIsAdapterAlive(function (isAlive) {
                 if (isAlive || common.enabled) {
                     active = true;
+                } else {
+                    $('.btn-create').addClass('disabled');
+                    $('.btn-find').addClass('disabled');
                 }
             });
 
             onChange(false);
-            var $create = $('#create');
+            var $create = $('.btn-create');
 
             $create.on('click', function () {
                 if (!active) {
@@ -65,9 +61,8 @@
                     return;
                 }
 
-                $('#dialog-bridges')
-                    .html('<img src="instruction.png"/><br>' + _('Instruction'))
-                    .dialog('open');
+                $('#dialog-bridges .modal-content').html('<img src="instruction.png"/><br>' + _('Instruction'));
+                $('#dialog-bridges').modal('open');
 
                 var count = 0;
 
@@ -75,8 +70,8 @@
                     sendTo('hue.' + instance, 'createUser', $('#bridge.value').val(), function (result) {
                         try {
                             result = JSON.parse(result);
-                            if (result.error > 0) {
-                                if (result.error === 101 && count<10) {
+                            if (result && result.error) {
+                                if (result.error === 101 && count < 10) {
                                     count++;
                                     console.log(count);
                                     setTimeout(sendCreate, 3000);
@@ -90,11 +85,12 @@
                         } catch (e) {
                             showMessage(_('error creating user'), _('Error'), 'alert');
                         }
-                        $('#dialog-bridges').dialog('close');
+                        $('#dialog-bridges').modal('close');
                     });
                 })();
             });
-            var $find = $('#find');
+
+            var $find = $('.btn-find');
 
             $find.on('click', function () {
                 if (!active) {
@@ -102,47 +98,56 @@
                     return;
                 }
 
-                $('#dialog-bridges').html(_('Please wait, searching for bridge.')).dialog('open');
+                $('#dialog-bridges .modal-content').html(_('Please wait, searching for bridge.<br>' +
+                    '<div class="progress">' +
+                    '   <div class="indeterminate"></div>' +
+                    '</div>'));
+
+                $('#dialog-bridges').modal('open');
+                $('#dialog-bridges .btn-close').addClass('disabled');
 
                 sendTo('hue.' + instance, 'browse', 5000, function (result) {
+                    $('#dialog-bridges .btn-close').removeClass('disabled');
                     try{
                         var arr = JSON.parse(result);
                         var popup;
                         if (!arr.length){
-                            popup = 'Cannot find bridge';
+                            popup = _('Cannot find bridge');
                         }else{
-                            popup = 'Select a bridge: <br />';
+                            popup = _('Select a bridge:') + ' <br />';
                             arr.forEach(function (element, index, array) {
-                                popup = popup + '<a href="#" onclick="$(\'#bridge.value\').val(\'' + element.ipaddress + '\').trigger(\'change\');$(\'#dialog-bridges\').dialog(\'close\')">' + element.ipaddress + '</a><br />';
+                                popup = popup + '<a href="#" onclick="$(\'#bridge.value\').val(\'' + element.ipaddress + '\').trigger(\'change\');$(\'#dialog-bridges\').modal(\'close\')">' + element.ipaddress + '</a><br />';
                             });
                         }
-                        $('#dialog-bridges').html(popup);
+                        $('#dialog-bridges .modal-content').html(popup);
                     } catch (e) {
-                        alert('error finding bridge');
+                        alert(_('error finding bridge'));
                     }
                 });
             });
 
-            if (settings.bridge) {
+            if (settings.bridge && settings.bridge !== '0.0.0.0') {
                 $find.addClass('disabled');
             }
             if (settings.user) {
                 $create.addClass('disabled');
             }
+
             $('#bridge').change(function () {
                 if ($(this).val()) {
-                    $('#find').addClass('disabled');
+                    $find.addClass('disabled');
                 } else {
-                    $('#find').removeClass('disabled');
+                    $find.removeClass('disabled');
                 }
             }).keyup(function () {
                 $(this).trigger('change');
             });
+
             $('#user').on('change', function () {
                 if ($(this).val()) {
-                    $('#create').addClass('disabled');
+                    $create.addClass('disabled');
                 } else {
-                    $('#create').removeClass('disabled');
+                    $create.removeClass('disabled');
                 }
             }).on('keyup', function () {
                 $(this).trigger('change');
@@ -186,7 +191,7 @@
                 <label  class="translate" for="bridge">Bridge Address</label>
             </div>
             <div class="col s2 m2">
-                <button id="find"><span class="translate">Find Bridge</span></button>
+                <a class="waves-effect waves-light blue btn btn-find"><i class="material-icons left">search</i><span class="translate">Find Bridge</span></a>
             </div>
         </div>
         <div class="row">
@@ -201,7 +206,7 @@
                 <label  class="translate" for="user">Bridge User</label>
             </div>
             <div class="col s2 m2">
-                <button id="create"><span class="translate">Create User</span></button>
+                <a class="waves-effect waves-light blue btn btn-create"><i class="material-icons left">account_box</i><span class="translate">Create User</span></a>
             </div>
         </div>
         <div class="row">
@@ -224,7 +229,14 @@
         </div>
     </div>
 
-    <div id="dialog-bridges" title="Select a bridge"></div>
+    <div id="dialog-bridges" class="modal">
+        <div class="modal-content">
+            <h4>Select a bridge</h4>
+        </div>
+        <div class="modal-footer">
+            <a class="btn-close modal-action modal-close waves-effect waves-green btn-flat translate">Close</a>
+        </div>
+    </div>
 </div>
 </body>
 </html>
