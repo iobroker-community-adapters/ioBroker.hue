@@ -49,5 +49,16 @@ systemDictionary = {
         "it": "Avviso: l'adattatore può inviare solo 10 comandi in 10 secondi, incluso il polling per dispositivo.",
         "es": "Aviso: El adaptador puede enviar solo 10 comandos en 10 segundos, incluido el sondeo por dispositivo.",
         "pl": "Uwaga: Adapter może wysłać tylko 10 poleceń w ciągu 10 sekund, łącznie z pollingiem na urządzenie."
+    },
+    "Ignore groups": {
+        "en": "Ignore groups",
+        "de": "Gruppen ignorieren",
+        "ru": "Игнорировать группы",
+        "pt": "Ignorar grupos",
+        "nl": "Negeer groepen",
+        "fr": "Ignorer les groupes",
+        "it": "Ignora gruppi",
+        "es": "Ignorar grupos",
+        "pl": "Ignoruj ​​grupy"
     }
 };

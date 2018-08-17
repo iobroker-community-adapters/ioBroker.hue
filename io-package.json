@@ -3,6 +3,17 @@
         "name": "hue",
         "version": "1.1.0",
         "news": {
+            "1.1.1": {
+                "en": "Ignoring of groups was implemented",
+                "de": "Ignorieren von Gruppen wurde implementiert",
+                "ru": "Было реализовано игнорирование групп",
+                "pt": "Ignorando grupos foi implementado",
+                "nl": "Het negeren van groepen is geïmplementeerd",
+                "fr": "L'ignorance des groupes a été mise en œuvre",
+                "it": "L'ignoranza dei gruppi è stata implementata",
+                "es": "Se implementó ignorar grupos",
+                "pl": "Ignorowanie grup zostało zaimplementowane"
+            },
             "1.1.0": {
                 "en": "The command queue was optimized",
                 "de": "Die Befehlswarteschlange wurde optimiert",
@@ -110,7 +121,8 @@
         "port": 80,
         "user": "",
         "polling": true,
-        "pollingInterval": 30
+        "pollingInterval": 30,
+        "ignoreGroups": false
     },
     "objects": [
         {

@@ -943,170 +943,173 @@ function connect(cb) {
         // Create/update groups
         adapter.log.info('creating/updating light groups');
 
-        let groups = config.groups;
-        groups[0] = {
-            name: 'All',   //"Lightset 0"
-            type: 'LightGroup',
-            id: 0,
-            action: {
-                alert:  'select',
-                bri:    0,
-                colormode: '',
-                ct:     0,
-                effect: 'none',
-                hue:    0,
-                on:     false,
-                sat:    0,
-                xy:     '0,0'
-            }
-        };
-        count = 0;
-        for (let gid in groups) {
-            if (!groups.hasOwnProperty(gid)) {
-                continue;
-            }
-            count += 1;
-            let group = groups[gid];
-
-            let groupName = config.config.name + '.' + group.name;
-            if (channelNames.indexOf(groupName) !== -1) {
-                adapter.log.warn('channel "' + groupName + '" already exists, skipping group');
-                continue;
-            } else {
-                channelNames.push(groupName);
-            }
-            groupIds[groupName.replace(/\s/g, '_')] = gid;
-            pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
-
-            group.action.r      = 0;
-            group.action.g      = 0;
-            group.action.b      = 0;
-            group.action.command = '{}';
-            group.action.level  = 0;
-
-            for (let action in group.action) {
-                if (!group.action.hasOwnProperty(action)) {
+        if (!adapter.config.ignoreGroups) {
+            let groups = config.groups;
+            groups[0] = {
+                name: 'All',   //"Lightset 0"
+                type: 'LightGroup',
+                id: 0,
+                action: {
+                    alert:  'select',
+                    bri:    0,
+                    colormode: '',
+                    ct:     0,
+                    effect: 'none',
+                    hue:    0,
+                    on:     false,
+                    sat:    0,
+                    xy:     '0,0'
+                }
+            };
+            count = 0;
+            for (let gid in groups) {
+                if (!groups.hasOwnProperty(gid)) {
                     continue;
                 }
+                count += 1;
+                let group = groups[gid];
 
-                let gobjId = groupName + '.' + action;
+                let groupName = config.config.name + '.' + group.name;
+                if (channelNames.indexOf(groupName) !== -1) {
+                    adapter.log.warn('channel "' + groupName + '" already exists, skipping group');
+                    continue;
+                } else {
+                    channelNames.push(groupName);
+                }
+                groupIds[groupName.replace(/\s/g, '_')] = gid;
+                pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
 
-                let gobj = {
-                    _id:        adapter.namespace + '.' + gobjId.replace(/\s/g, '_'),
-                    type:       'state',
+                group.action.r      = 0;
+                group.action.g      = 0;
+                group.action.b      = 0;
+                group.action.command = '{}';
+                group.action.level  = 0;
+
+                for (let action in group.action) {
+                    if (!group.action.hasOwnProperty(action)) {
+                        continue;
+                    }
+
+                    let gobjId = groupName + '.' + action;
+
+                    let gobj = {
+                        _id:        adapter.namespace + '.' + gobjId.replace(/\s/g, '_'),
+                        type:       'state',
+                        common: {
+                            name:   gobjId.replace(/\s/g, '_'),
+                            read:   true,
+                            write:  true
+                        },
+                        native: {
+                            id:     gid
+                        }
+                    };
+                    if (typeof group.action[action] === 'object') {
+                        group.action[action] = group.action[action].toString();
+                    }
+
+                    switch (action) {
+                        case 'on':
+                            gobj.common.type = 'boolean';
+                            gobj.common.role = 'switch';
+                            break;
+                        case 'bri':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.dimmer';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 254;
+                            break;
+                        case 'level':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.dimmer';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 100;
+                            break;
+                        case 'hue':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.color.hue';
+                            gobj.common.unit = '°';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 360;
+                            break;
+                        case 'sat':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.color.saturation';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 254;
+                            break;
+                        case 'xy':
+                            gobj.common.type = 'string';
+                            gobj.common.role = 'level.color.xy';
+                            break;
+                        case 'ct':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.color.temperature';
+                            gobj.common.unit = '°K';
+                            gobj.common.min  = 2200; // 500
+                            gobj.common.max  = 6500; // 153
+                            break;
+                        case 'alert':
+                            gobj.common.type = 'string';
+                            gobj.common.role = 'switch';
+                            break;
+                        case 'effect':
+                            gobj.common.type = 'boolean';
+                            gobj.common.role = 'switch';
+                            break;
+                        case 'colormode':
+                            gobj.common.type = 'string';
+                            gobj.common.role = 'sensor.colormode';
+                            gobj.common.write = false;
+                            break;
+                        case 'r':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.color.red';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 255;
+                            break;
+                        case 'g':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.color.green';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 255;
+                            break;
+                        case 'b':
+                            gobj.common.type = 'number';
+                            gobj.common.role = 'level.color.blue';
+                            gobj.common.min  = 0;
+                            gobj.common.max  = 255;
+                            break;
+                        case 'command':
+                            gobj.common.type = 'string';
+                            gobj.common.role = 'command';
+                            break;
+                        default:
+                            adapter.log.info('skip group: ' + gobjId);
+                            continue;
+                    }
+                    objs.push(gobj);
+                    states.push({id: gobj._id, val: group.action[action]});
+                }
+
+                objs.push({
+                    _id:        adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
+                    type:       'channel',
                     common: {
-                        name:   gobjId.replace(/\s/g, '_'),
-                        read:   true,
-                        write:  true
+                        name:   groupName.replace(/\s/g, '_'),
+                        role:   group.type
                     },
                     native: {
-                        id:     gid
+                        id:     gid,
+                        type:   group.type,
+                        name:   group.name,
+                        lights: group.lights
                     }
-                };
-                if (typeof group.action[action] === 'object') {
-                    group.action[action] = group.action[action].toString();
-                }
-
-                switch (action) {
-                    case 'on':
-                        gobj.common.type = 'boolean';
-                        gobj.common.role = 'switch';
-                        break;
-                    case 'bri':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.dimmer';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 254;
-                        break;
-                    case 'level':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.dimmer';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 100;
-                        break;
-                    case 'hue':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.color.hue';
-                        gobj.common.unit = '°';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 360;
-                        break;
-                    case 'sat':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.color.saturation';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 254;
-                        break;
-                    case 'xy':
-                        gobj.common.type = 'string';
-                        gobj.common.role = 'level.color.xy';
-                        break;
-                    case 'ct':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.color.temperature';
-                        gobj.common.unit = '°K';
-                        gobj.common.min  = 2200; // 500
-                        gobj.common.max  = 6500; // 153
-                        break;
-                    case 'alert':
-                        gobj.common.type = 'string';
-                        gobj.common.role = 'switch';
-                        break;
-                    case 'effect':
-                        gobj.common.type = 'boolean';
-                        gobj.common.role = 'switch';
-                        break;
-                    case 'colormode':
-                        gobj.common.type = 'string';
-                        gobj.common.role = 'sensor.colormode';
-                        gobj.common.write = false;
-                        break;
-                    case 'r':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.color.red';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 255;
-                        break;
-                    case 'g':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.color.green';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 255;
-                        break;
-                    case 'b':
-                        gobj.common.type = 'number';
-                        gobj.common.role = 'level.color.blue';
-                        gobj.common.min  = 0;
-                        gobj.common.max  = 255;
-                        break;
-                    case 'command':
-                        gobj.common.type = 'string';
-                        gobj.common.role = 'command';
-                        break;
-                    default:
-                        adapter.log.info('skip group: ' + gobjId);
-                        continue;
-                }
-                objs.push(gobj);
-                states.push({id: gobj._id, val: group.action[action]});
+                });
             }
+            adapter.log.info('created/updated ' + count + ' light groups');
 
-            objs.push({
-                _id:        adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
-                type:       'channel',
-                common: {
-                    name:   groupName.replace(/\s/g, '_'),
-                    role:   group.type
-                },
-                native: {
-                    id:     gid,
-                    type:   group.type,
-                    name:   group.name,
-                    lights: group.lights
-                }
-            });
         }
-        adapter.log.info('created/updated ' + count + ' light groups');
 
         // Create/update device
         adapter.log.info('creating/updating bridge device');
@@ -1186,7 +1189,7 @@ function pollGroup(count, callback) {
     }
     count = count || 0;
 
-    if (count >= pollGroups.length) {
+    if (adapter.config.ignoreGroups || count >= pollGroups.length) {
         callback && callback();
     } else {
         adapter.log.debug('polling group ' + pollGroups[count].name);
