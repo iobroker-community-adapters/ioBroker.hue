@@ -15,6 +15,7 @@
 
     <script type="text/javascript">
         var active   = false;
+        var pollingTimeout;
 
         function setValue(id, value, onChange) {
             var $value = $('#' + id + '.value');
@@ -186,7 +187,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col s10 m4">
+            <div class="input-field col s10 m4">
                 <input type="text" id="bridge" class="value" />
                 <label  class="translate" for="bridge">Bridge Address</label>
             </div>
@@ -195,13 +196,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col s10 m4">
+            <div class="input-field col s10 m4">
                 <input type="text" id="port" class="value" />
                 <label  class="translate" for="port">Bridge port</label>
             </div>
         </div>
         <div class="row">
-            <div class="col s10 m4">
+            <div class="input-field col s10 m4">
                 <input type="text" id="user" class="value" />
                 <label  class="translate" for="user">Bridge User</label>
             </div>
@@ -210,21 +211,22 @@
             </div>
         </div>
         <div class="row">
-            <div class="col s10 m4">
+            <div class="input-field col s10 m4">
                 <input type="checkbox" id="ignoreOsram" class="value" />
                 <label  class="translate" for="ignoreOsram">ignoreOsram</label>
             </div>
         </div>
         <div class="row">
-            <div class="col s10 m4">
+            <div class="input-field col s10 m4">
                 <input type="checkbox" id="polling" class="value" />
                 <label  class="translate" for="polling">Polling</label>
             </div>
         </div>
         <div class="row">
-            <div class="col s10 m4">
+            <div class="input-field col s10 m4">
                 <input type="number" id="pollingInterval" class="value" />
                 <label  class="translate" for="pollingInterval">Polling interval (sec)</label>
+                <span class="translate">polling_warning</span>
             </div>
         </div>
     </div>

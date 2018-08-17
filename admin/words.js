@@ -38,5 +38,16 @@ systemDictionary = {
         "en": "Close",
         "de": "Schließen",
         "ru": "Закрыть"
+    },
+    "polling_warning": {
+        "en": "Notice: Adapter may send only 10 commands in 10 seconds inclusive the polling per device.",
+        "de": "Hinweis: Der Adapter kann nur 10 Befehle in 10 Sekunden senden, einschließlich der Abfrage pro Gerät.",
+        "ru": "Примечание. Адаптер может отправлять только 10 команд за 10 секунд, включая опрос на устройство.",
+        "pt": "Aviso: O adaptador pode enviar apenas 10 comandos em 10 segundos, inclusive a pesquisa por dispositivo.",
+        "nl": "Opmerking: Adapter verzendt mogelijk slechts 10 opdrachten binnen 10 seconden inclusief de polling per apparaat.",
+        "fr": "Remarque: l'adaptateur ne peut envoyer que 10 commandes en 10 secondes, y compris l'interrogation par périphérique.",
+        "it": "Avviso: l'adattatore può inviare solo 10 comandi in 10 secondi, incluso il polling per dispositivo.",
+        "es": "Aviso: El adaptador puede enviar solo 10 comandos en 10 segundos, incluido el sondeo por dispositivo.",
+        "pl": "Uwaga: Adapter może wysłać tylko 10 poleceń w ciągu 10 sekund, łącznie z pollingiem na urządzenie."
     }
 };

@@ -1,8 +1,30 @@
 {
     "common": {
         "name": "hue",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "news": {
+            "1.1.0": {
+                "en": "The command queue was optimized",
+                "de": "Die Befehlswarteschlange wurde optimiert",
+                "ru": "Очередь команд была оптимизирована",
+                "pt": "A fila de comandos foi otimizada",
+                "nl": "De opdrachtwachtrij is geoptimaliseerd",
+                "fr": "La file d'attente de commandes a été optimisée",
+                "it": "La coda dei comandi è stata ottimizzata",
+                "es": "La cola de comandos fue optimizada",
+                "pl": "Kolejka poleceń została zoptymalizowana"
+            },
+            "1.0.1": {
+                "en": "Roles were adjusted",
+                "de": "Rollen wurden angepasst",
+                "ru": "Роли были скорректированы",
+                "pt": "Papéis foram ajustados",
+                "nl": "Rollen zijn aangepast",
+                "fr": "Les rôles ont été ajustés",
+                "it": "I ruoli sono stati regolati",
+                "es": "Roles fueron ajustados",
+                "pl": "Dostosowano role"
+            },
             "1.0.0": {
                 "en": "Enable/Disable OSRAM check from HUE Bridge, polling ZLLSwitch and ZGPSwitch",
                 "de": "Aktivieren / Deaktivieren der OSRAM-Prüfung von HUE Bridge, Abfragen von ZLLSwitch und ZGPSwitch",
@@ -33,26 +55,6 @@
                 "en": "Use new verions of npm library",
                 "de": "Benutze neue Version von NPM Bibliothek",
                 "ru": "Используется новая версия NPM библиотеки"
-            },
-            "0.6.0": {
-                "en": "support new Lamps",
-                "de": "unterstützt neue Lampen",
-                "ru": "поддержка новых типов ламп"
-            },
-            "0.5.8": {
-                "en": "fix typo",
-                "de": "fix typo",
-                "ru": "fix typo"
-            },
-            "0.5.7": {
-                "en": "write back known states for group/room\nInteger conversion for bri_inc command",
-                "de": "write back known states for group/room\nInteger conversion for bri_inc command",
-                "ru": "write back known states for group/room\nInteger conversion for bri_inc command"
-            },
-            "0.5.6": {
-                "en": "(experimental) support for power switches",
-                "de": "(experimental) support for power switches",
-                "ru": "(experimental) support for power switches"
             }
         },
         "title": "Philips Hue Bridge",

@@ -20,6 +20,14 @@ Bindet Philips Hue / LivingColors / LivingWhites Lampen ein.
 In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden.
 
 ## Changelog
+### 1.1.0 (2018.08.17)
+* (bluefox) The command queue was optimized
+
+### 1.0.1 (2018.08.14)
+* (bluefox) Roles were adjusted
+* (bluefox) temperature changed from 153-cold, 500-warm to 2200-warm, 6500-cold
+* (bluefox) hue changed from 0-65535 to 0-360°
+
 ### 1.0.0 (2018.04.12)
 * (arteck) Enable/Disable OSRAM check from HUE Bridge
 * (arteck) polling ZLLSwitch and ZGPSwitch     
@@ -149,7 +157,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 Apache 2.0
 
-Copyright (c) 2017 Bluefox <dogafox@gmail.com>
+Copyright (c) 2017-2018 Bluefox <dogafox@gmail.com>
 Copyright (c) 2014-2016 hobbyquaker
 
 
