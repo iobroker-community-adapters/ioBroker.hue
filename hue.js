@@ -902,10 +902,14 @@ function connect() {
                 objs.push(lobj);
                 var value = sensor.state[state];
                 if (state === "temperature"){
-                	value = value.toString();
-	                var last = value.substring(value.length - 2, value.length);
-	                var first = value.substring(0, value.length - 2);
-                	value = first + "." + last;
+					if (value !== null) {
+						value = value.toString();
+						var last = value.substring(value.length - 2, value.length);
+						var first = value.substring(0, value.length - 2);
+						value = first + "." + last;
+					} else {
+						value = 0
+					}
                 }
                 states.push({id: lobj._id, val: value});
             }
@@ -1064,10 +1068,14 @@ function pollSensors(count) {
                     states[stateA] = result.state[stateA];
                 }
 				if (states.temperature !== undefined) {
-					var value = states.temperature.toString();
-					var last = value.substring(value.length - 2, value.length);
-					var first = value.substring(0, value.length - 2);
-					value = first + "." + last;
+					if (states.temperature !== null){
+						var value = states.temperature.toString();
+						var last = value.substring(value.length - 2, value.length);
+						var first = value.substring(0, value.length - 2);
+						value = first + "." + last;
+					} else {
+						value = 0;
+					}
 					states.temperature = value;
 				}
 				
