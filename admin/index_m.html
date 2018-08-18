@@ -1,0 +1,250 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- Materialze style -->
+    <link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
+    <link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
+
+    <script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+
+    <script type="text/javascript" src="../../js/translate.js"></script>
+    <script type="text/javascript" src="../../lib/js/materialize.js"></script>
+    <script type="text/javascript" src="../../js/adapter-settings.js"></script>
+    <script type="text/javascript" src="words.js"></script>
+
+    <script type="text/javascript">
+        var active   = false;
+        var pollingTimeout;
+
+        function setValue(id, value, onChange) {
+            var $value = $('#' + id + '.value');
+            if ($value.attr('type') === 'checkbox') {
+                $value.prop('checked', value).change(function() {
+                    onChange();
+                });
+            } else {
+                $value.val(value).change(function() {
+                    onChange();
+                }).keyup(function() {
+                    $(this).trigger('change');
+                });
+            }
+        }
+
+        // the function loadSettings has to exist ...
+        function load(settings, onChange) {
+            if (settings.port === undefined) settings.port = 80;
+
+            $('#dialog-bridges').modal();
+
+            for (var key in settings) {
+                if (settings.hasOwnProperty(key)) {
+                    setValue(key, settings[key], onChange);
+                }
+            }
+            // read if instance is active or enabled
+            getIsAdapterAlive(function (isAlive) {
+                if (isAlive || common.enabled) {
+                    active = true;
+                } else {
+                    $('.btn-create').addClass('disabled');
+                    $('.btn-find').addClass('disabled');
+                }
+            });
+
+            onChange(false);
+            var $create = $('.btn-create');
+
+            $create.on('click', function () {
+                if (!active) {
+                    showMessage(_('Enable adapter first'), 'Warning', 'info');
+                    return;
+                }
+
+                $('#dialog-bridges .modal-content').html('<img src="instruction.png"/><br>' + _('Instruction'));
+                $('#dialog-bridges').modal('open');
+
+                var count = 0;
+
+                (function sendCreate(){
+                    sendTo('hue.' + instance, 'createUser', $('#bridge.value').val(), function (result) {
+                        try {
+                            result = JSON.parse(result);
+                            if (result && result.error) {
+                                if (result.error === 101 && count < 10) {
+                                    count++;
+                                    console.log(count);
+                                    setTimeout(sendCreate, 3000);
+                                    return;
+                                } else {
+                                    showMessage(_('error creating user: ') + _(result.message), _('Error'), 'info');
+                                }
+                            } else {
+                                $('#user.value').val(result.message).trigger('change');
+                            }
+                        } catch (e) {
+                            showMessage(_('error creating user'), _('Error'), 'alert');
+                        }
+                        $('#dialog-bridges').modal('close');
+                    });
+                })();
+            });
+
+            var $find = $('.btn-find');
+
+            $find.on('click', function () {
+                if (!active) {
+                    showMessage(_('Enable adapter first'), 'Warning', 'info');
+                    return;
+                }
+
+                $('#dialog-bridges .modal-content').html(_('Please wait, searching for bridge.<br>' +
+                    '<div class="progress">' +
+                    '   <div class="indeterminate"></div>' +
+                    '</div>'));
+
+                $('#dialog-bridges').modal('open');
+                $('#dialog-bridges .btn-close').addClass('disabled');
+
+                sendTo('hue.' + instance, 'browse', 5000, function (result) {
+                    $('#dialog-bridges .btn-close').removeClass('disabled');
+                    try{
+                        var arr = JSON.parse(result);
+                        var popup;
+                        if (!arr.length){
+                            popup = _('Cannot find bridge');
+                        }else{
+                            popup = _('Select a bridge:') + ' <br />';
+                            arr.forEach(function (element, index, array) {
+                                popup = popup + '<a href="#" onclick="$(\'#bridge.value\').val(\'' + element.ipaddress + '\').trigger(\'change\');$(\'#dialog-bridges\').modal(\'close\')">' + element.ipaddress + '</a><br />';
+                            });
+                        }
+                        $('#dialog-bridges .modal-content').html(popup);
+                    } catch (e) {
+                        alert(_('error finding bridge'));
+                    }
+                });
+            });
+
+            if (settings.bridge && settings.bridge !== '0.0.0.0') {
+                $find.addClass('disabled');
+            }
+            if (settings.user) {
+                $create.addClass('disabled');
+            }
+
+            $('#bridge').change(function () {
+                if ($(this).val()) {
+                    $find.addClass('disabled');
+                } else {
+                    $find.removeClass('disabled');
+                }
+            }).keyup(function () {
+                $(this).trigger('change');
+            });
+
+            $('#user').on('change', function () {
+                if ($(this).val()) {
+                    $create.addClass('disabled');
+                } else {
+                    $create.removeClass('disabled');
+                }
+            }).on('keyup', function () {
+                $(this).trigger('change');
+            });
+        }
+
+        function save(callback) {
+            var obj = {};
+            $('.value').each(function () {
+                var $this = $(this);
+                if ($this.attr('type') === 'checkbox') {
+                    obj[$this.attr('id')] = $this.prop('checked');
+                } else {
+                    obj[$this.attr('id')] = $this.val();
+                }
+            });
+            callback(obj);
+        }
+    </script>
+    <style>
+        #settings tr {
+            line-height: 2.5em;
+        }
+        #find, #create {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<!-- you have to put your config page in a div with id adapter-container -->
+<div class="m adapter-container">
+    <div class="row">
+        <div class="row">
+            <div class="col s12 m4 l2">
+                <img src="hue.jpeg" class="logo">
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="text" id="bridge" class="value" />
+                <label  class="translate" for="bridge">Bridge Address</label>
+            </div>
+            <div class="col s2 m2">
+                <a class="waves-effect waves-light blue btn btn-find"><i class="material-icons left">search</i><span class="translate">Find Bridge</span></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="text" id="port" class="value" />
+                <label  class="translate" for="port">Bridge port</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="text" id="user" class="value" />
+                <label  class="translate" for="user">Bridge User</label>
+            </div>
+            <div class="col s2 m2">
+                <a class="waves-effect waves-light blue btn btn-create"><i class="material-icons left">account_box</i><span class="translate">Create User</span></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="checkbox" id="ignoreOsram" class="value" />
+                <label  class="translate" for="ignoreOsram">ignoreOsram</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="checkbox" id="polling" class="value" />
+                <label  class="translate" for="polling">Polling</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="number" id="pollingInterval" class="value" />
+                <label  class="translate" for="pollingInterval">Polling interval (sec)</label>
+                <span class="translate">polling_warning</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s10 m4">
+                <input type="checkbox" id="ignoreGroups" class="value" />
+                <label  class="translate" for="ignoreGroups">Ignore groups</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialog-bridges" class="modal">
+        <div class="modal-content">
+            <h4>Select a bridge</h4>
+        </div>
+        <div class="modal-footer">
+            <a class="btn-close modal-action modal-close waves-effect waves-green btn-flat translate">Close</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

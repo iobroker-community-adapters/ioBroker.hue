@@ -7,8 +7,7 @@
 
 [![NPM](https://nodei.co/npm/iobroker.hue.png?downloads=true)](https://nodei.co/npm/iobroker.hue/)
 
-English
---------------------
+## English :gb:
 Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other 
 SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges to ioBroker.
 
@@ -16,15 +15,28 @@ You must first link you HUE bridge with ioBroker.
 1. For that find first the IP address by pressing "Find Bridge" button. It is only enabled if no IP address entered.
 2. After IP address is found the USER must be created. For that press the "Create User" button and then press "Link" button on HUE bridge. "Create User" button is only enabled if no USER entered
 
-Deutsch
--------------
+## Deutsch :de:
 Bindet Philips Hue / LivingColors / LivingWhites Lampen ein. 
-In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden. 
-
-## Notice
-Required node.js >= 0.12.
+In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden.
 
 ## Changelog
+### 1.1.1 (2018.08.17)
+* (bluefox) Ignoring of groups was implemented
+
+### 1.1.0 (2018.08.17)
+* (bluefox) The command queue was optimized
+
+### 1.0.1 (2018.08.14)
+* (bluefox) Roles were adjusted
+* (bluefox) temperature changed from 153-cold, 500-warm to 2200-warm, 6500-cold
+* (bluefox) hue changed from 0-65535 to 0-360°
+
+### 1.0.0 (2018.04.12)
+* (arteck) Enable/Disable OSRAM check from HUE Bridge
+* (arteck) polling ZLLSwitch and ZGPSwitch     
+* (bluefox) admin3
+* (bluefox) do not send commands ofter than 10 in 10 seconds
+
 ### 0.6.9 (2017.05.18)
 * (bluefox) Enable adapter by default
 
@@ -148,7 +160,7 @@ Required node.js >= 0.12.
 
 Apache 2.0
 
-Copyright (c) 2017 Bluefox <dogafox@gmail.com>
+Copyright (c) 2017-2018 Bluefox <dogafox@gmail.com>
 Copyright (c) 2014-2016 hobbyquaker
 
 
