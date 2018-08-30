@@ -470,6 +470,11 @@ function processCommands() {
     }
 
     // move lightStatus to the end
+    let processedCommand;
+    if (processing) {
+        // remove processed command from list
+        processedCommand = commands.shift();
+    }
     commands.sort((a, b) => {
         const _a = a.func === 'lightStatus' || a.func === 'getGroup' || a.func === 'getFullState';
         const _b = b.func === 'lightStatus' || b.func === 'getGroup' || b.func === 'getFullState';
@@ -520,6 +525,7 @@ function processCommands() {
             commands.splice(c, 1);
         }
     }
+
     if (newCommand) {
         commands.unshift(newCommand);
         command = newCommand;
@@ -535,86 +541,92 @@ function processCommands() {
 
     const now = Date.now();
 
-    if (processing) {
-        if (polling && commands[0].func === 'setLightState') {
-            // if polling force executing of commands
-            // we may send only 10 commands in 10 seconds
-            if (times.length >= 10) {
-                const diff = now - times[0] - 10500;
-                if (diff > 0) {
+    if (!adapter.config.dontUseQueue) {
+        if (processing) {
+            command.unshift(processedCommand);
+            if (polling && command && command.func === 'setLightState') {
+                // if polling force executing of commands
+                // we may send only 10 commands in 10 seconds
+                if (times.length >= 10) {
+                    const diff = now - times[0] - 10500;
+                    if (diff > 0) {
+                        // delete all commands older than 11 seconds
+                        while (times.length && now - times[0] > 10500) {
+                            times.shift();
+                        }
 
-                    // delete all commands older than 11 seconds
-                    while (times.length && now - times[0] > 10500) {
-                        times.shift();
+                        times.push(now);
+
+                        const command = commands.shift(); // delete immediately command from queue and send to device
+                        api[command.func](command.args[0], command.args[1], (err, result) => {
+                            command.cb && command.cb(err, result, command.context);
+                        });
                     }
-
-                    times.push(now);
-
-                    const command = commands.shift(); // delete immediately command from queue and send to device
-                    api[command.func](command.args[0], command.args[1], (err, result) => {
-                        command.cb && command.cb(err, result, command.context);
-                    });
                 }
             }
-        }
 
-        return;
-    }
-
-
-    // we may send only 10 commands in 10 seconds
-    if (times.length >= 10) {
-        const diff = now - times[0] - 10500;
-
-        if (diff < 0) {
-            adapter.log.debug(`Too many commands. Wait for ${-diff} ms`);
-            setTimeout(processCommands, -diff);
             return;
         }
-    }
+        // we may send only 10 commands in 10 seconds
+        if (times.length >= 10) {
+            const diff = now - times[0] - 10500;
 
-    // delete all commands older than 11 seconds
-    while (times.length && now - times[0] > 10500) {
-        times.shift();
-    }
+            if (diff < 0) {
+                adapter.log.debug(`Too many commands. Wait for ${-diff} ms`);
+                setTimeout(processCommands, -diff);
+                return;
+            }
+        }
+        // delete all commands older than 11 seconds
+        while (times.length && now - times[0] > 10500) {
+            times.shift();
+        }
+        console.log('=> Execute after ' + (Date.now() - command.ts) + ' ms => ' + command.func + ', ' + command.args[0] + ', ' + JSON.stringify(command.args[1]));
 
-    console.log('=> Execute after ' + (Date.now() - command.ts) + ' ms => ' + command.func + ', ' + command.args[0] + ', ' + JSON.stringify(command.args[1]));
-
-    times.push(now);
-
-    processing = true;
-    if (command.func === 'lightStatus' || command.func === 'getGroup' || command.func === 'getFullState') {
-        polling = true;
+        times.push(now);
+        processing = true;
+        if (command.func === 'lightStatus' || command.func === 'getGroup' || command.func === 'getFullState') {
+            polling = true;
+        }
+    } else {
+        commands.shift();
+        setTimeout(processCommands, 0);
     }
 
     if (!command.args || command.args.length === 0) {
         api[command.func]((err, result) => {
             command.cb && command.cb(err, result, command.context);
-            commands.shift();
             polling = false;
-            setTimeout(() => {
-                processing = false;
-                processCommands();
-            }, 50);
+            if (!adapter.config.dontUseQueue) {
+                commands.shift();
+                setTimeout(() => {
+                    processing = false;
+                    processCommands();
+                }, 50);
+            }
         });
     } else if (command.args.length === 1) {
         api[command.func](command.args[0], (err, result) => {
             command.cb && command.cb(err, result, command.context);
-            commands.shift();
             polling = false;
-            setTimeout(() => {
-                processing = false;
-                processCommands();
-            }, 50);
+            if (!adapter.config.dontUseQueue) {
+                commands.shift();
+                setTimeout(() => {
+                    processing = false;
+                    processCommands();
+                }, 50);
+            }
         });
     } else if (command.args.length === 2) {
         api[command.func](command.args[0], command.args[1], (err, result) => {
             command.cb && command.cb(err, result, command.context);
-            commands.shift();
-            setTimeout(() => {
-                processing = false;
-                processCommands();
-            }, 50);
+            if (!adapter.config.dontUseQueue) {
+                commands.shift();
+                setTimeout(() => {
+                    processing = false;
+                    processCommands();
+                }, 50);
+            }
         });
     }
 }
