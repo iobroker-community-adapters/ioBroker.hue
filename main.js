@@ -711,7 +711,7 @@ function connect(cb) {
             channelSWIds[channelName.replace(/\s/g, '_')] = sid;
             pollSWChannels.push(channelName.replace(/\s/g, '_'));
 
-            if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch') {
+            if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type=='Daylight' || sensor.type=='ZLLTemperature' || sensor.type=='ZLLPresence' || sensor.type=='ZLLLightLevel') {
                pollSWIds.push(count);
                pollSWOrgIds.push(sid);
 
@@ -762,6 +762,28 @@ function connect(cb) {
                           lobj.common.type = 'number';
                           lobj.common.role = 'config';
                           break;
+                      case 'daylight':
+                          lobj.common.type = 'boolean';
+                          lobj.common.role = 'switch';
+                          break;
+                      case 'dark':
+                          lobj.common.type = 'boolean';
+                          lobj.common.role = 'switch';
+                          break;
+  					  case 'presence':
+  						  lobj.common.type = 'boolean';
+                          lobj.common.role = 'switch';
+                          break;
+                      case 'lightlevel':
+                          lobj.common.type = 'number';
+                          lobj.common.role = 'lightlevel';
+                          lobj.common.min  = 0;
+                          lobj.common.max  = 17000;
+                          break;
+                      case 'temperature':
+                      	lobj.common.type = 'number';
+                      	lobj.common.role = 'indicator.temperature';
+                      	break;
                 
                       default:
                           adapter.log.info('skip switch: ' + objId);
@@ -769,7 +791,12 @@ function connect(cb) {
                   }
   
                   objs.push(lobj);
-                  states.push({id: lobj._id, val: sensor.state[state]});
+                  
+                  var value = sensor.state[state];
+                  if (state === 'temperature'){
+                	  value = convertTemperature(value);
+                  }
+                  states.push({id: lobj._id, val: value});
                }
            }
         }
@@ -1403,7 +1430,12 @@ function pollSwitch(count, callback) {
                             id:     sid
                         }
                     };
-                    states.push({id: lobj._id, val: sensor.state[state]});
+                    var value = sensor.state[state];
+                    if (state === 'temperature') {
+                    	value = convertTemperature(value);
+    				}
+                    
+                    states.push({id: lobj._id, val: value});
                 }
             }
             syncStates(states, true, () => setTimeout(pollSwitch, 50, context.count + 1, callback));
@@ -1445,4 +1477,16 @@ function main() {
             poll();
         }
     });
+}
+
+function convertTemperature(value) {
+	if (value !== null){
+		value = value.toString();
+		var last = value.substring(value.length - 2, value.length);
+		var first = value.substring(0, value.length - 2);
+		value = first + "." + last;
+	} else {
+		value = "0";
+	}
+	return value;
 }
