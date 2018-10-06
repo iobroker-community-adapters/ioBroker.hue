@@ -15,6 +15,7 @@
 const hue       = require('node-hue-api');
 const utils     = require(__dirname + '/lib/utils'); // Get common adapter utils
 const huehelper = require('./lib/hueHelper');
+const Bottleneck= require('bottleneck');
 
 let adapter     = new utils.Adapter('hue');
 let commands    = [];
@@ -659,6 +660,10 @@ function createUser(ip, callback) {
 
 let HueApi = hue.HueApi;
 let api;
+
+let groupQueue;
+let lightQueue;
+let generalQueue;
 
 let channelIds     = {};
 let channelSWIds     = {};
@@ -1306,68 +1311,62 @@ function pollSingle(count, callback) {
     } else {
         adapter.log.debug('polling light ' + pollChannels[count] + ' (' + pollIds[count] + ')');
 
-        let context = {
-            count: count,
-            // give 10 seconds to bridge for answer
-            timeout: setTimeout(() => {
-                adapter.log.error('Timeout for polling light ' + pollChannels[count]);
-                context.timeout = null;
-                pollSingle(count + 1, callback);
-            }, 10000)
-        };
+        lightQueue.submit(function(command, args, cb) {
+          adapter.log.info('executing ' + command);
+          api[command](args[0], args[1], (err, result) => {
+            cb && cb(err, result);
+          });
+        }, 'lightStatus', [pollIDs[count]], (err, result) => {
+          adapter.log.info('polling light ' pollChannels[count] + ' (' + pollIds[count] + ') done!');
 
-        commands.push({func: 'lightStatus', args: [pollIds[count]], context: context, ts: Date.now(), cb: (err, result, context) => {
-            if (!context.timeout) return;
-            clearTimeout(context.timeout);
-            adapter.log.debug('polling light result ' + JSON.stringify(result));
+          adapter.log.debug('polling light result ' + JSON.stringify(result));
 
-            let values = [];
-            if (err) {
-                adapter.log.error(err);
-            }
-            if (!result) {
-                adapter.log.error('Cannot get result for lightStatus ' + pollIds[context.count]);
-            } else {
-                let states = {};
-                for (let stateA in result.state) {
-                    if (!result.state.hasOwnProperty(stateA)) {
-                        continue;
-                    }
-                    states[stateA] = result.state[stateA];
-                }
+          let values = [];
+          if (err) {
+              adapter.log.error(err);
+          }
+          if (!result) {
+              adapter.log.error('Cannot get result for lightStatus ' + pollIds[context.count]);
+          } else {
+              let states = {};
+              for (let stateA in result.state) {
+                  if (!result.state.hasOwnProperty(stateA)) {
+                      continue;
+                  }
+                  states[stateA] = result.state[stateA];
+              }
 
-                if (!adapter.config.ignoreOsram) {
-                    if (states.reachable === false && states.bri !== undefined) {
-                        states.bri = 0;
-                        states.on = false;
-                    }
-                }
+              if (!adapter.config.ignoreOsram) {
+                  if (states.reachable === false && states.bri !== undefined) {
+                      states.bri = 0;
+                      states.on = false;
+                  }
+              }
 
-                if (states.on === false && states.bri !== undefined) {
-                    states.bri = 0;
-                }
-                if (states.xy !== undefined) {
-                    let xy = states.xy.toString().split(',');
-                    states.xy = states.xy.toString();
-                    let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-                    states.r = Math.round(rgb.Red   * 254);
-                    states.g = Math.round(rgb.Green * 254);
-                    states.b = Math.round(rgb.Blue  * 254);
-                }
-                if (states.bri !== undefined) {
-                    states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
-                }
-                for (let stateB in states) {
-                    if (!states.hasOwnProperty(stateB)) {
-                        continue;
-                    }
-                    values.push({id: adapter.namespace + '.' + pollChannels[context.count] + '.' + stateB, val: states[stateB]});
-                }
-            }
-            syncStates(values, true, () => setTimeout(pollSingle, 50, context.count + 1, callback));
-        }});
+              if (states.on === false && states.bri !== undefined) {
+                  states.bri = 0;
+              }
+              if (states.xy !== undefined) {
+                  let xy = states.xy.toString().split(',');
+                  states.xy = states.xy.toString();
+                  let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                  states.r = Math.round(rgb.Red   * 254);
+                  states.g = Math.round(rgb.Green * 254);
+                  states.b = Math.round(rgb.Blue  * 254);
+              }
+              if (states.bri !== undefined) {
+                  states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+              }
+              for (let stateB in states) {
+                  if (!states.hasOwnProperty(stateB)) {
+                      continue;
+                  }
+                  values.push({id: adapter.namespace + '.' + pollChannels[context.count] + '.' + stateB, val: states[stateB]});
+              }
+          }
 
-        setTimeout(processCommands, 50);
+          syncStates(values, true, () => setTimeout(pollSingle, 50, context.count + 1, callback));
+        });
     }
 }
 
@@ -1468,6 +1467,23 @@ function main() {
     if (adapter.config.pollingInterval < 5) {
         adapter.config.pollingInterval = 5;
     }
+
+    // create a bottleneck limiter to max 1 cmd per 1 sec
+    groupQueue = new Bottleneck({
+      reservoir: 1, // initial value
+      reservoirRefreshAmount: 1,
+      reservoirRefreshInterval: 1*1000 // must be divisible by 250
+    });
+
+    // create a bottleneck limiter to max 10 cmd per 10 sec
+    lightQueue = new Bottleneck({
+      reservoir: 10, // initial value
+      reservoirRefreshAmount: 10,
+      reservoirRefreshInterval: 10*1000 // must be divisible by 250
+    });
+
+    // create a bottleneck limiter with no max values
+    generalQueue = new Bottleneck();
 
     api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
 

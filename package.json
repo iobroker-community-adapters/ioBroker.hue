@@ -27,7 +27,8 @@
     "url": "https://github.com/ioBroker/ioBroker.hue"
   },
   "dependencies": {
-    "node-hue-api": "^2.4.2"
+    "bottleneck": "^2.11.2",
+    "node-hue-api": "^2.4.3"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
