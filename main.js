@@ -1231,7 +1231,7 @@ function pollGroup(count, callback) {
     if (adapter.config.ignoreGroups || count >= pollGroups.length) {
         callback && callback();
     } else {
-        adapter.log.debug('polling group ' + pollGroups[count].name);
+        adapter.log.debug('polling group ' + pollGroups[count].name + ' (' + pollGroups[count].id + ')');
 
         let context = {
             count: count,
@@ -1253,7 +1253,7 @@ function pollGroup(count, callback) {
                 adapter.log.error(err);
             }
             if (!result) {
-                adapter.log.error('Cannot get result for lightStatus' + pollIds[context.count]);
+                adapter.log.error('Cannot get result for getGroup ' + pollIds[context.count]);
             } else {
                 let states = {};
                 for (let stateA in result.lastAction) {
@@ -1304,7 +1304,7 @@ function pollSingle(count, callback) {
     if (count >= pollIds.length) {
         callback && callback();
     } else {
-        adapter.log.debug('polling light ' + pollChannels[count]);
+        adapter.log.debug('polling light ' + pollChannels[count] + ' (' + pollIds[count] + ')');
 
         let context = {
             count: count,
@@ -1326,7 +1326,7 @@ function pollSingle(count, callback) {
                 adapter.log.error(err);
             }
             if (!result) {
-                adapter.log.error('Cannot get result for lightStatus' + pollIds[context.count]);
+                adapter.log.error('Cannot get result for lightStatus ' + pollIds[context.count]);
             } else {
                 let states = {};
                 for (let stateA in result.state) {
