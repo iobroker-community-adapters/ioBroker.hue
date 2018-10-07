@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "bottleneck": "^2.11.2",
-    "node-hue-api": "^2.4.3"
+    "node-hue-api": "^2.4.4"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
