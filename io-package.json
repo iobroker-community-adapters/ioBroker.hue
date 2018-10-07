@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "hue",
-        "version": "1.1.1",
+        "version": "1.2.0",
         "news": {
+            "1.2.0": {
+                "en": "rework to queue commands using 'bottleneck'",
+                "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen"
+            },
             "1.1.1": {
                 "en": "Ignoring of groups was implemented",
                 "de": "Ignorieren von Gruppen wurde implementiert",
