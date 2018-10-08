@@ -343,7 +343,11 @@ adapter.on('stateChange', (id, state) => {
                   // log final changes / states
                   adapter.log.debug('final groupLightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
-                  setGroupState({id: groupIds[id], name: obj.common.name}, lightState);
+                  submitHueCmd('setGroupLightState', {id: groupIds[id], data: lightState, prio: 1}, (err, result) => {
+                    setTimeout(updateGroupState, 150, {id: groupIds[id], name: obj.common.name}, 3, (err, result) => {
+                      adapter.log.debug('updated group state(' + groupIds[id] + ') after change');
+                    });
+                  });
                 }
             } else if (obj.common.role === 'switch') {
                 if (finalLS.hasOwnProperty('on')) {
@@ -354,7 +358,11 @@ adapter.on('stateChange', (id, state) => {
                     lightState = hue.lightState.create();
                     lightState.on(finalLS.on);
 
-                    setLightState({id: channelIds[id], name: obj.common.name}, lightState);
+                    submitHueCmd('setLightState', {id: channelIds[id], data: lightState, prio: 1}, (err, result) => {
+                      setTimeout(updateLightState, 150, {id: channelIds[id], name: obj.common.name}, 3, (err, result) => {
+                        adapter.log.debug('updated lighstate(' + channelIds[id] + ') after change');
+                      });
+                    });
                 } else {
                     adapter.log.warn('invalid switch operation');
                 }
@@ -362,7 +370,11 @@ adapter.on('stateChange', (id, state) => {
                 // log final changes / states
                 adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
-                setLightState({id: channelIds[id], name: obj.common.name}, lightState);
+                submitHueCmd('setLightState', {id: channelIds[id], data: lightState, prio: 1}, (err, result) => {
+                  setTimeout(updateLightState, 150, {id: channelIds[id], name: obj.common.name}, 3, (err, result) => {
+                    adapter.log.debug('updated lighstate(' + channelIds[id] + ') after change');
+	                });
+                });
             }
         });
     });
@@ -440,25 +452,35 @@ let pollLights     = [];
 let pollSensors    = [];
 let pollGroups     = [];
 
-function getGroupState(id, prio, callback) {
-  groupQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.debug('executing getGroup(' + JSON.stringify(args) + ')');
-    api.getGroup(args[0], (err, result) => {
-      cb && cb(err, result);
-    });
-  }, [id], (err, result) => {
-    adapter.log.debug('getGroup(' + id + ') result: ' + JSON.stringify(result));
+function submitHueCmd(cmd, args, callback) {
+  let queue = lightQueue;
+  if (cmd === 'getGroup' || cmd === 'setGroupLightState')
+    queue = groupQueue;
+
+  queue.submit({priority: args.prio}, (arg, cb) => {
+    adapter.log.debug('executing ' + cmd + '(' + JSON.stringify(arg) + ')');
+    if (arg.data !== undefined) {
+      api[cmd](arg.id, arg.data, (err, result) => {
+        cb && cb(err, result);
+      });
+    } else {
+      api[cmd](arg.id, (err, result) => {
+        cb && cb(err, result);
+      });
+    }
+  }, args, (err, result) => {
+    adapter.log.debug(cmd + '(' + args.id + ') result: ' + JSON.stringify(result));
     if (err || !result)
-      adapter.log.error('getGroup(' + id + ') error: ' + err);
+      adapter.log.error(cmd + '('  + args.id + ') error: ' + err);
     else
-      callback(err, result);
+      callback && callback(err, result);
   });
 }
 
 function updateGroupState(group, prio, callback) {
   adapter.log.debug('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
 
-  getGroupState(group.id, prio, (err, result) => {
+  submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
     let values = [];
     let states = {};
     for (let stateA in result.lastAction) {
@@ -496,40 +518,10 @@ function updateGroupState(group, prio, callback) {
   });
 }
 
-function setGroupState(group, prio, lightState, callback) {
-  groupQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.debug('executing setGroupLightState(' + JSON.stringify(args) + ')');
-    api.setGroupLightState(args[0], args[1], (err, result) => {
-      cb && cb(err, result);
-    });
-  }, [group.id, lightState], (err, result) => {
-    adapter.log.debug('setGroupLightState(' + group.id + ') result: ' + JSON.stringify(result));
-    if (err || !result)
-      adapter.log.error('setGroupLightState(' + group.id + ') error: ' + err);
-    else
-      setTimeout(updateGroupState, 150, {id: group.id, name: group.name}, 3, callback);
-  });
-}
-
-function getLightState(id, prio, callback) {
-  lightQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.debug('executing lightStatus(' + JSON.stringify(args) + ')');
-    api.lightStatus(args[0], (err, result) => {
-      cb && cb(err, result);
-    });
-  }, [id], (err, result) => {
-    adapter.log.debug('lightStatus(' + id + ') result: ' + JSON.stringify(result));
-    if (err || !result)
-      adapter.log.error('lightStatus(' + id + ') error: ' + err);
-    else
-      callback(err, result);
-  });
-}
-
 function updateLightState(light, prio, callback) {
   adapter.log.debug('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
 
-  getLightState(light.id, prio, (err, result) => {
+  submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
     let values = [];
     let states = {};
     for (let stateA in result.state) {
@@ -571,41 +563,10 @@ function updateLightState(light, prio, callback) {
   });
 }
 
-function setLightState(light, lightState, callback) {
-  lightQueue.submit({priority: 1}, (args, cb) => {
-    adapter.log.debug('executing setLightState(' + JSON.stringify(args) + ')');
-    api.setLightState(args[0], args[1], (err, result) => {
-      cb && cb(err, result);
-    });
-  }, [light.id, lightState], (err, result) => {
-    adapter.log.debug('setLightState(' + light.id + ') result: ' + JSON.stringify(result));
-    if (err || !result)
-      adapter.log.error('setLightState(' + light.id + ') error: ' + err);
-    else {
-      setTimeout(updateLightState, 150, {id: light.id, name: light.name}, 3, callback);
-    }
-  });
-}
-
-function getSensorState(id, prio, callback) {
-  lightQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.debug('executing sensorStatus(' + JSON.stringify(args) + ')');
-    api.sensorStatus(args[0], (err, result) => {
-      cb && cb(err, result);
-    });
-  }, [id], (err, result) => {
-    adapter.log.debug('sensorStatus(' + id + ') result: ' + JSON.stringify(result));
-    if (err || !result)
-      adapter.log.error('sensorStatus(' + id + ') error: ' + err);
-    else
-      callback(err, result);
-  });
-}
-
 function updateSensorState(sensor, prio, callback) {
   adapter.log.debug('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
 
-  getSensorState(sensor.id, prio, (err, result) => {
+  submitHueCmd('sensorStatus', {id: sensor.id, prio: prio}, (err, result) => {
     let channelName = config.config.name + '.' + sensor.name;
 
     let sensorCopy = JSON.parse(JSON.stringify(sensor));
