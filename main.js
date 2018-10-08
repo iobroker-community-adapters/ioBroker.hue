@@ -652,11 +652,10 @@ function connect(cb) {
         let channelNames = [];
 
         // Create/update lamps
-        adapter.log.info('creating/updating switch channels');
+        adapter.log.info('creating/updating sensor channels');
 
         let lights  = config.lights;
         let sensors = config.sensors;
-        let count   = 0;
         let objs    = [];
         let states  = [];
 
@@ -665,12 +664,11 @@ function connect(cb) {
                 continue;
             }
 
-            count++;
             let sensor = sensors[sid];
 
             let channelName = config.config.name + '.' + sensor.name;
             if (channelNames.indexOf(channelName) !== -1) {
-                adapter.log.warn('channel "' + channelName + '" already exists, skipping lamp');
+                adapter.log.warn('channel "' + channelName + '" already exists, skipping sensor');
                 continue;
             } else {
                 channelNames.push(channelName);
@@ -765,15 +763,12 @@ function connect(cb) {
            }
         }
 
-        adapter.log.info('created/updated ' + count + ' switch channels');
-
-        count = 0;
+        adapter.log.info('created/updated ' + pollSensors.length + ' sensor channels');
 
         for (let lid in lights) {
             if (!lights.hasOwnProperty(lid)) {
                 continue;
             }
-            count++;
             let light = lights[lid];
 
             let channelName = config.config.name + '.' + light.name;
@@ -940,11 +935,9 @@ function connect(cb) {
             });
 
         }
-        adapter.log.info('created/updated ' + count + ' light channels');
+        adapter.log.info('created/updated ' + pollLights.length + ' light channels');
 
         // Create/update groups
-        adapter.log.info('creating/updating light groups');
-
         if (!adapter.config.ignoreGroups) {
             let groups = config.groups;
             groups[0] = {
@@ -963,12 +956,10 @@ function connect(cb) {
                     xy:     '0,0'
                 }
             };
-            count = 0;
             for (let gid in groups) {
                 if (!groups.hasOwnProperty(gid)) {
                     continue;
                 }
-                count += 1;
                 let group = groups[gid];
 
                 let groupName = config.config.name + '.' + group.name;
@@ -1109,7 +1100,7 @@ function connect(cb) {
                     }
                 });
             }
-            adapter.log.info('created/updated ' + count + ' light groups');
+            adapter.log.info('created/updated ' + pollGroups.length + ' groups channels');
 
         }
 
