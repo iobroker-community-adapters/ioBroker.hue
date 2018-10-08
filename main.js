@@ -654,8 +654,6 @@ function connect(cb) {
         let channelNames = [];
 
         // Create/update lamps
-        adapter.log.info('creating/updating sensor channels');
-
         let lights  = config.lights;
         let sensors = config.sensors;
         let objs    = [];
@@ -668,15 +666,16 @@ function connect(cb) {
 
             let sensor = sensors[sid];
 
-            let channelName = config.config.name + '.' + sensor.name;
-            if (channelNames.indexOf(channelName) !== -1) {
-                adapter.log.warn('channel "' + channelName + '" already exists, skipping sensor');
-                continue;
-            } else {
-                channelNames.push(channelName);
-            }
-
             if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type=='Daylight' || sensor.type=='ZLLTemperature' || sensor.type=='ZLLPresence' || sensor.type=='ZLLLightLevel') {
+
+               let channelName = config.config.name + '.' + sensor.name;
+               if (channelNames.indexOf(channelName) !== -1) {
+                   adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, skipping sensor ' + sid);
+                   continue;
+               } else {
+                   channelNames.push(channelName);
+               }
+
                let sensorName =  sensor.name.replace(/\s/g, '');
 
                pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
@@ -775,7 +774,7 @@ function connect(cb) {
 
             let channelName = config.config.name + '.' + light.name;
             if (channelNames.indexOf(channelName) !== -1) {
-                adapter.log.warn('channel "' + channelName + '" already exists, skipping lamp');
+                adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, skipping lamp ' + lid);
                 continue;
             } else {
                 channelNames.push(channelName);
@@ -966,7 +965,7 @@ function connect(cb) {
 
                 let groupName = config.config.name + '.' + group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
-                    adapter.log.warn('channel "' + groupName + '" already exists, skipping group');
+                    adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, skipping group ' + gid);
                     continue;
                 } else {
                     channelNames.push(groupName);
