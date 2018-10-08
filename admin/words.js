@@ -39,38 +39,16 @@ systemDictionary = {
         "de": "Schließen",
         "ru": "Закрыть"
     },
-    "Do not queue commands": {
-        "en": "Do not queue commands",
-        "de": "Befehle nicht einreihen",
-        "ru": "Не выполнять команды очереди",
-        "pt": "Não enfileirar comandos",
-        "nl": "Wacht niet met opdrachten",
-        "fr": "Ne pas mettre en file d'attente les commandes",
-        "it": "Non accodare i comandi",
-        "es": "No hacer cola en los comandos",
-        "pl": "Nie kolejkuj poleceń"
-    },
-    "dontqueue_warning": {
-        "en": "Gateway can accept only 10 commands in 10 seconds. If the number of commands (inclusive polling commands) is higher, HUE gateway can crash.",
-        "de": "Gateway kann nur 10 Befehle in 10 Sekunden annehmen. Wenn die Anzahl der Befehle (einschließlich Abrufbefehle) höher ist, kann das HUE-Gateway abstürzen.",
-        "ru": "В 10 секунд шлюз может принимать только 10 команд. Если количество команд (включительно опрос) выше, то может произойти сбой HUE-шлюза.",
-        "pt": "O gateway pode aceitar apenas 10 comandos em 10 segundos. Se o número de comandos (inclusive os comandos de pesquisa) for maior, o gateway HUE poderá falhar.",
-        "nl": "Gateway kan slechts 10 opdrachten in 10 seconden accepteren. Als het aantal opdrachten (inclusief pollingopdrachten) hoger is, kan de HUE-gateway crashen.",
-        "fr": "La passerelle ne peut accepter que 10 commandes en 10 secondes. Si le nombre de commandes (y compris les commandes d'interrogation inclus) est supérieur, la passerelle HUE peut tomber en panne.",
-        "it": "Il gateway può accettare solo 10 comandi in 10 secondi. Se il numero di comandi (comandi di polling inclusi) è più alto, il gateway HUE può bloccarsi.",
-        "es": "Gateway puede aceptar solo 10 comandos en 10 segundos. Si la cantidad de comandos (comandos de sondeo incluidos) es mayor, la puerta de enlace HUE puede bloquearse.",
-        "pl": "Gateway może przyjąć tylko 10 poleceń w 10 sekund. Jeśli liczba poleceń (włącznie z komendą odpytywania) jest wyższa, bramka HUE może ulec awarii."
-    },
     "polling_warning": {
-        "en": "Notice: Adapter may send only 10 commands in 10 seconds inclusive the polling per device.",
-        "de": "Hinweis: Der Adapter kann nur 10 Befehle in 10 Sekunden senden, einschließlich der Abfrage pro Gerät.",
-        "ru": "Примечание. Адаптер может отправлять только 10 команд за 10 секунд, включая опрос на устройство.",
-        "pt": "Aviso: O adaptador pode enviar apenas 10 comandos em 10 segundos, inclusive a pesquisa por dispositivo.",
-        "nl": "Opmerking: Adapter verzendt mogelijk slechts 10 opdrachten binnen 10 seconden inclusief de polling per apparaat.",
-        "fr": "Remarque: l'adaptateur ne peut envoyer que 10 commandes en 10 secondes, y compris l'interrogation par périphérique.",
-        "it": "Avviso: l'adattatore può inviare solo 10 comandi in 10 secondi, incluso il polling per dispositivo.",
-        "es": "Aviso: El adaptador puede enviar solo 10 comandos en 10 segundos, incluido el sondeo por dispositivo.",
-        "pl": "Uwaga: Adapter może wysłać tylko 10 poleceń w ciągu 10 sekund, łącznie z pollingiem na urządzenie."
+        "en": "Notice: Adapter may send only 10 commands in 1 second inclusive the polling per device.",
+        "de": "Hinweis: Der Adapter kann nur 10 Befehle in 1 Sekunde senden, einschließlich der Abfrage pro Gerät.",
+        "ru": "Примечание. Адаптер может отправлять только 10 команд за 1 секунд, включая опрос на устройство.",
+        "pt": "Aviso: O adaptador pode enviar apenas 10 comandos em 1 segundos, inclusive a pesquisa por dispositivo.",
+        "nl": "Opmerking: Adapter verzendt mogelijk slechts 10 opdrachten binnen 1 seconden inclusief de polling per apparaat.",
+        "fr": "Remarque: l'adaptateur ne peut envoyer que 10 commandes en 1 secondes, y compris l'interrogation par périphérique.",
+        "it": "Avviso: l'adattatore può inviare solo 10 comandi in 1 secondi, incluso il polling per dispositivo.",
+        "es": "Aviso: El adaptador puede enviar solo 10 comandos en 1 segundos, incluido el sondeo por dispositivo.",
+        "pl": "Uwaga: Adapter może wysłać tylko 10 poleceń w ciągu 1 sekund, łącznie z pollingiem na urządzenie."
     },
     "Ignore groups": {
         "en": "Ignore groups",

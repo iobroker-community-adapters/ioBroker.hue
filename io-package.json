@@ -126,8 +126,7 @@
         "user": "",
         "polling": true,
         "pollingInterval": 30,
-        "ignoreGroups": false,
-        "dontUseQueue": false
+        "ignoreGroups": false
     },
     "objects": [
         {
