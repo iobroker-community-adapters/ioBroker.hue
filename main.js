@@ -441,21 +441,21 @@ let pollGroups     = [];
 
 function getGroupState(id, prio, callback) {
   groupQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.info('executing getGroup(' + JSON.stringify(args) + ')');
+    adapter.log.debug('executing getGroup(' + JSON.stringify(args) + ')');
     api.getGroup(args[0], (err, result) => {
       cb && cb(err, result);
     });
   }, [id], (err, result) => {
-    adapter.log.info('getGroup ' + id + ' result: ' + JSON.stringify(result));
+    adapter.log.debug('getGroup(' + id + ') result: ' + JSON.stringify(result));
     if (err || !result)
-      adapter.log.error('getGroup ' + id + ' error: ' + err);
+      adapter.log.error('getGroup(' + id + ') error: ' + err);
     else
       callback(err, result);
   });
 }
 
 function updateGroupState(group, prio, callback) {
-  adapter.log.info('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
+  adapter.log.debug('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
 
   getGroupState(group.id, prio, (err, result) => {
     let values = [];
@@ -497,14 +497,14 @@ function updateGroupState(group, prio, callback) {
 
 function setGroupState(group, prio, lightState, callback) {
   groupQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.info('executing setGroupLightState(' + JSON.stringify(args) + ')');
+    adapter.log.debug('executing setGroupLightState(' + JSON.stringify(args) + ')');
     api.setGroupLightState(args[0], args[1], (err, result) => {
       cb && cb(err, result);
     });
   }, [group.id, lightState], (err, result) => {
-    adapter.log.info('setGroupLightState ' + group.id + ' result: ' + JSON.stringify(result));
+    adapter.log.debug('setGroupLightState(' + group.id + ') result: ' + JSON.stringify(result));
     if (err || !result)
-      adapter.log.error('setGroupLightState ' + group.id + ' error: ' + err);
+      adapter.log.error('setGroupLightState(' + group.id + ') error: ' + err);
     else
       setTimeout(updateGroupState, 150, {id: group.id, name: group.name}, 3, callback);
   });
@@ -512,21 +512,21 @@ function setGroupState(group, prio, lightState, callback) {
 
 function getLightState(id, prio, callback) {
   lightQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.info('executing lightStatus(' + JSON.stringify(args) + ')');
+    adapter.log.debug('executing lightStatus(' + JSON.stringify(args) + ')');
     api.lightStatus(args[0], (err, result) => {
       cb && cb(err, result);
     });
   }, [id], (err, result) => {
-    adapter.log.info('lightStatus ' + id + ' result: ' + JSON.stringify(result));
+    adapter.log.debug('lightStatus(' + id + ') result: ' + JSON.stringify(result));
     if (err || !result)
-      adapter.log.error('lightStatus ' + id + ' error: ' + err);
+      adapter.log.error('lightStatus(' + id + ') error: ' + err);
     else
       callback(err, result);
   });
 }
 
 function updateLightState(light, prio, callback) {
-  adapter.log.info('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
+  adapter.log.debug('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
 
   getLightState(light.id, prio, (err, result) => {
     let values = [];
@@ -566,21 +566,20 @@ function updateLightState(light, prio, callback) {
         values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val: states[stateB]});
     }
 
-    //adapter.log.info('final states: ' + JSON.stringify(values));
     syncStates(values, true, callback);
   });
 }
 
 function setLightState(light, lightState, callback) {
   lightQueue.submit({priority: 1}, (args, cb) => {
-    adapter.log.info('executing setLightState(' + JSON.stringify(args) + ')');
+    adapter.log.debug('executing setLightState(' + JSON.stringify(args) + ')');
     api.setLightState(args[0], args[1], (err, result) => {
       cb && cb(err, result);
     });
   }, [light.id, lightState], (err, result) => {
-    adapter.log.info('setLightState ' + light.id + ' result: ' + JSON.stringify(result));
+    adapter.log.debug('setLightState(' + light.id + ') result: ' + JSON.stringify(result));
     if (err || !result)
-      adapter.log.error('setLightState ' + light.id + ' error: ' + err);
+      adapter.log.error('setLightState(' + light.id + ') error: ' + err);
     else {
       setTimeout(updateLightState, 150, {id: light.id, name: light.name}, 3, callback);
     }
@@ -589,21 +588,21 @@ function setLightState(light, lightState, callback) {
 
 function getSensorState(id, prio, callback) {
   lightQueue.submit({priority: prio}, (args, cb) => {
-    adapter.log.info('executing sensorStatus(' + JSON.stringify(args) + ')');
+    adapter.log.debug('executing sensorStatus(' + JSON.stringify(args) + ')');
     api.sensorStatus(args[0], (err, result) => {
       cb && cb(err, result);
     });
   }, [id], (err, result) => {
-    adapter.log.info('sensorStatus ' + id + ' result: ' + JSON.stringify(result));
+    adapter.log.debug('sensorStatus(' + id + ') result: ' + JSON.stringify(result));
     if (err || !result)
-      adapter.log.error('sensorStatus ' + id + ' error: ' + err);
+      adapter.log.error('sensorStatus(' + id + ') error: ' + err);
     else
       callback(err, result);
   });
 }
 
 function updateSensorState(sensor, prio, callback) {
-  adapter.log.info('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
+  adapter.log.debug('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
 
   getSensorState(sensor.id, prio, (err, result) => {
     let channelName = config.config.name + '.' + sensor.name;
@@ -1226,7 +1225,7 @@ function main() {
       reservoirRefreshInterval: 1*1000 // must be divisible by 250
     });
     groupQueue.on("depleted", function (empty) {
-      adapter.log.info('groupQueue full. Waiting...');
+      adapter.log.debug('groupQueue full. Throttling down...');
     });
     groupQueue.on("error", function (error) {
       adapter.log.error('groupQueue error: ', err);
@@ -1240,7 +1239,7 @@ function main() {
       minTime: 150 // wait 150ms between requests
     });
     lightQueue.on("depleted", function (empty) {
-      adapter.log.info('lightQueue full. Waiting...');
+      adapter.log.debug('lightQueue full. Throttling down...');
     });
     lightQueue.on("error", function (error) {
       adapter.log.error('lightQueue error: ', err);
