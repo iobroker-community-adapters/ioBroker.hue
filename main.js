@@ -608,8 +608,9 @@ function updateSensorState(sensor, prio, callback) {
   getSensorState(sensor.id, prio, (err, result) => {
     let channelName = config.config.name + '.' + sensor.name;
 
-    for (let state in sensor.state) {
-        if (!sensor.state.hasOwnProperty(state)) {
+    let sensorCopy = JSON.parse(JSON.stringify(sensor));
+    for (let state in Object.assign(sensorCopy.state, sensorCopy.config)) {
+        if (!sensorCopy.state.hasOwnProperty(state)) {
             continue;
         }
         let objId = channelName + '.' + state;
@@ -626,7 +627,7 @@ function updateSensorState(sensor, prio, callback) {
                 id:     sid
             }
         };
-        var value = sensor.state[state];
+        var value = sensorCopy.state[state];
         if (state === 'temperature') {
           value = convertTemperature(value);
         }
@@ -670,8 +671,14 @@ function connect(cb) {
 
                let channelName = config.config.name + '.' + sensor.name;
                if (channelNames.indexOf(channelName) !== -1) {
-                   adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, skipping sensor ' + sid);
-                   continue;
+	           let newChannelName = channelName + ' ' + sensor.type;
+	           if (channelNames.indexOf(newChannelName) !== -1) {
+                     adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping sensor ' + sid);
+                     continue;
+                   } else {
+                     adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for sensor ' + sid);
+                     channelName = newChannelName;
+                   }
                } else {
                    channelNames.push(channelName);
                }
@@ -680,8 +687,9 @@ function connect(cb) {
 
                pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
                
-               for (let state in sensor.state) {
-                  if (!sensor.state.hasOwnProperty(state)) {
+	       let sensorCopy = JSON.parse(JSON.stringify(sensor));
+               for (let state in Object.assign(sensorCopy.state, sensorCopy.config)) {
+                  if (!sensorCopy.state.hasOwnProperty(state)) {
                       continue;
                   }
                   let objId = channelName  + '.' + state;
@@ -699,6 +707,8 @@ function connect(cb) {
                       }
                   };
   
+                  var value = sensorCopy.state[state];
+
                   switch (state) {
                       case 'on':
                           lobj.common.type = 'boolean';
@@ -746,6 +756,7 @@ function connect(cb) {
                       case 'temperature':
                       	lobj.common.type = 'number';
                       	lobj.common.role = 'indicator.temperature';
+                        value = convertTemperature(value);
                       	break;
                 
                       default:
@@ -754,13 +765,24 @@ function connect(cb) {
                   }
   
                   objs.push(lobj);
-                  
-                  var value = sensor.state[state];
-                  if (state === 'temperature') {
-                    value = convertTemperature(value);
-                  }
                   states.push({id: lobj._id, val: value});
                }
+
+               objs.push({
+                   _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
+                   type: 'channel',
+                   common: {
+                       name:           channelName.replace(/\s/g, '_'),
+                       role:           sensorCopy.type
+                   },
+                   native: {
+                       id:             sid,
+                       type:           sensorCopy.type,
+                       name:           sensorCopy.name,
+                       modelid:        sensorCopy.modelid,
+                       swversion:      sensorCopy.swversion,
+                   }
+               });
            }
         }
 
@@ -774,8 +796,14 @@ function connect(cb) {
 
             let channelName = config.config.name + '.' + light.name;
             if (channelNames.indexOf(channelName) !== -1) {
-                adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, skipping lamp ' + lid);
-                continue;
+	        let newChannelName = channelName + ' ' + light.type;
+	        if (channelNames.indexOf(newChannelName) !== -1) {
+                  adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping light ' + lid);
+                  continue;
+                } else {
+                  adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for light ' + lid);
+                  channelName = newChannelName;
+                }
             } else {
                 channelNames.push(channelName);
             }
@@ -965,8 +993,14 @@ function connect(cb) {
 
                 let groupName = config.config.name + '.' + group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
-                    adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, skipping group ' + gid);
-                    continue;
+	            let newGroupName = groupName + ' ' + group.type;
+	            if (channelNames.indexOf(newGroupName) !== -1) {
+                      adapter.log.error('channel "' + groupName.replace(/\s/g, '_') + '" already exists, could not use "' + newGroupName.replace(/\s/g, '_') + '" as well, skipping group ' + gid);
+                      continue;
+                    } else {
+                      adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, using "' + newGroupName.replace(/\s/g, '_') + '" for group ' + gid);
+                      groupName = newGroupName;
+                    }
                 } else {
                     channelNames.push(groupName);
                 }
