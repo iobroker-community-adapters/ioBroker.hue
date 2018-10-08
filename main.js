@@ -641,11 +641,12 @@ function updateSensorState(sensor, prio, callback) {
 function connect(cb) {
     api.getFullState((err, config) => {
         if (err) {
-            adapter.log.warn('could not connect to ip');
+            adapter.log.warn('could not connect to HUE bridge (' + adapter.config.bridge + ':' + adapter.config.port + ')');
+            adapter.log.error(err);
             setTimeout(connect, 5000, cb);
             return;
         } else if (!config) {
-            adapter.log.warn('Cannot get the configuration from hue bridge');
+            adapter.log.warn('could not get configuration from HUE bridge (' + adapter.config.bridge + ':' + adapter.config.port + ')');
             setTimeout(connect, 5000, cb);
             return;
         }
