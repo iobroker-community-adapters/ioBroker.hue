@@ -339,12 +339,13 @@ adapter.on('stateChange', (id, state) => {
             }
 
             if (obj.common.role === 'LightGroup' || obj.common.role === 'Room') {
-                // log final changes / states
-                adapter.log.debug('final groupLightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                if (!adapter.config.ignoreGroups) {
+                  // log final changes / states
+                  adapter.log.debug('final groupLightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
-                setGroupState({id: groupIds[id], name: obj.common.name}, lightState);
-            } else
-            if (obj.common.role === 'switch') {
+                  setGroupState({id: groupIds[id], name: obj.common.name}, lightState);
+                }
+            } else if (obj.common.role === 'switch') {
                 if (finalLS.hasOwnProperty('on')) {
                     finalLS = {on:finalLS.on};
                     // log final changes / states
@@ -1186,9 +1187,11 @@ function poll() {
     updateLightState(light, 5);
   });
 
-  pollGroups.forEach((group) => {
-    updateGroupState(group, 5);
-  });
+  if (!adapter.config.ignoreGroups) {
+    pollGroups.forEach((group) => {
+      updateGroupState(group, 5);
+    });
+  }
 
   pollSensors.forEach((sensor) => {
     updateSensorState(sensor, 5);
