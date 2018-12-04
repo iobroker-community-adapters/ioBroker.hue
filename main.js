@@ -543,7 +543,7 @@ function processCommands() {
 
     if (!adapter.config.dontUseQueue) {
         if (processing) {
-            command.unshift(processedCommand);
+            commands.unshift(processedCommand);
             if (polling && command && command.func === 'setLightState') {
                 // if polling force executing of commands
                 // we may send only 10 commands in 10 seconds

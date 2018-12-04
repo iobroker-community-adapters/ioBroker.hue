@@ -117,7 +117,7 @@
         "type": "lighting"
     },
     "native": {
-        "bridge": "0.0.0.0",
+        "bridge": "",
         "port": 80,
         "user": "",
         "polling": true,
