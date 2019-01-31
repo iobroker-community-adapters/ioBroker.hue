@@ -26,8 +26,8 @@ let reconnectTimeout;
 
 function startAdapter(options) {
     options = options || {};
-    Object.assign(options,{
-        name:  "hue",
+    Object.assign(options, {
+        name:  'hue',
         stateChange:  function (id, state) {
             if (!id || !state || state.ack) {
                 return;
