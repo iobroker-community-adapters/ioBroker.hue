@@ -1,3 +1,5 @@
+# Moved to https://github.com/iobroker-community-adapters/ioBroker.hue
+
 ![Logo](admin/hue.jpeg)
 # ioBroker Philips Hue Bridge Adapter
 ==============
