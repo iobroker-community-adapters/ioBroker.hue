@@ -113,7 +113,7 @@
         "messagebox": true,
         "enabled": true,
         "compact": true,
-        "readme": "https://github.com/ioBroker/ioBroker.hue/blob/master/README.md",
+        "readme": "https://github.com/iobroker-community-adapters/ioBroker.hue/blob/master/README.md",
         "loglevel": "info",
         "keywords": [
             "philips",
@@ -125,7 +125,7 @@
         ],
         "materialize": true,
         "icon": "hue.jpeg",
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.hue/master/admin/hue.jpeg",
+        "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
         "type": "lighting"
     },
     "native": {
