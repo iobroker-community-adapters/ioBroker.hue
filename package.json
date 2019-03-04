@@ -11,7 +11,7 @@
   "engines": {
     "node": ">=4"
   },
-  "homepage": "https://github.com/ioBroker/ioBroker.hue",
+  "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
   "license": "Apache 2.0",
   "keywords": [
     "ioBroker",
@@ -24,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ioBroker/ioBroker.hue"
+    "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
   },
   "dependencies": {
     "node-hue-api": "^2.4.2",
@@ -32,11 +32,12 @@
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "mocha": "^5.2.0",
-    "chai": "^4.1.2"
+    "mocha": "^6.0.2",
+    "chai": "^4.1.2",
+    "@iobroker/adapter-core": "^1.0.3"
   },
   "bugs": {
-    "url": "https://github.com/ioBroker/ioBroker.hue/issues"
+    "url": "https://github.com/iobroker-community-adapters/ioBroker.hue/issues"
   },
   "main": "main.js",
   "scripts": {
