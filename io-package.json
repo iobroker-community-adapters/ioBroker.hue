@@ -1,11 +1,22 @@
 {
     "common": {
         "name": "hue",
-        "version": "1.2.0",
+        "version": "1.2.2",
         "news": {
-            "1.2.0": {
+            "1.2.2": {
                 "en": "rework to queue commands using 'bottleneck'",
                 "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen"
+            },
+            "1.1.2": {
+                "en": "Added compact mode",
+                "de": "Kompaktmodus hinzugefügt",
+                "ru": "Добавлен компактный режим",
+                "pt": "Adicionado modo compacto",
+                "nl": "Compact-modus toegevoegd",
+                "fr": "Ajout du mode compact",
+                "it": "Aggiunta modalità compatta",
+                "es": "Modo compacto agregado",
+                "pl": "Dodano tryb kompaktowy"
             },
             "1.1.1": {
                 "en": "Ignoring of groups was implemented",
@@ -105,7 +116,8 @@
         "mode": "daemon",
         "messagebox": true,
         "enabled": true,
-        "readme": "https://github.com/ioBroker/ioBroker.hue/blob/master/README.md",
+        "compact": true,
+        "readme": "https://github.com/iobroker-community-adapters/ioBroker.hue/blob/master/README.md",
         "loglevel": "info",
         "keywords": [
             "philips",
@@ -117,11 +129,11 @@
         ],
         "materialize": true,
         "icon": "hue.jpeg",
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.hue/master/admin/hue.jpeg",
+        "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
         "type": "lighting"
     },
     "native": {
-        "bridge": "0.0.0.0",
+        "bridge": "",
         "port": 80,
         "user": "",
         "polling": true,

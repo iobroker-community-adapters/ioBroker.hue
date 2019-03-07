@@ -1,3 +1,5 @@
+# Moved to https://github.com/iobroker-community-adapters/ioBroker.hue
+
 ![Logo](admin/hue.jpeg)
 # ioBroker Philips Hue Bridge Adapter
 ==============
@@ -17,9 +19,15 @@ You must first link you HUE bridge with ioBroker.
 
 ## Deutsch :de:
 Bindet Philips Hue / LivingColors / LivingWhites Lampen ein. 
-In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden.
+In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden. Um einen User zu aktivieren einmal auf create user drücken und dann innerhalb von 30 Sekunden den Button an der Hue bridge drücken. Dann wird automatisch der User übergeben. 
 
 ## Changelog
+### 1.2.2 (2019.03.07)
+* (jens-maus) Refactored command queue handling to use 'bottleneck' package so that command execution are procssed with minimum delay.
+
+### 1.1.2 (2019.01.25)
+* (BasGo) Added compact mode
+
 ### 1.1.1 (2018.08.17)
 * (bluefox) Ignoring of groups was implemented
 
