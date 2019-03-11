@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "1.2.2",
+        "version": "1.2.3",
         "news": {
-            "1.2.2": {
+            "1.2.3": {
                 "en": "rework to queue commands using 'bottleneck'",
                 "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen"
             },

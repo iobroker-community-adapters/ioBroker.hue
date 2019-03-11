@@ -17,6 +17,7 @@ const hue       = require('node-hue-api');
 const utils     = require('@iobroker/adapter-core');
 const huehelper = require('./lib/hueHelper');
 const Bottleneck= require('bottleneck');
+const md5       = require('md5');
 
 let adapter;
 let processing  = false;
@@ -475,27 +476,43 @@ let pollSensors    = [];
 let pollGroups     = [];
 
 function submitHueCmd(cmd, args, callback) {
+
+  // select the bottleneck queue to be used
   let queue = lightQueue;
   if (cmd === 'getGroup' || cmd === 'setGroupLightState')
     queue = groupQueue;
 
-  queue.submit({priority: args.prio}, (arg, cb) => {
-    adapter.log.debug('executing ' + cmd + '(' + JSON.stringify(arg) + ')');
+  // construct a unique id based on the command name
+  // and serialized arguments
+  let id = cmd + ':' + args.id + ':' + md5(JSON.stringify(args));
+
+  // skip any job submit if a job with the same id already exists in the
+  // queue
+  if(queue.jobStatus(id) !== null)
+  {
+    adapter.log.debug("job " + id + " already in queue, skipping..");
+    return;
+  }
+
+  // submit the job to the bottleneck
+  // queue
+  queue.submit({priority: args.prio, expiration: 5000, id: id}, (arg, cb) => {
     if (arg.data !== undefined) {
       api[cmd](arg.id, arg.data, (err, result) => {
-        cb && cb(err, result);
+        cb(err, result);
       });
     } else {
       api[cmd](arg.id, (err, result) => {
-        cb && cb(err, result);
+        cb(err, result);
       });
     }
   }, args, (err, result) => {
-    adapter.log.debug(cmd + '(' + args.id + ') result: ' + JSON.stringify(result));
-    if (err || !result)
-      adapter.log.error(cmd + '('  + args.id + ') error: ' + err);
-    else
-      callback && callback(err, result);
+    if (err || !result) {
+      adapter.log.error(cmd + ':'  + args.id + ':' + args.prio + ' error: ' + err + ' result: ', JSON.stringify(result));
+    } else {
+      adapter.log.debug(cmd + ':' + args.id + ':' + args.prio + ' result: ' + JSON.stringify(result));
+      callback(err, result);
+    }
   });
 }
 
@@ -505,6 +522,7 @@ function updateGroupState(group, prio, callback) {
   submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
     let values = [];
     let states = {};
+
     for (let stateA in result.lastAction) {
         if (!result.lastAction.hasOwnProperty(stateA)) {
             continue;
@@ -546,6 +564,7 @@ function updateLightState(light, prio, callback) {
   submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
     let values = [];
     let states = {};
+
     for (let stateA in result.state) {
         if (!result.state.hasOwnProperty(stateA)) {
             continue;
@@ -589,36 +608,27 @@ function updateSensorState(sensor, prio, callback) {
   adapter.log.debug('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
 
   submitHueCmd('sensorStatus', {id: sensor.id, prio: prio}, (err, result) => {
-    let channelName = config.config.name + '.' + sensor.name;
+    let values = [];
+    let states = {};
 
-    let sensorCopy = JSON.parse(JSON.stringify(sensor));
-    for (let state in Object.assign(sensorCopy.state, sensorCopy.config)) {
-        if (!sensorCopy.state.hasOwnProperty(state)) {
+    for (let stateA in result.state) {
+        if (!result.state.hasOwnProperty(stateA)) {
             continue;
         }
-        let objId = channelName + '.' + state;
-
-        let lobj = {
-            _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
-            type:       'state',
-            common: {
-                name:   objId.replace(/\s/g, '_'),
-                read:   true,
-                write:  true
-            },
-            native: {
-                id:     sid
-            }
-        };
-        var value = sensorCopy.state[state];
-        if (state === 'temperature') {
-          value = convertTemperature(value);
-        }
-
-        states.push({id: lobj._id, val: value});
+        states[stateA] = result.state[stateA];
     }
 
-    syncStates(states, true, callback);
+    if (states.temperature !== undefined) {
+        states.temperature = convertTemperature(states.temperature);
+    }
+    for (let stateB in states) {
+        if (!states.hasOwnProperty(stateB)) {
+            continue;
+        }
+        values.push({id: adapter.namespace + '.' + sensor.name + '.' + stateB, val: states[stateB]});
+    }
+
+    syncStates(values, true, callback);
   });
 }
 
@@ -1232,7 +1242,8 @@ function main() {
     groupQueue = new Bottleneck({
       reservoir: 1, // initial value
       reservoirRefreshAmount: 1,
-      reservoirRefreshInterval: 1*1000 // must be divisible by 250
+      reservoirRefreshInterval: 1*1000, // must be divisible by 250
+      highWater: 100 // start to drop older commands if > 100 commands in the queue
     });
     groupQueue.on("depleted", function (empty) {
       adapter.log.debug('groupQueue full. Throttling down...');
@@ -1240,19 +1251,32 @@ function main() {
     groupQueue.on("error", function (error) {
       adapter.log.error('groupQueue error: ', err);
     });
+    groupQueue.on("failed", function (error, jobInfo) {
+      const id = jobInfo.options.id;
+      adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
+      adapter.log.warn(`groupQueue: retrying job ${id} in 25 ms`);
+      return 25;
+    });
 
     // create a bottleneck limiter to max 10 cmd per 1 sec
     lightQueue = new Bottleneck({
       reservoir: 10, // initial value
       reservoirRefreshAmount: 10,
       reservoirRefreshInterval: 1*1000, // must be divisible by 250
-      minTime: 150 // wait 150ms between requests
+      minTime: 150, // wait 150ms between requests
+      highWater: 1000 // start to drop older commands if > 1000 commands in the queue
     });
     lightQueue.on("depleted", function (empty) {
       adapter.log.debug('lightQueue full. Throttling down...');
     });
     lightQueue.on("error", function (error) {
       adapter.log.error('lightQueue error: ', err);
+    });
+    lightQueue.on("failed", function (error, jobInfo) {
+      const id = jobInfo.options.id;
+      adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
+      adapter.log.warn(`lightQueue: retrying job ${id} in 25 ms`);
+      return 25;
     });
 
     api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
