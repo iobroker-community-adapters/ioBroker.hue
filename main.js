@@ -1263,7 +1263,6 @@ function main() {
       reservoir: 10, // initial value
       reservoirRefreshAmount: 10,
       reservoirRefreshInterval: 1*1000, // must be divisible by 250
-      minTime: 150, // wait 150ms between requests
       highWater: 1000 // start to drop older commands if > 1000 commands in the queue
     });
     lightQueue.on("depleted", function (empty) {
