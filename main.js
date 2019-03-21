@@ -1243,6 +1243,7 @@ function main() {
       reservoir: 1, // initial value
       reservoirRefreshAmount: 1,
       reservoirRefreshInterval: 1*1000, // must be divisible by 250
+      minTime: 25, // wait a minimum of 25 ms between command executions
       highWater: 100 // start to drop older commands if > 100 commands in the queue
     });
     groupQueue.on("depleted", function (empty) {
@@ -1263,6 +1264,7 @@ function main() {
       reservoir: 10, // initial value
       reservoirRefreshAmount: 10,
       reservoirRefreshInterval: 1*1000, // must be divisible by 250
+      minTime: 25, // wait a minimum of 25 ms between command executions
       highWater: 1000 // start to drop older commands if > 1000 commands in the queue
     });
     lightQueue.on("depleted", function (empty) {
