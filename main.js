@@ -507,10 +507,8 @@ function submitHueCmd(cmd, args, callback) {
       });
     }
   }, args, (err, result) => {
-    if (err || !result) {
-      adapter.log.error(cmd + ':'  + args.id + ':' + args.prio + ' error: ' + err + ' result: ', JSON.stringify(result));
-    } else {
-      adapter.log.debug(cmd + ':' + args.id + ':' + args.prio + ' result: ' + JSON.stringify(result));
+    if (err === null && result !== false) {
+      adapter.log.debug(id + ' result: ' + JSON.stringify(result));
       callback(err, result);
     }
   });
@@ -1253,13 +1251,14 @@ function main() {
       adapter.log.error('groupQueue error: ', err);
     });
     groupQueue.on("retry", function (error, jobInfo) {
-      const count = jobInfo.retryCount+1;
-      adapter.log.warn(`groupQueue: retry [${count}/10] job ${id}`);
+      adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
     });
     groupQueue.on("failed", function (error, jobInfo) {
       const id = jobInfo.options.id;
-      if (error instanceof hue.ApiError || jobInfo.retryCount >= 10) {
+      if (error instanceof hue.ApiError) {
         adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
+      } else if (jobInfo.retryCount >= 10) {
+        adapter.log.error(`groupQueue: job ${id} max retry reached: ${error}`);
       } else {
         adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
         return 25; // retry in 25 ms
@@ -1281,13 +1280,14 @@ function main() {
       adapter.log.error('lightQueue error: ', err);
     });
     lightQueue.on("retry", function (error, jobInfo) {
-      const count = jobInfo.retryCount+1;
-      adapter.log.warn(`lightQueue: retry [${count}/10] job ${id}`);
+      adapter.log.warn(`lightQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
     });
     lightQueue.on("failed", function (error, jobInfo) {
       const id = jobInfo.options.id;
-      if (error instanceof hue.ApiError || jobInfo.retryCount >= 10) {
+      if (error instanceof hue.ApiError) {
         adapter.log.error(`lightQueue: job ${id} failed: ${error}`);
+      } else if (jobInfo.retryCount >= 10) {
+        adapter.log.error(`lightQueue: job ${id} max retry reached: ${error}`);
       } else {
         adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
         return 25; // retry in 25 ms
