@@ -1252,11 +1252,18 @@ function main() {
     groupQueue.on("error", function (error) {
       adapter.log.error('groupQueue error: ', err);
     });
+    groupQueue.on("retry", function (error, jobInfo) {
+      const count = jobInfo.retryCount+1;
+      adapter.log.warn(`groupQueue: retry [${count}/10] job ${id}`);
+    });
     groupQueue.on("failed", function (error, jobInfo) {
       const id = jobInfo.options.id;
-      adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
-      adapter.log.warn(`groupQueue: retrying job ${id} in 25 ms`);
-      return 25;
+      if (error instanceof hue.ApiError || jobInfo.retryCount >= 10) {
+        adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
+      } else {
+        adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
+        return 25; // retry in 25 ms
+      }
     });
 
     // create a bottleneck limiter to max 10 cmd per 1 sec
@@ -1273,11 +1280,18 @@ function main() {
     lightQueue.on("error", function (error) {
       adapter.log.error('lightQueue error: ', err);
     });
+    lightQueue.on("retry", function (error, jobInfo) {
+      const count = jobInfo.retryCount+1;
+      adapter.log.warn(`lightQueue: retry [${count}/10] job ${id}`);
+    });
     lightQueue.on("failed", function (error, jobInfo) {
       const id = jobInfo.options.id;
-      adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
-      adapter.log.warn(`lightQueue: retrying job ${id} in 25 ms`);
-      return 25;
+      if (error instanceof hue.ApiError || jobInfo.retryCount >= 10) {
+        adapter.log.error(`lightQueue: job ${id} failed: ${error}`);
+      } else {
+        adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
+        return 25; // retry in 25 ms
+      }
     });
 
     api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
