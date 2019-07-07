@@ -5,7 +5,15 @@
         "news": {
             "1.2.3": {
                 "en": "rework to queue commands using 'bottleneck'",
-                "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen"
+                "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen",
+                "ru": "переделать в очередь команды, используя «bottleneck»",
+                "pt": "retrabalho para enfileirar comandos usando 'bottleneck'",
+                "nl": "herwerken om commando's in de wachtrij te zetten met behulp van 'bottleneck'",
+                "fr": "retravailler les commandes en file d'attente en utilisant 'bottleneck'",
+                "it": "rielaborare i comandi di coda usando 'bottleneck'",
+                "es": "volver a trabajar para poner en cola los comandos usando 'bottleneck'",
+                "pl": "przeróbka kolejkowania poleceń za pomocą „bottleneck”",
+                "zh-cn": "使用'bottleneck'重新排序命令",
             },
             "1.1.2": {
                 "en": "Added compact mode",
