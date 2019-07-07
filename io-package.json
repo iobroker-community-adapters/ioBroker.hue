@@ -13,7 +13,7 @@
                 "it": "rielaborare i comandi di coda usando 'bottleneck'",
                 "es": "volver a trabajar para poner en cola los comandos usando 'bottleneck'",
                 "pl": "przeróbka kolejkowania poleceń za pomocą „bottleneck”",
-                "zh-cn": "使用'bottleneck'重新排序命令",
+                "zh-cn": "使用'bottleneck'重新排序命令"
             },
             "1.1.2": {
                 "en": "Added compact mode",
