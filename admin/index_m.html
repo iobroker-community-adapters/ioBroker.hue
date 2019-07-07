@@ -34,7 +34,6 @@
         // the function loadSettings has to exist ...
         function load(settings, onChange) {
             if (settings.port === undefined) settings.port = 80;
-            if (settings.dontUseQueue === undefined) settings.dontUseQueue = false;
             if (settings.ignoreGroups === undefined) settings.ignoreGroups = false;
 
             $('#dialog-bridges').modal();
@@ -231,12 +230,6 @@
                 <label  class="translate" for="pollingInterval">Polling interval (sec)</label>
                 <span class="translate">polling_warning</span>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s10 m4">
-                <input type="number" id="dontUseQueue" class="value" />
-                <label  class="translate" for="dontUseQueue">Do not queue commands</label>
-                <span class="translate">dontqueue_warning</span>
         </div>
     </div>
 
