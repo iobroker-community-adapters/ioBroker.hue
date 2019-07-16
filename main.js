@@ -216,9 +216,8 @@ function startAdapter(options) {
                         finalLS.b = Math.round(rgb.Blue  * 254);
                     }
                     if ('ct' in ls) {
-                        //finalLS.ct = Math.max(153, Math.min(500, ls.ct));
                         finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
-                        finalLS.ct = (500 - 153) - ((finalLS.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
+                        finalLS.ct = Math.floor(1e6 / finalLS.ct);
 
                         lightState = lightState.ct(finalLS.ct);
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
@@ -549,7 +548,18 @@ function updateGroupState(group, prio, callback) {
         if (!states.hasOwnProperty(stateB)) {
             continue;
         }
-        values.push({id: adapter.namespace + '.' + group.name + '.' + stateB, val: states[stateB]});
+
+        let val = states[stateB];
+
+        switch (stateB) {
+            case 'hue':
+                val = parseFloat((val / 65535 * 360).toFixed(2));
+            case 'ct':
+                val = Math.round(1e6 / val);
+            break;
+        }
+
+        values.push({id: adapter.namespace + '.' + group.name + '.' + stateB, val});
     }
 
     syncStates(values, true, callback);
@@ -601,9 +611,10 @@ function updateLightState(light, prio, callback) {
         switch (stateB) {
             case 'hue':
                 val = parseFloat((val / 65535 * 360).toFixed(2));
+            case 'ct':
+                val = Math.round(1e6 / val);
             break;
         }
-
 
         values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val});
     }
@@ -878,6 +889,7 @@ function connect(cb) {
                         lobj.common.role = 'level.color.xy';
                         break;
                     case 'ct':
+                        val = Math.round(1e6 / val);
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.temperature';
                         lobj.common.unit = '°K';
@@ -1077,6 +1089,7 @@ function connect(cb) {
                             gobj.common.role = 'level.color.xy';
                             break;
                         case 'ct':
+                            val = Math.round(1e6 / val);
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.temperature';
                             gobj.common.unit = '°K';
