@@ -229,7 +229,7 @@ function startAdapter(options) {
                         }
                     }
                     if ('hue' in ls) {
-                        finalLS.hue = finalLS.hue % 360;
+                        finalLS.hue = ls.hue % 360;
                         if (finalLS.hue < 0) finalLS.hue += 360;
                         finalLS.hue = finalLS.hue / 360 * 65535;
                         lightState = lightState.hue(finalLS.hue);
@@ -595,7 +595,17 @@ function updateLightState(light, prio, callback) {
         if (!states.hasOwnProperty(stateB)) {
             continue;
         }
-        values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val: states[stateB]});
+
+        let val = states[stateB];
+
+        switch (stateB) {
+            case 'hue':
+                val = parseFloat((val / 65535 * 360).toFixed(2));
+            break;
+        }
+
+
+        values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val});
     }
 
     syncStates(values, true, callback);
@@ -830,6 +840,8 @@ function connect(cb) {
                     }
                 };
 
+                let val = light.state[state];
+
                 switch (state) {
                     case 'on':
                         lobj.common.type = 'boolean';
@@ -848,6 +860,7 @@ function connect(cb) {
                         lobj.common.max  = 100;
                         break;
                     case 'hue':
+                        val = parseFloat((val / 65535 * 360).toFixed(2));
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.hue';
                         lobj.common.unit = '°';
@@ -926,7 +939,7 @@ function connect(cb) {
                 }
 
                 objs.push(lobj);
-                states.push({id: lobj._id, val: light.state[state]});
+                states.push({id: lobj._id, val});
             }
 
             let role = 'light.color';
@@ -1026,6 +1039,8 @@ function connect(cb) {
                         group.action[action] = group.action[action].toString();
                     }
 
+                    let val = group.action[action];
+
                     switch (action) {
                         case 'on':
                             gobj.common.type = 'boolean';
@@ -1044,6 +1059,7 @@ function connect(cb) {
                             gobj.common.max  = 100;
                             break;
                         case 'hue':
+                            val = parseFloat((val / 65535 * 360).toFixed(2))
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.hue';
                             gobj.common.unit = '°';
@@ -1107,7 +1123,7 @@ function connect(cb) {
                             continue;
                     }
                     objs.push(gobj);
-                    states.push({id: gobj._id, val: group.action[action]});
+                    states.push({id: gobj._id, val});
                 }
 
                 objs.push({
