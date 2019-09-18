@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "hue",
-        "version": "1.2.3",
+        "version": "1.2.4",
         "news": {
             "1.2.3": {
                 "en": "rework to queue commands using 'bottleneck'",

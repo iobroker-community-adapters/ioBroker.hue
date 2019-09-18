@@ -38,6 +38,7 @@ function startAdapter(options) {
             const tmp = id.split('.');
             const dp = tmp.pop();
             id = tmp.slice(2).join('.');
+            const fullIdBase = tmp.join('.') + '.';
             let ls = {};
             // if .on changed instead change .bri to 254 or 0
             let bri = 0;
@@ -62,10 +63,12 @@ function startAdapter(options) {
                 ls = {};
                 let alls = {};
                 let lampOn = false;
-                for (let idState in idStates) {
-                    if (!idStates.hasOwnProperty(idState) || idStates[idState].val === null) {
-                        continue;
-                    }
+                let commandSupported = false;
+
+                function handleParam(idState, prefill) {
+                    if (idStates[idState] === undefined) return;
+                    if (prefill && !idStates[idState].ack) return;
+
                     let idtmp = idState.split('.');
                     let iddp = idtmp.pop();
                     switch (iddp) {
@@ -115,41 +118,69 @@ function startAdapter(options) {
                             }
                             break;
                         case 'command':
-                            if (dp === 'command') {
-                                try {
-                                    let commands = JSON.parse(state.val);
-                                    for (let command in commands) {
-                                        if (!commands.hasOwnProperty(command)) {
-                                            continue;
-                                        }
-                                        if (command === 'on') {
-                                            //convert on to bri
-                                            if (commands[command] && !commands.hasOwnProperty('bri')) {
-                                                ls.bri = 254;
-                                            } else {
-                                                ls.bri = 0;
-                                            }
-                                        } else if (command === 'level') {
-                                            //convert level to bri
-                                            if (!commands.hasOwnProperty('bri')) {
-                                                ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
-                                            } else {
-                                                ls.bri = 254;
-                                            }
-                                        } else {
-                                            ls[command] = commands[command];
-                                        }
-                                    }
-                                } catch (e) {
-                                    adapter.log.error(e);
-                                    return;
-                                }
-                            }
+                            commandSupported = true;
                             alls[iddp] = idStates[idState].val;
                             break;
                         default:
                             alls[iddp] = idStates[idState].val;
                             break;
+                    }
+                    idStates[idState].handled = true;
+                }
+
+                // work through the relevant states in the correct order for the logic to work
+                // but only if ack=true - so real values from device
+                handleParam(fullIdBase + 'on', true);
+                handleParam(fullIdBase + 'bri', true);
+                handleParam(fullIdBase + 'ct', true);
+                handleParam(fullIdBase + 'alert', true);
+                handleParam(fullIdBase + 'effect', true);
+                handleParam(fullIdBase + 'colormode', true);
+                handleParam(fullIdBase + 'r', true);
+                handleParam(fullIdBase + 'g', true);
+                handleParam(fullIdBase + 'b', true);
+                handleParam(fullIdBase + 'hue', true);
+                handleParam(fullIdBase + 'sat', true);
+                handleParam(fullIdBase + 'xy', true);
+                handleParam(fullIdBase + 'command', true);
+                handleParam(fullIdBase + 'level', true);
+
+                // Walk through the rest or ack=false (=to be changed) values
+                for (let idState in idStates) {
+                    if (!idStates.hasOwnProperty(idState) || idStates[idState].val === null || idStates[idState].handled) {
+                        continue;
+                    }
+                    handleParam(idState, false);
+                }
+                // Handle commands at the end because they overwrite also anything
+                if (commandSupported && dp === 'command') {
+                    try {
+                        let commands = JSON.parse(state.val);
+                        for (let command in commands) {
+                            if (!commands.hasOwnProperty(command)) {
+                                continue;
+                            }
+                            if (command === 'on') {
+                                //convert on to bri
+                                if (commands[command] && !commands.hasOwnProperty('bri')) {
+                                    ls.bri = 254;
+                                } else {
+                                    ls.bri = 0;
+                                }
+                            } else if (command === 'level') {
+                                //convert level to bri
+                                if (!commands.hasOwnProperty('bri')) {
+                                    ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
+                                } else {
+                                    ls.bri = 254;
+                                }
+                            } else {
+                                ls[command] = commands[command];
+                            }
+                        }
+                    } catch (e) {
+                        adapter.log.error(e);
+                        return;
                     }
                 }
 
@@ -417,7 +448,7 @@ function startAdapter(options) {
                     clearInterval(pollingInterval);
                     pollingInterval = null;
                 }
-    
+
                 if (reconnectTimeout) {
                     clearTimeout(reconnectTimeout);
                     reconnectTimeout = null;
@@ -477,157 +508,157 @@ let pollGroups     = [];
 
 function submitHueCmd(cmd, args, callback) {
 
-  // select the bottleneck queue to be used
-  let queue = lightQueue;
-  if (cmd === 'getGroup' || cmd === 'setGroupLightState')
-    queue = groupQueue;
+    // select the bottleneck queue to be used
+    let queue = lightQueue;
+    if (cmd === 'getGroup' || cmd === 'setGroupLightState')
+        queue = groupQueue;
 
-  // construct a unique id based on the command name
-  // and serialized arguments
-  let id = cmd + ':' + args.id + ':' + md5(JSON.stringify(args));
+    // construct a unique id based on the command name
+    // and serialized arguments
+    let id = cmd + ':' + args.id + ':' + md5(JSON.stringify(args));
 
-  // skip any job submit if a job with the same id already exists in the
-  // queue
-  if(queue.jobStatus(id) !== null)
-  {
-    adapter.log.debug("job " + id + " already in queue, skipping..");
-    return;
-  }
-
-  // submit the job to the bottleneck
-  // queue
-  queue.submit({priority: args.prio, expiration: 5000, id: id}, (arg, cb) => {
-    if (arg.data !== undefined) {
-      api[cmd](arg.id, arg.data, (err, result) => {
-        cb(err, result);
-      });
-    } else {
-      api[cmd](arg.id, (err, result) => {
-        cb(err, result);
-      });
+    // skip any job submit if a job with the same id already exists in the
+    // queue
+    if(queue.jobStatus(id) !== null)
+    {
+        adapter.log.debug("job " + id + " already in queue, skipping..");
+        return;
     }
-  }, args, (err, result) => {
-    if (err === null && result !== false) {
-      adapter.log.debug(id + ' result: ' + JSON.stringify(result));
-      callback(err, result);
-    }
-  });
+
+    // submit the job to the bottleneck
+    // queue
+    queue.submit({priority: args.prio, expiration: 5000, id: id}, (arg, cb) => {
+        if (arg.data !== undefined) {
+            api[cmd](arg.id, arg.data, (err, result) => {
+                cb(err, result);
+            });
+        } else {
+            api[cmd](arg.id, (err, result) => {
+                cb(err, result);
+            });
+        }
+    }, args, (err, result) => {
+        if (err === null && result !== false) {
+            adapter.log.debug(id + ' result: ' + JSON.stringify(result));
+            callback(err, result);
+        }
+    });
 }
 
 function updateGroupState(group, prio, callback) {
-  adapter.log.debug('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
+    adapter.log.debug('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
 
-  submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
-    let values = [];
-    let states = {};
+    submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
+        let values = [];
+        let states = {};
 
-    for (let stateA in result.lastAction) {
-        if (!result.lastAction.hasOwnProperty(stateA)) {
-            continue;
+        for (let stateA in result.lastAction) {
+            if (!result.lastAction.hasOwnProperty(stateA)) {
+                continue;
+            }
+            states[stateA] = result.lastAction[stateA];
         }
-        states[stateA] = result.lastAction[stateA];
-    }
-    if (states.reachable === false && states.bri !== undefined) {
-        states.bri = 0;
-        states.on = false;
-    }
-    if (states.on === false && states.bri !== undefined) {
-        states.bri = 0;
-    }
-    if (states.xy !== undefined) {
-        let xy = states.xy.toString().split(',');
-        states.xy = states.xy.toString();
-        let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-        states.r = Math.round(rgb.Red   * 254);
-        states.g = Math.round(rgb.Green * 254);
-        states.b = Math.round(rgb.Blue  * 254);
-    }
-    if (states.bri !== undefined) {
-        states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
-    }
-    for (let stateB in states) {
-        if (!states.hasOwnProperty(stateB)) {
-            continue;
-        }
-        values.push({id: adapter.namespace + '.' + group.name + '.' + stateB, val: states[stateB]});
-    }
-
-    syncStates(values, true, callback);
-  });
-}
-
-function updateLightState(light, prio, callback) {
-  adapter.log.debug('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
-
-  submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
-    let values = [];
-    let states = {};
-
-    for (let stateA in result.state) {
-        if (!result.state.hasOwnProperty(stateA)) {
-            continue;
-        }
-        states[stateA] = result.state[stateA];
-    }
-
-    if (!adapter.config.ignoreOsram) {
         if (states.reachable === false && states.bri !== undefined) {
             states.bri = 0;
             states.on = false;
         }
-    }
-
-    if (states.on === false && states.bri !== undefined) {
-        states.bri = 0;
-    }
-    if (states.xy !== undefined) {
-        let xy = states.xy.toString().split(',');
-        states.xy = states.xy.toString();
-        let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-        states.r = Math.round(rgb.Red   * 254);
-        states.g = Math.round(rgb.Green * 254);
-        states.b = Math.round(rgb.Blue  * 254);
-    }
-    if (states.bri !== undefined) {
-        states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
-    }
-    for (let stateB in states) {
-        if (!states.hasOwnProperty(stateB)) {
-            continue;
+        if (states.on === false && states.bri !== undefined) {
+            states.bri = 0;
         }
-        values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val: states[stateB]});
-    }
+        if (states.xy !== undefined) {
+            let xy = states.xy.toString().split(',');
+            states.xy = states.xy.toString();
+            let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            states.r = Math.round(rgb.Red   * 254);
+            states.g = Math.round(rgb.Green * 254);
+            states.b = Math.round(rgb.Blue  * 254);
+        }
+        if (states.bri !== undefined) {
+            states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+        }
+        for (let stateB in states) {
+            if (!states.hasOwnProperty(stateB)) {
+                continue;
+            }
+            values.push({id: adapter.namespace + '.' + group.name + '.' + stateB, val: states[stateB]});
+        }
 
-    syncStates(values, true, callback);
-  });
+        syncStates(values, true, callback);
+    });
+}
+
+function updateLightState(light, prio, callback) {
+    adapter.log.debug('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
+
+    submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
+        let values = [];
+        let states = {};
+
+        for (let stateA in result.state) {
+            if (!result.state.hasOwnProperty(stateA)) {
+                continue;
+            }
+            states[stateA] = result.state[stateA];
+        }
+
+        if (!adapter.config.ignoreOsram) {
+            if (states.reachable === false && states.bri !== undefined) {
+                states.bri = 0;
+                states.on = false;
+            }
+        }
+
+        if (states.on === false && states.bri !== undefined) {
+            states.bri = 0;
+        }
+        if (states.xy !== undefined) {
+            let xy = states.xy.toString().split(',');
+            states.xy = states.xy.toString();
+            let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            states.r = Math.round(rgb.Red   * 254);
+            states.g = Math.round(rgb.Green * 254);
+            states.b = Math.round(rgb.Blue  * 254);
+        }
+        if (states.bri !== undefined) {
+            states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+        }
+        for (let stateB in states) {
+            if (!states.hasOwnProperty(stateB)) {
+                continue;
+            }
+            values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val: states[stateB]});
+        }
+
+        syncStates(values, true, callback);
+    });
 }
 
 function updateSensorState(sensor, prio, callback) {
-  adapter.log.debug('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
+    adapter.log.debug('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
 
-  submitHueCmd('sensorStatus', {id: sensor.id, prio: prio}, (err, result) => {
-    let values = [];
-    let states = {};
+    submitHueCmd('sensorStatus', {id: sensor.id, prio: prio}, (err, result) => {
+        let values = [];
+        let states = {};
 
-    for (let stateA in result.state) {
-        if (!result.state.hasOwnProperty(stateA)) {
-            continue;
+        for (let stateA in result.state) {
+            if (!result.state.hasOwnProperty(stateA)) {
+                continue;
+            }
+            states[stateA] = result.state[stateA];
         }
-        states[stateA] = result.state[stateA];
-    }
 
-    if (states.temperature !== undefined) {
-        states.temperature = convertTemperature(states.temperature);
-    }
-    for (let stateB in states) {
-        if (!states.hasOwnProperty(stateB)) {
-            continue;
+        if (states.temperature !== undefined) {
+            states.temperature = convertTemperature(states.temperature);
         }
-        values.push({id: adapter.namespace + '.' + sensor.name + '.' + stateB, val: states[stateB]});
-    }
+        for (let stateB in states) {
+            if (!states.hasOwnProperty(stateB)) {
+                continue;
+            }
+            values.push({id: adapter.namespace + '.' + sensor.name + '.' + stateB, val: states[stateB]});
+        }
 
-    syncStates(values, true, callback);
-  });
+        syncStates(values, true, callback);
+    });
 }
 
 function connect(cb) {
@@ -660,120 +691,120 @@ function connect(cb) {
 
             if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type=='Daylight' || sensor.type=='ZLLTemperature' || sensor.type=='ZLLPresence' || sensor.type=='ZLLLightLevel') {
 
-               let channelName = config.config.name + '.' + sensor.name;
-               if (channelNames.indexOf(channelName) !== -1) {
-	           let newChannelName = channelName + ' ' + sensor.type;
-	           if (channelNames.indexOf(newChannelName) !== -1) {
-                     adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping sensor ' + sid);
-                     continue;
-                   } else {
-                     adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for sensor ' + sid);
-                     channelName = newChannelName;
-                   }
-               } else {
-                   channelNames.push(channelName);
-               }
+                let channelName = config.config.name + '.' + sensor.name;
+                if (channelNames.indexOf(channelName) !== -1) {
+                    let newChannelName = channelName + ' ' + sensor.type;
+                    if (channelNames.indexOf(newChannelName) !== -1) {
+                        adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping sensor ' + sid);
+                        continue;
+                    } else {
+                        adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for sensor ' + sid);
+                        channelName = newChannelName;
+                    }
+                } else {
+                    channelNames.push(channelName);
+                }
 
-               let sensorName =  sensor.name.replace(/\s/g, '');
+                let sensorName =  sensor.name.replace(/\s/g, '');
 
-               pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
-               
-	       let sensorCopy = JSON.parse(JSON.stringify(sensor));
-               for (let state in Object.assign(sensorCopy.state, sensorCopy.config)) {
-                  if (!sensorCopy.state.hasOwnProperty(state)) {
-                      continue;
-                  }
-                  let objId = channelName  + '.' + state;
-  
-                  let lobj = {
-                      _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
-                      type:       'state',
-                      common: {
-                          name:   objId.replace(/\s/g, '_'),
-                          read:   true,
-                          write:  true
-                      },
-                      native: {
-                          id:     sid
-                      }
-                  };
-  
-                  var value = sensorCopy.state[state];
+                pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
 
-                  switch (state) {
-                      case 'on':
-                          lobj.common.type = 'boolean';
-                          lobj.common.role = 'switch';
-                          break;
-                      case 'reachable':
-                          lobj.common.type  = 'boolean';
-                          lobj.common.write = false;
-                          lobj.common.role  = 'indicator.reachable';
-                          break;
-                      case 'buttonevent': 
-                          lobj.common.type = 'number';
-                          lobj.common.role = 'state';
-                          break;
-                      case 'lastupdated': 
-                          lobj.common.type = 'string';
-                          lobj.common.role = 'date';
-                          break;
-                      case 'battery': 
-                          lobj.common.type = 'number';
-                          lobj.common.role = 'config';
-                          break;
-                      case 'pending': 
-                          lobj.common.type = 'number';
-                          lobj.common.role = 'config';
-                          break;
-                      case 'daylight':
-                          lobj.common.type = 'boolean';
-                          lobj.common.role = 'switch';
-                          break;
-                      case 'dark':
-                          lobj.common.type = 'boolean';
-                          lobj.common.role = 'switch';
-                          break;
-  					  case 'presence':
-  						  lobj.common.type = 'boolean';
-                          lobj.common.role = 'switch';
-                          break;
-                      case 'lightlevel':
-                          lobj.common.type = 'number';
-                          lobj.common.role = 'lightlevel';
-                          lobj.common.min  = 0;
-                          lobj.common.max  = 17000;
-                          break;
-                      case 'temperature':
-                          lobj.common.type = 'number';
-                          lobj.common.role = 'indicator.temperature';
-                          value = convertTemperature(value);
-                          break;
-                      default:
-                          adapter.log.info('skip switch: ' + objId);
-                          break;
-                  }
-  
-                  objs.push(lobj);
-                  states.push({id: lobj._id, val: value});
-               }
+                let sensorCopy = JSON.parse(JSON.stringify(sensor));
+                for (let state in Object.assign(sensorCopy.state, sensorCopy.config)) {
+                    if (!sensorCopy.state.hasOwnProperty(state)) {
+                        continue;
+                    }
+                    let objId = channelName  + '.' + state;
 
-               objs.push({
-                   _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
-                   type: 'channel',
-                   common: {
-                       name:           channelName.replace(/\s/g, '_'),
-                       role:           sensorCopy.type
-                   },
-                   native: {
-                       id:             sid,
-                       type:           sensorCopy.type,
-                       name:           sensorCopy.name,
-                       modelid:        sensorCopy.modelid,
-                       swversion:      sensorCopy.swversion,
-                   }
-               });
-           }
+                    let lobj = {
+                        _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                        type:       'state',
+                        common: {
+                            name:   objId.replace(/\s/g, '_'),
+                            read:   true,
+                            write:  true
+                        },
+                        native: {
+                            id:     sid
+                        }
+                    };
+
+                    var value = sensorCopy.state[state];
+
+                    switch (state) {
+                        case 'on':
+                            lobj.common.type = 'boolean';
+                            lobj.common.role = 'switch';
+                            break;
+                        case 'reachable':
+                            lobj.common.type  = 'boolean';
+                            lobj.common.write = false;
+                            lobj.common.role  = 'indicator.reachable';
+                            break;
+                        case 'buttonevent':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'state';
+                            break;
+                        case 'lastupdated':
+                            lobj.common.type = 'string';
+                            lobj.common.role = 'date';
+                            break;
+                        case 'battery':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'config';
+                            break;
+                        case 'pending':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'config';
+                            break;
+                        case 'daylight':
+                            lobj.common.type = 'boolean';
+                            lobj.common.role = 'switch';
+                            break;
+                        case 'dark':
+                            lobj.common.type = 'boolean';
+                            lobj.common.role = 'switch';
+                            break;
+                        case 'presence':
+                            lobj.common.type = 'boolean';
+                            lobj.common.role = 'switch';
+                            break;
+                        case 'lightlevel':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'lightlevel';
+                            lobj.common.min  = 0;
+                            lobj.common.max  = 17000;
+                            break;
+                        case 'temperature':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'indicator.temperature';
+                            value = convertTemperature(value);
+                            break;
+                        default:
+                            adapter.log.info('skip switch: ' + objId);
+                            break;
+                    }
+
+                    objs.push(lobj);
+                    states.push({id: lobj._id, val: value});
+                }
+
+                objs.push({
+                    _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
+                    type: 'channel',
+                    common: {
+                        name:           channelName.replace(/\s/g, '_'),
+                        role:           sensorCopy.type
+                    },
+                    native: {
+                        id:             sid,
+                        type:           sensorCopy.type,
+                        name:           sensorCopy.name,
+                        modelid:        sensorCopy.modelid,
+                        swversion:      sensorCopy.swversion,
+                    }
+                });
+            }
         }
 
         adapter.log.info('created/updated ' + pollSensors.length + ' sensor channels');
@@ -786,13 +817,13 @@ function connect(cb) {
 
             let channelName = config.config.name + '.' + light.name;
             if (channelNames.indexOf(channelName) !== -1) {
-	        let newChannelName = channelName + ' ' + light.type;
-	        if (channelNames.indexOf(newChannelName) !== -1) {
-                  adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping light ' + lid);
-                  continue;
+                let newChannelName = channelName + ' ' + light.type;
+                if (channelNames.indexOf(newChannelName) !== -1) {
+                    adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping light ' + lid);
+                    continue;
                 } else {
-                  adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for light ' + lid);
-                  channelName = newChannelName;
+                    adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for light ' + lid);
+                    channelName = newChannelName;
                 }
             } else {
                 channelNames.push(channelName);
@@ -983,13 +1014,13 @@ function connect(cb) {
 
                 let groupName = config.config.name + '.' + group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
-	            let newGroupName = groupName + ' ' + group.type;
-	            if (channelNames.indexOf(newGroupName) !== -1) {
-                      adapter.log.error('channel "' + groupName.replace(/\s/g, '_') + '" already exists, could not use "' + newGroupName.replace(/\s/g, '_') + '" as well, skipping group ' + gid);
-                      continue;
+                    let newGroupName = groupName + ' ' + group.type;
+                    if (channelNames.indexOf(newGroupName) !== -1) {
+                        adapter.log.error('channel "' + groupName.replace(/\s/g, '_') + '" already exists, could not use "' + newGroupName.replace(/\s/g, '_') + '" as well, skipping group ' + gid);
+                        continue;
                     } else {
-                      adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, using "' + newGroupName.replace(/\s/g, '_') + '" for group ' + gid);
-                      groupName = newGroupName;
+                        adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, using "' + newGroupName.replace(/\s/g, '_') + '" for group ' + gid);
+                        groupName = newGroupName;
                     }
                 } else {
                     channelNames.push(groupName);
@@ -1202,26 +1233,26 @@ function syncStates(states, isChanged, callback) {
 
 let pollingState = false;
 function poll() {
-  if (pollingState)
-    return;
+    if (pollingState)
+        return;
 
-  pollingState = true;
+    pollingState = true;
 
-  pollLights.forEach((light) => {
-    updateLightState(light, 5);
-  });
-
-  if (!adapter.config.ignoreGroups) {
-    pollGroups.forEach((group) => {
-      updateGroupState(group, 5);
+    pollLights.forEach((light) => {
+        updateLightState(light, 5);
     });
-  }
 
-  pollSensors.forEach((sensor) => {
-    updateSensorState(sensor, 5);
-  });
+    if (!adapter.config.ignoreGroups) {
+        pollGroups.forEach((group) => {
+            updateGroupState(group, 5);
+        });
+    }
 
-  pollingState = false;
+    pollSensors.forEach((sensor) => {
+        updateSensorState(sensor, 5);
+    });
+
+    pollingState = false;
 }
 
 function main() {
@@ -1238,60 +1269,60 @@ function main() {
 
     // create a bottleneck limiter to max 1 cmd per 1 sec
     groupQueue = new Bottleneck({
-      reservoir: 1, // initial value
-      reservoirRefreshAmount: 1,
-      reservoirRefreshInterval: 1*1000, // must be divisible by 250
-      minTime: 25, // wait a minimum of 25 ms between command executions
-      highWater: 100 // start to drop older commands if > 100 commands in the queue
+        reservoir: 1, // initial value
+        reservoirRefreshAmount: 1,
+        reservoirRefreshInterval: 1*1000, // must be divisible by 250
+        minTime: 25, // wait a minimum of 25 ms between command executions
+        highWater: 100 // start to drop older commands if > 100 commands in the queue
     });
     groupQueue.on("depleted", function (empty) {
-      adapter.log.debug('groupQueue full. Throttling down...');
+        adapter.log.debug('groupQueue full. Throttling down...');
     });
     groupQueue.on("error", function (error) {
-      adapter.log.error('groupQueue error: ', err);
+        adapter.log.error('groupQueue error: ', err);
     });
     groupQueue.on("retry", function (error, jobInfo) {
-      adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
+        adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
     });
     groupQueue.on("failed", function (error, jobInfo) {
-      const id = jobInfo.options.id;
-      if (error instanceof hue.ApiError) {
-        adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
-      } else if (jobInfo.retryCount >= 10) {
-        adapter.log.error(`groupQueue: job ${id} max retry reached: ${error}`);
-      } else {
-        adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
-        return 25; // retry in 25 ms
-      }
+        const id = jobInfo.options.id;
+        if (error instanceof hue.ApiError) {
+            adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
+        } else if (jobInfo.retryCount >= 10) {
+            adapter.log.error(`groupQueue: job ${id} max retry reached: ${error}`);
+        } else {
+            adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
+            return 25; // retry in 25 ms
+        }
     });
 
     // create a bottleneck limiter to max 10 cmd per 1 sec
     lightQueue = new Bottleneck({
-      reservoir: 10, // initial value
-      reservoirRefreshAmount: 10,
-      reservoirRefreshInterval: 1*1000, // must be divisible by 250
-      minTime: 25, // wait a minimum of 25 ms between command executions
-      highWater: 1000 // start to drop older commands if > 1000 commands in the queue
+        reservoir: 10, // initial value
+        reservoirRefreshAmount: 10,
+        reservoirRefreshInterval: 1*1000, // must be divisible by 250
+        minTime: 25, // wait a minimum of 25 ms between command executions
+        highWater: 1000 // start to drop older commands if > 1000 commands in the queue
     });
     lightQueue.on("depleted", function (empty) {
-      adapter.log.debug('lightQueue full. Throttling down...');
+        adapter.log.debug('lightQueue full. Throttling down...');
     });
     lightQueue.on("error", function (error) {
-      adapter.log.error('lightQueue error: ', err);
+        adapter.log.error('lightQueue error: ', err);
     });
     lightQueue.on("retry", function (error, jobInfo) {
-      adapter.log.warn(`lightQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
+        adapter.log.warn(`lightQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
     });
     lightQueue.on("failed", function (error, jobInfo) {
-      const id = jobInfo.options.id;
-      if (error instanceof hue.ApiError) {
-        adapter.log.error(`lightQueue: job ${id} failed: ${error}`);
-      } else if (jobInfo.retryCount >= 10) {
-        adapter.log.error(`lightQueue: job ${id} max retry reached: ${error}`);
-      } else {
-        adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
-        return 25; // retry in 25 ms
-      }
+        const id = jobInfo.options.id;
+        if (error instanceof hue.ApiError) {
+            adapter.log.error(`lightQueue: job ${id} failed: ${error}`);
+        } else if (jobInfo.retryCount >= 10) {
+            adapter.log.error(`lightQueue: job ${id} max retry reached: ${error}`);
+        } else {
+            adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
+            return 25; // retry in 25 ms
+        }
     });
 
     api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
@@ -1305,15 +1336,15 @@ function main() {
 }
 
 function convertTemperature(value) {
-	if (value !== null){
-		value = value.toString();
-		var last = value.substring(value.length - 2, value.length);
-		var first = value.substring(0, value.length - 2);
-		value = first + "." + last;
-	} else {
-		value = "0";
-	}
-	return value;
+    if (value !== null){
+        value = value.toString();
+        var last = value.substring(value.length - 2, value.length);
+        var first = value.substring(0, value.length - 2);
+        value = first + "." + last;
+    } else {
+        value = "0";
+    }
+    return value;
 }
 
 // If started as allInOne/compact mode => return function to create instance
@@ -1322,4 +1353,4 @@ if (module && module.parent) {
 } else {
     // or start the instance directly
     startAdapter();
-} 
+}
