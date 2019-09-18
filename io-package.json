@@ -3,6 +3,18 @@
         "name": "hue",
         "version": "1.2.4",
         "news": {
+            "1.2.4": {
+                "en": "js-controller 2.0 compatibility, dependency updates",
+                "de": "Kompatibilität mit js-controller 2.0, Abhängigkeitsaktualisierungen",
+                "ru": "Совместимость с js-controller 2.0, обновления зависимостей",
+                "pt": "Compatibilidade com js-controller 2.0, atualizações de dependência",
+                "nl": "js-controller 2.0 compatibiliteit, afhankelijkheid updates",
+                "fr": "Compatibilité js-controller 2.0, mises à jour de dépendance",
+                "it": "Compatibilità js-controller 2.0, aggiornamenti delle dipendenze",
+                "es": "Compatibilidad con js-controller 2.0, actualizaciones de dependencia",
+                "pl": "Zgodność z js-kontrolerem 2.0, aktualizacje zależności",
+                "zh-cn": "js-controller 2.0兼容性，依赖性更新"
+            },
             "1.2.3": {
                 "en": "rework to queue commands using 'bottleneck'",
                 "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen",
