@@ -2,7 +2,7 @@
  *
  *      ioBroker Philips Hue Bridge Adapter
  *
- *      Copyright (c) 2017-2018 Bluefox <dogafox@gmail.com>
+ *      Copyright (c) 2017-2019 Bluefox <dogafox@gmail.com>
  *      Copyright (c) 2014-2016 hobbyquaker *
  *      Apache License
  *
@@ -15,7 +15,7 @@
 
 const hue = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
-const huehelper = require('./lib/hueHelper');
+const hueHelper = require('./lib/hueHelper');
 const Bottleneck = require('bottleneck');
 const md5 = require('md5');
 
@@ -215,7 +215,7 @@ function startAdapter(options) {
                         if (!('b' in ls)) {
                             ls.b = 0;
                         }
-                        const xyb = huehelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
+                        const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
                         ls.bri = xyb.b;
                         ls.xy = xyb.x + ',' + xyb.y;
                     }
@@ -244,7 +244,7 @@ function startAdapter(options) {
                         }
                         let xy = ls.xy.toString().split(',');
                         xy = {'x': xy[0], 'y': xy[1]};
-                        xy = huehelper.GamutXYforModel(xy.x, xy.y, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
+                        xy = hueHelper.GamutXYforModel(xy.x, xy.y, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
                         finalLS.xy = xy.x + ',' + xy.y;
                         lightState = lightState.xy(xy.x, xy.y);
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
@@ -253,7 +253,7 @@ function startAdapter(options) {
                             finalLS.bri = 254;
                             finalLS.on = true;
                         }
-                        const rgb = huehelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
+                        const rgb = hueHelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
                         finalLS.r = Math.round(rgb.Red * 254);
                         finalLS.g = Math.round(rgb.Green * 254);
                         finalLS.b = Math.round(rgb.Blue * 254);
@@ -273,8 +273,16 @@ function startAdapter(options) {
                     }
                     if ('hue' in ls) {
                         finalLS.hue = finalLS.hue % 360;
-                        if (finalLS.hue < 0) finalLS.hue += 360;
-                        finalLS.hue = finalLS.hue / 360 * 65535;
+                        if (finalLS.hue < 0) {
+                            finalLS.hue += 360;
+                        }
+                        // Convert 360° into 0-65535 value
+                        finalLS.hue = Math.round(finalLS.hue / 360 * 65535);
+
+                        if (finalLS.hue > 65535) { // may be round error
+                            finalLS.hue = 65535;
+                        }
+
                         lightState = lightState.hue(finalLS.hue);
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                             lightState = lightState.on();
@@ -333,10 +341,18 @@ function startAdapter(options) {
                     }
                     if ('hue_inc' in ls && !('hue' in finalLS) && 'hue' in alls) {
                         alls.hue = alls.hue % 360;
-                        if (alls.hue < 0) alls.hue += 360;
+                        if (alls.hue < 0) {
+                            alls.hue += 360;
+                        }
+                        // Convert 360° into 0-65535 value
                         alls.hue = alls.hue / 360 * 65535;
 
+                        if (alls.hue > 65535) { // may be round error
+                            alls.hue = 65535;
+                        }
+
                         finalLS.hue = (((ls.hue_inc + alls.hue) % 65536) + 65536) % 65536;
+
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                             lightState = lightState.on();
                             lightState = lightState.bri(254);
@@ -450,7 +466,7 @@ function startAdapter(options) {
                 });
             });
         },
-        message: (obj) => {
+        message: obj => {
             let wait = false;
             if (obj) {
                 switch (obj.command) {
@@ -475,7 +491,7 @@ function startAdapter(options) {
         ready: () => {
             main();
         },
-        unload: (callback) => {
+        unload: callback => {
             try {
                 if (pollingInterval) {
                     clearInterval(pollingInterval);
@@ -499,11 +515,11 @@ function startAdapter(options) {
     return adapter;
 }
 
-const times = [];
-
 function browse(timeout, callback) {
     timeout = parseInt(timeout);
-    if (isNaN(timeout)) timeout = 5000;
+    if (isNaN(timeout)) {
+        timeout = 5000;
+    }
     hue.upnpSearch(timeout).then(callback).done();
 }
 
@@ -540,11 +556,11 @@ const pollSensors = [];
 const pollGroups = [];
 
 function submitHueCmd(cmd, args, callback) {
-
     // select the bottleneck queue to be used
     let queue = lightQueue;
-    if (cmd === 'getGroup' || cmd === 'setGroupLightState')
+    if (cmd === 'getGroup' || cmd === 'setGroupLightState') {
         queue = groupQueue;
+    }
 
     // construct a unique id based on the command name
     // and serialized arguments
@@ -600,7 +616,7 @@ function updateGroupState(group, prio, callback) {
         if (states.xy !== undefined) {
             const xy = states.xy.toString().split(',');
             states.xy = states.xy.toString();
-            const rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
             states.r = Math.round(rgb.Red * 254);
             states.g = Math.round(rgb.Green * 254);
             states.b = Math.round(rgb.Blue * 254);
@@ -646,7 +662,7 @@ function updateLightState(light, prio, callback) {
         if (states.xy !== undefined) {
             const xy = states.xy.toString().split(',');
             states.xy = states.xy.toString();
-            const rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
             states.r = Math.round(rgb.Red * 254);
             states.g = Math.round(rgb.Green * 254);
             states.b = Math.round(rgb.Blue * 254);
@@ -1350,7 +1366,7 @@ function main() {
     groupQueue = new Bottleneck({
         reservoir: 1, // initial value
         reservoirRefreshAmount: 1,
-        reservoirRefreshInterval: 1 * 1000, // must be divisible by 250
+        reservoirRefreshInterval: 250 * 4, // must be divisible by 250
         minTime: 25, // wait a minimum of 25 ms between command executions
         highWater: 100 // start to drop older commands if > 100 commands in the queue
     });
