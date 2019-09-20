@@ -1379,7 +1379,7 @@ function main() {
     groupQueue.on('retry', (error, jobInfo) => {
         adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
-    groupQueue.on('failed', async (error, jobInfo) => {
+    groupQueue.on('failed', (error, jobInfo) => {
         const id = jobInfo.options.id;
         if (error instanceof hue.ApiError) {
             adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
