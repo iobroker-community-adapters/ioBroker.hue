@@ -27,7 +27,7 @@ function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
         name: 'hue',
-        stateChange: (id, state) => {
+        stateChange: async (id, state) => {
             if (!id || !state || state.ack) {
                 return;
             }
@@ -35,6 +35,20 @@ function startAdapter(options) {
             adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
             const tmp = id.split('.');
             const dp = tmp.pop();
+
+            if (dp.startsWith('scene_')) {
+                try {
+                    // its a scene -> get scene id to start it
+                    const obj = await adapter.getForeignObjectAsync(id);
+
+                    await api.activateScene(obj.native.id);
+                    adapter.log.info(`Started scene: ${obj.common.name}`);
+                } catch (e) {
+                    adapter.log.warn(`Could not start scene: ${e}`);
+                }
+                return;
+            } // endIf
+
             id = tmp.slice(2).join('.');
             const fullIdBase = tmp.join('.') + '.';
             let ls = {};
@@ -52,7 +66,7 @@ function startAdapter(options) {
                 return;
             }
             // get lamp states
-            adapter.getStates(id + '.*', (err, idStates) => {
+            adapter.getStates(`${id}.*`, (err, idStates) => {
                 if (err) {
                     adapter.log.error(err);
                     return;
@@ -680,7 +694,7 @@ function updateSensorState(sensor, prio, callback) {
 }
 
 function connect(cb) {
-    api.getFullState((err, config) => {
+    api.getFullState(async (err, config) => {
         if (err) {
             adapter.log.warn('could not connect to HUE bridge (' + adapter.config.bridge + ':' + adapter.config.port + ')');
             adapter.log.error(err);
@@ -1178,6 +1192,55 @@ function connect(cb) {
 
         }
 
+        // create scene states
+        if (!adapter.config.ignoreScenes) {
+            try {
+                const scenes = await api.scenes();
+
+                // Create obj to get groupname in constant time
+                const groupNames = {};
+                for (const key in groupIds){
+                    groupNames[groupIds[key]] = key;
+                } // endFor
+
+                for (const scene of scenes) {
+                    if (scene.type === 'GroupScene') {
+                        if (adapter.config.ignoreGroups) continue;
+                        adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
+                        objs.push({
+                            _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                            type: 'state',
+                            common: {
+                                name: `Scene ${scene.name}`,
+                                role: 'button'
+                            },
+                            native: {
+                                id: scene.id,
+                                group: scene.group
+                            }
+                        });
+                    } else {
+                        adapter.log.debug(`Create ${scene.name}`);
+                        objs.push({
+                            _id: `${adapter.namespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                            type: 'state',
+                            common: {
+                                name: `Scene ${scene.name}`,
+                                role: 'button'
+                            },
+                            native: {
+                                id: scene.id
+                            }
+                        });
+                    } // edElse
+                } // endFor
+                adapter.log.info(`created/updated ${scenes.length} scenes`);
+            } catch (e) {
+                adapter.log.warn(`Error syncing scenes: ${e}`);
+            } // endCatch
+
+        } // endIf
+
         // Create/update device
         adapter.log.info('creating/updating bridge device');
         objs.push({
@@ -1191,7 +1254,7 @@ function connect(cb) {
 
         syncObjects(objs, () => syncStates(states, false, cb));
     });
-}
+} // endConnect
 
 function syncObjects(objs, callback) {
     if (!objs || !objs.length) {
@@ -1276,11 +1339,8 @@ function poll() {
 
 function main() {
     adapter.subscribeStates('*');
-    if (!adapter.config.port) {
-        adapter.config.port = 80;
-    } else {
-        adapter.config.port = parseInt(adapter.config.port, 10);
-    }
+    adapter.config.port = adapter.config.port ? parseInt(adapter.config.port, 10) : 80;
+
     adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10);
     if (adapter.config.pollingInterval < 5) {
         adapter.config.pollingInterval = 5;

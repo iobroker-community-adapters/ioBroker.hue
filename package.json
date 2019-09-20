@@ -9,7 +9,7 @@
         "Bluefox <dogafox@gmail.com>"
     ],
     "engines": {
-        "node": ">=6"
+        "node": ">=8"
     },
     "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
     "license": "Apache-2.0",

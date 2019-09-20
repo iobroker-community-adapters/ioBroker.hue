@@ -158,7 +158,8 @@
         "user": "",
         "polling": true,
         "pollingInterval": 30,
-        "ignoreGroups": false
+        "ignoreGroups": false,
+        "ignoreScenes": false
     },
     "objects": [
         {
