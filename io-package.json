@@ -131,7 +131,7 @@
             "Pmant <patrickmo@gmx.de>",
             "Bluefox <dogafox@gmail.com>"
         ],
-        "license": "Apache 2.0",
+        "license": "Apache-2.0",
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "messagebox": true,

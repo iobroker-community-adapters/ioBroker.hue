@@ -171,7 +171,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 Apache 2.0
 
-Copyright (c) 2017-2018 Bluefox <dogafox@gmail.com>
+Copyright (c) 2017-2019 Bluefox <dogafox@gmail.com>
 Copyright (c) 2014-2016 hobbyquaker
 
 

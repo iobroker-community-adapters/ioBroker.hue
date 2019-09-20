@@ -1,48 +1,52 @@
 {
-  "name": "iobroker.hue",
-  "version": "1.2.4",
-  "description": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges",
-  "author": "hobbyquaker <hq@ccu.io>",
-  "contributors": [
-    "hobbyquaker <hq@ccu.io>",
-    "Pmant <patrickmo@gmx.de>",
-    "Bluefox <dogafox@gmail.com>"
-  ],
-  "engines": {
-    "node": ">=6"
-  },
-  "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
-  "license": "Apache 2.0",
-  "keywords": [
-    "ioBroker",
-    "hue",
-    "led",
-    "rgb",
-    "smartlink",
-    "zigbee",
-    "home automation"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
-  },
-  "dependencies": {
-    "bottleneck": "^2.19.5",
-    "node-hue-api": "^2.4.6",
-    "md5": "^2.2.1",
-    "@iobroker/adapter-core": "^1.0.3"
-  },
-  "devDependencies": {
-    "gulp": "^4.0.2",
-    "mocha": "^6.2.0",
-    "chai": "^4.2.0",
-    "eslint": "^6.4.0"
-  },
-  "bugs": {
-    "url": "https://github.com/iobroker-community-adapters/ioBroker.hue/issues"
-  },
-  "main": "main.js",
-  "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --exit"
-  }
+    "name": "iobroker.hue",
+    "version": "1.2.4",
+    "description": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges",
+    "author": "hobbyquaker <hq@ccu.io>",
+    "contributors": [
+        "hobbyquaker <hq@ccu.io>",
+        "Pmant <patrickmo@gmx.de>",
+        "Bluefox <dogafox@gmail.com>"
+    ],
+    "engines": {
+        "node": ">=6"
+    },
+    "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
+    "license": "Apache-2.0",
+    "keywords": [
+        "ioBroker",
+        "hue",
+        "led",
+        "rgb",
+        "smartlink",
+        "zigbee",
+        "home automation"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
+    },
+    "dependencies": {
+        "bottleneck": "^2.19.5",
+        "node-hue-api": "^2.4.6",
+        "md5": "^2.2.1",
+        "@iobroker/adapter-core": "^1.0.3"
+    },
+    "devDependencies": {
+        "gulp": "^4.0.2",
+        "mocha": "^6.2.0",
+        "chai": "^4.2.0",
+        "eslint": "^6.4.0",
+        "@iobroker/testing": "^1.2.5"
+    },
+    "scripts": {
+        "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
+        "test:package": "node_modules/.bin/mocha test/packageFiles --exit",
+        "test:integration": "node_modules/.bin/mocha test/integrationAdapter --exit",
+        "test": "node node_modules/mocha/bin/mocha --exit"
+    },
+    "bugs": {
+        "url": "https://github.com/iobroker-community-adapters/ioBroker.hue/issues"
+    },
+    "main": "main.js"
 }
