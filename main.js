@@ -13,23 +13,21 @@
 /* jslint node: true */
 'use strict';
 
-const hue       = require('node-hue-api');
-const utils     = require('@iobroker/adapter-core');
+const hue = require('node-hue-api');
+const utils = require('@iobroker/adapter-core');
 const huehelper = require('./lib/hueHelper');
-const Bottleneck= require('bottleneck');
-const md5       = require('md5');
+const Bottleneck = require('bottleneck');
+const md5 = require('md5');
 
 let adapter;
-let processing  = false;
-let polling     = false;
 let pollingInterval;
 let reconnectTimeout;
 
 function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
-        name:  'hue',
-        stateChange:  function (id, state) {
+        name: 'hue',
+        stateChange: (id, state) => {
             if (!id || !state || state.ack) {
                 return;
             }
@@ -61,7 +59,7 @@ function startAdapter(options) {
                 }
                 // gather states that need to be changed
                 ls = {};
-                let alls = {};
+                const alls = {};
                 let lampOn = false;
                 let commandSupported = false;
 
@@ -69,8 +67,8 @@ function startAdapter(options) {
                     if (idStates[idState] === undefined) return;
                     if (prefill && !idStates[idState].ack) return;
 
-                    let idtmp = idState.split('.');
-                    let iddp = idtmp.pop();
+                    const idtmp = idState.split('.');
+                    const iddp = idtmp.pop();
                     switch (iddp) {
                         case 'on':
                             alls['bri'] = idStates[idState].val ? 254 : 0;
@@ -146,7 +144,7 @@ function startAdapter(options) {
                 handleParam(fullIdBase + 'level', true);
 
                 // Walk through the rest or ack=false (=to be changed) values
-                for (let idState in idStates) {
+                for (const idState in idStates) {
                     if (!idStates.hasOwnProperty(idState) || idStates[idState].val === null || idStates[idState].handled) {
                         continue;
                     }
@@ -155,8 +153,8 @@ function startAdapter(options) {
                 // Handle commands at the end because they overwrite also anything
                 if (commandSupported && dp === 'command') {
                     try {
-                        let commands = JSON.parse(state.val);
-                        for (let command in commands) {
+                        const commands = JSON.parse(state.val);
+                        for (const command in commands) {
                             if (!commands.hasOwnProperty(command)) {
                                 continue;
                             }
@@ -203,7 +201,7 @@ function startAdapter(options) {
                         if (!('b' in ls)) {
                             ls.b = 0;
                         }
-                        let xyb = huehelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
+                        const xyb = huehelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
                         ls.bri = xyb.b;
                         ls.xy = xyb.x + ',' + xyb.y;
                     }
@@ -241,10 +239,10 @@ function startAdapter(options) {
                             finalLS.bri = 254;
                             finalLS.on = true;
                         }
-                        let rgb = huehelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
-                        finalLS.r = Math.round(rgb.Red   * 254);
+                        const rgb = huehelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
+                        finalLS.r = Math.round(rgb.Red * 254);
                         finalLS.g = Math.round(rgb.Green * 254);
-                        finalLS.b = Math.round(rgb.Blue  * 254);
+                        finalLS.b = Math.round(rgb.Blue * 254);
                     }
                     if ('ct' in ls) {
                         //finalLS.ct = Math.max(153, Math.min(500, ls.ct));
@@ -303,7 +301,7 @@ function startAdapter(options) {
 
                     // only available in command state
                     if ('transitiontime' in ls) {
-                        let transitiontime = parseInt(ls.transitiontime);
+                        const transitiontime = parseInt(ls.transitiontime);
                         if (!isNaN(transitiontime)) {
                             finalLS.transitiontime = transitiontime;
                             lightState = lightState.transitiontime(transitiontime);
@@ -381,23 +379,37 @@ function startAdapter(options) {
                             // log final changes / states
                             adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
-                            submitHueCmd('setGroupLightState', {id: groupIds[id], data: lightState, prio: 1}, (err, result) => {
-                                setTimeout(updateGroupState, 150, {id: groupIds[id], name: obj.common.name}, 3, (err, result) => {
+                            submitHueCmd('setGroupLightState', {
+                                id: groupIds[id],
+                                data: lightState,
+                                prio: 1
+                            }, (err, result) => {
+                                setTimeout(updateGroupState, 150, {
+                                    id: groupIds[id],
+                                    name: obj.common.name
+                                }, 3, (err, result) => {
                                     adapter.log.debug('updated group state(' + groupIds[id] + ') after change');
                                 });
                             });
                         }
                     } else if (obj.common.role === 'switch') {
                         if (finalLS.hasOwnProperty('on')) {
-                            finalLS = {on:finalLS.on};
+                            finalLS = {on: finalLS.on};
                             // log final changes / states
                             adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
                             lightState = hue.lightState.create();
                             lightState.on(finalLS.on);
 
-                            submitHueCmd('setLightState', {id: channelIds[id], data: lightState, prio: 1}, (err, result) => {
-                                setTimeout(updateLightState, 150, {id: channelIds[id], name: obj.common.name}, 3, (err, result) => {
+                            submitHueCmd('setLightState', {
+                                id: channelIds[id],
+                                data: lightState,
+                                prio: 1
+                            }, (err, result) => {
+                                setTimeout(updateLightState, 150, {
+                                    id: channelIds[id],
+                                    name: obj.common.name
+                                }, 3, (err, result) => {
                                     adapter.log.debug('updated lighstate(' + channelIds[id] + ') after change');
                                 });
                             });
@@ -408,8 +420,15 @@ function startAdapter(options) {
                         // log final changes / states
                         adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
 
-                        submitHueCmd('setLightState', {id: channelIds[id], data: lightState, prio: 1}, (err, result) => {
-                            setTimeout(updateLightState, 150, {id: channelIds[id], name: obj.common.name}, 3, (err, result) => {
+                        submitHueCmd('setLightState', {
+                            id: channelIds[id],
+                            data: lightState,
+                            prio: 1
+                        }, (err, result) => {
+                            setTimeout(updateLightState, 150, {
+                                id: channelIds[id],
+                                name: obj.common.name
+                            }, 3, (err, result) => {
                                 adapter.log.debug('updated lighstate(' + channelIds[id] + ') after change');
                             });
                         });
@@ -417,7 +436,7 @@ function startAdapter(options) {
                 });
             });
         },
-        message: function (obj) {
+        message: (obj) => {
             let wait = false;
             if (obj) {
                 switch (obj.command) {
@@ -430,7 +449,7 @@ function startAdapter(options) {
                         wait = true;
                         break;
                     default:
-                        adapter.log.warn("Unknown command: " + obj.command);
+                        adapter.log.warn('Unknown command: ' + obj.command);
                         break;
                 }
             }
@@ -439,10 +458,10 @@ function startAdapter(options) {
             }
             return true;
         },
-        ready: function () {
+        ready: () => {
             main();
         },
-        unload: function (callback) {
+        unload: (callback) => {
             try {
                 if (pollingInterval) {
                     clearInterval(pollingInterval);
@@ -466,7 +485,7 @@ function startAdapter(options) {
     return adapter;
 }
 
-let times = [];
+const times = [];
 
 function browse(timeout, callback) {
     timeout = parseInt(timeout);
@@ -475,10 +494,10 @@ function browse(timeout, callback) {
 }
 
 function createUser(ip, callback) {
-    let newUserName = null;
-    let userDescription = 'ioBroker.hue';
+    const newUserName = null;
+    const userDescription = 'ioBroker.hue';
     try {
-        let api = new HueApi();
+        const api = new HueApi();
         api.registerUser(ip, newUserName, userDescription)
             .then(newUser => {
                 adapter.log.info('created new User: ' + newUser);
@@ -494,17 +513,17 @@ function createUser(ip, callback) {
     }
 }
 
-let HueApi = hue.HueApi;
+const HueApi = hue.HueApi;
 let api;
 
 let groupQueue;
 let lightQueue;
 
-let channelIds     = {};
-let groupIds       = {};
-let pollLights     = [];
-let pollSensors    = [];
-let pollGroups     = [];
+const channelIds = {};
+const groupIds = {};
+const pollLights = [];
+const pollSensors = [];
+const pollGroups = [];
 
 function submitHueCmd(cmd, args, callback) {
 
@@ -515,13 +534,12 @@ function submitHueCmd(cmd, args, callback) {
 
     // construct a unique id based on the command name
     // and serialized arguments
-    let id = cmd + ':' + args.id + ':' + md5(JSON.stringify(args));
+    const id = cmd + ':' + args.id + ':' + md5(JSON.stringify(args));
 
     // skip any job submit if a job with the same id already exists in the
     // queue
-    if(queue.jobStatus(id) !== null)
-    {
-        adapter.log.debug("job " + id + " already in queue, skipping..");
+    if (queue.jobStatus(id) !== null) {
+        adapter.log.debug('job ' + id + ' already in queue, skipping..');
         return;
     }
 
@@ -549,10 +567,10 @@ function updateGroupState(group, prio, callback) {
     adapter.log.debug('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
 
     submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
-        let values = [];
-        let states = {};
+        const values = [];
+        const states = {};
 
-        for (let stateA in result.lastAction) {
+        for (const stateA in result.lastAction) {
             if (!result.lastAction.hasOwnProperty(stateA)) {
                 continue;
             }
@@ -566,17 +584,17 @@ function updateGroupState(group, prio, callback) {
             states.bri = 0;
         }
         if (states.xy !== undefined) {
-            let xy = states.xy.toString().split(',');
+            const xy = states.xy.toString().split(',');
             states.xy = states.xy.toString();
-            let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-            states.r = Math.round(rgb.Red   * 254);
+            const rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            states.r = Math.round(rgb.Red * 254);
             states.g = Math.round(rgb.Green * 254);
-            states.b = Math.round(rgb.Blue  * 254);
+            states.b = Math.round(rgb.Blue * 254);
         }
         if (states.bri !== undefined) {
             states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
         }
-        for (let stateB in states) {
+        for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
                 continue;
             }
@@ -591,10 +609,10 @@ function updateLightState(light, prio, callback) {
     adapter.log.debug('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
 
     submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
-        let values = [];
-        let states = {};
+        const values = [];
+        const states = {};
 
-        for (let stateA in result.state) {
+        for (const stateA in result.state) {
             if (!result.state.hasOwnProperty(stateA)) {
                 continue;
             }
@@ -612,17 +630,17 @@ function updateLightState(light, prio, callback) {
             states.bri = 0;
         }
         if (states.xy !== undefined) {
-            let xy = states.xy.toString().split(',');
+            const xy = states.xy.toString().split(',');
             states.xy = states.xy.toString();
-            let rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-            states.r = Math.round(rgb.Red   * 254);
+            const rgb = huehelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            states.r = Math.round(rgb.Red * 254);
             states.g = Math.round(rgb.Green * 254);
-            states.b = Math.round(rgb.Blue  * 254);
+            states.b = Math.round(rgb.Blue * 254);
         }
         if (states.bri !== undefined) {
             states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
         }
-        for (let stateB in states) {
+        for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
                 continue;
             }
@@ -637,10 +655,10 @@ function updateSensorState(sensor, prio, callback) {
     adapter.log.debug('polling sensor ' + sensor.name + ' (' + sensor.id + ') with prio ' + prio);
 
     submitHueCmd('sensorStatus', {id: sensor.id, prio: prio}, (err, result) => {
-        let values = [];
-        let states = {};
+        const values = [];
+        const states = {};
 
-        for (let stateA in result.state) {
+        for (const stateA in result.state) {
             if (!result.state.hasOwnProperty(stateA)) {
                 continue;
             }
@@ -650,7 +668,7 @@ function updateSensorState(sensor, prio, callback) {
         if (states.temperature !== undefined) {
             states.temperature = convertTemperature(states.temperature);
         }
-        for (let stateB in states) {
+        for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
                 continue;
             }
@@ -674,26 +692,26 @@ function connect(cb) {
             return;
         }
 
-        let channelNames = [];
+        const channelNames = [];
 
         // Create/update lamps
-        let lights  = config.lights;
-        let sensors = config.sensors;
-        let objs    = [];
-        let states  = [];
+        const lights = config.lights;
+        const sensors = config.sensors;
+        const objs = [];
+        const states = [];
 
-        for (let sid in sensors) {
+        for (const sid in sensors) {
             if (!sensors.hasOwnProperty(sid)) {
                 continue;
             }
 
-            let sensor = sensors[sid];
+            const sensor = sensors[sid];
 
-            if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type=='Daylight' || sensor.type=='ZLLTemperature' || sensor.type=='ZLLPresence' || sensor.type=='ZLLLightLevel') {
+            if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type == 'Daylight' || sensor.type == 'ZLLTemperature' || sensor.type == 'ZLLPresence' || sensor.type == 'ZLLLightLevel') {
 
                 let channelName = config.config.name + '.' + sensor.name;
                 if (channelNames.indexOf(channelName) !== -1) {
-                    let newChannelName = channelName + ' ' + sensor.type;
+                    const newChannelName = channelName + ' ' + sensor.type;
                     if (channelNames.indexOf(newChannelName) !== -1) {
                         adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping sensor ' + sid);
                         continue;
@@ -705,31 +723,31 @@ function connect(cb) {
                     channelNames.push(channelName);
                 }
 
-                let sensorName =  sensor.name.replace(/\s/g, '');
+                const sensorName = sensor.name.replace(/\s/g, '');
 
                 pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
 
-                let sensorCopy = JSON.parse(JSON.stringify(sensor));
-                for (let state in Object.assign(sensorCopy.state, sensorCopy.config)) {
+                const sensorCopy = JSON.parse(JSON.stringify(sensor));
+                for (const state in Object.assign(sensorCopy.state, sensorCopy.config)) {
                     if (!sensorCopy.state.hasOwnProperty(state)) {
                         continue;
                     }
-                    let objId = channelName  + '.' + state;
+                    const objId = channelName + '.' + state;
 
-                    let lobj = {
-                        _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
-                        type:       'state',
+                    const lobj = {
+                        _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                        type: 'state',
                         common: {
-                            name:   objId.replace(/\s/g, '_'),
-                            read:   true,
-                            write:  true
+                            name: objId.replace(/\s/g, '_'),
+                            read: true,
+                            write: true
                         },
                         native: {
-                            id:     sid
+                            id: sid
                         }
                     };
 
-                    var value = sensorCopy.state[state];
+                    let value = sensorCopy.state[state];
 
                     switch (state) {
                         case 'on':
@@ -737,9 +755,9 @@ function connect(cb) {
                             lobj.common.role = 'switch';
                             break;
                         case 'reachable':
-                            lobj.common.type  = 'boolean';
+                            lobj.common.type = 'boolean';
                             lobj.common.write = false;
-                            lobj.common.role  = 'indicator.reachable';
+                            lobj.common.role = 'indicator.reachable';
                             break;
                         case 'buttonevent':
                             lobj.common.type = 'number';
@@ -772,8 +790,8 @@ function connect(cb) {
                         case 'lightlevel':
                             lobj.common.type = 'number';
                             lobj.common.role = 'lightlevel';
-                            lobj.common.min  = 0;
-                            lobj.common.max  = 17000;
+                            lobj.common.min = 0;
+                            lobj.common.max = 17000;
                             break;
                         case 'temperature':
                             lobj.common.type = 'number';
@@ -793,15 +811,15 @@ function connect(cb) {
                     _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
                     type: 'channel',
                     common: {
-                        name:           channelName.replace(/\s/g, '_'),
-                        role:           sensorCopy.type
+                        name: channelName.replace(/\s/g, '_'),
+                        role: sensorCopy.type
                     },
                     native: {
-                        id:             sid,
-                        type:           sensorCopy.type,
-                        name:           sensorCopy.name,
-                        modelid:        sensorCopy.modelid,
-                        swversion:      sensorCopy.swversion,
+                        id: sid,
+                        type: sensorCopy.type,
+                        name: sensorCopy.name,
+                        modelid: sensorCopy.modelid,
+                        swversion: sensorCopy.swversion,
                     }
                 });
             }
@@ -809,15 +827,15 @@ function connect(cb) {
 
         adapter.log.info('created/updated ' + pollSensors.length + ' sensor channels');
 
-        for (let lid in lights) {
+        for (const lid in lights) {
             if (!lights.hasOwnProperty(lid)) {
                 continue;
             }
-            let light = lights[lid];
+            const light = lights[lid];
 
             let channelName = config.config.name + '.' + light.name;
             if (channelNames.indexOf(channelName) !== -1) {
-                let newChannelName = channelName + ' ' + light.type;
+                const newChannelName = channelName + ' ' + light.type;
                 if (channelNames.indexOf(newChannelName) !== -1) {
                     adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping light ' + lid);
                     continue;
@@ -842,22 +860,22 @@ function connect(cb) {
                 light.state.level = 0;
             }
 
-            for (let state in light.state) {
+            for (const state in light.state) {
                 if (!light.state.hasOwnProperty(state)) {
                     continue;
                 }
-                let objId = channelName + '.' + state;
+                const objId = channelName + '.' + state;
 
-                let lobj = {
-                    _id:        adapter.namespace + '.' + objId.replace(/\s/g, '_'),
-                    type:       'state',
+                const lobj = {
+                    _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                    type: 'state',
                     common: {
-                        name:   objId.replace(/\s/g, '_'),
-                        read:   true,
-                        write:  true
+                        name: objId.replace(/\s/g, '_'),
+                        read: true,
+                        write: true
                     },
                     native: {
-                        id:     lid
+                        id: lid
                     }
                 };
 
@@ -869,27 +887,27 @@ function connect(cb) {
                     case 'bri':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.dimmer';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 254;
+                        lobj.common.min = 0;
+                        lobj.common.max = 254;
                         break;
                     case 'level':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.dimmer';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 100;
+                        lobj.common.min = 0;
+                        lobj.common.max = 100;
                         break;
                     case 'hue':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.hue';
                         lobj.common.unit = '°';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 360;
+                        lobj.common.min = 0;
+                        lobj.common.max = 360;
                         break;
                     case 'sat':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.saturation';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 254;
+                        lobj.common.min = 0;
+                        lobj.common.max = 254;
                         break;
                     case 'xy':
                         lobj.common.type = 'string';
@@ -899,8 +917,8 @@ function connect(cb) {
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.temperature';
                         lobj.common.unit = '°K';
-                        lobj.common.min  = 2200; // 500
-                        lobj.common.max  = 6500; // 153
+                        lobj.common.min = 2200; // 500
+                        lobj.common.max = 6500; // 153
                         break;
                     case 'alert':
                         lobj.common.type = 'string';
@@ -911,32 +929,32 @@ function connect(cb) {
                         lobj.common.role = 'switch';
                         break;
                     case 'colormode':
-                        lobj.common.type  = 'string';
-                        lobj.common.role  = 'colormode';
+                        lobj.common.type = 'string';
+                        lobj.common.role = 'colormode';
                         lobj.common.write = false;
                         break;
                     case 'reachable':
-                        lobj.common.type  = 'boolean';
+                        lobj.common.type = 'boolean';
                         lobj.common.write = false;
-                        lobj.common.role  = 'indicator.reachable';
+                        lobj.common.role = 'indicator.reachable';
                         break;
                     case 'r':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.red';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 255;
+                        lobj.common.min = 0;
+                        lobj.common.max = 255;
                         break;
                     case 'g':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.green';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 255;
+                        lobj.common.min = 0;
+                        lobj.common.max = 255;
                         break;
                     case 'b':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.blue';
-                        lobj.common.min  = 0;
-                        lobj.common.max  = 255;
+                        lobj.common.min = 0;
+                        lobj.common.max = 255;
                         break;
                     case 'command':
                         lobj.common.type = 'string';
@@ -971,16 +989,16 @@ function connect(cb) {
                 _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
                 type: 'channel',
                 common: {
-                    name:           channelName.replace(/\s/g, '_'),
-                    role:           role
+                    name: channelName.replace(/\s/g, '_'),
+                    role: role
                 },
                 native: {
-                    id:             lid,
-                    type:           light.type,
-                    name:           light.name,
-                    modelid:        light.modelid,
-                    swversion:      light.swversion,
-                    pointsymbol:    light.pointsymbol
+                    id: lid,
+                    type: light.type,
+                    name: light.name,
+                    modelid: light.modelid,
+                    swversion: light.swversion,
+                    pointsymbol: light.pointsymbol
                 }
             });
 
@@ -989,32 +1007,32 @@ function connect(cb) {
 
         // Create/update groups
         if (!adapter.config.ignoreGroups) {
-            let groups = config.groups;
+            const groups = config.groups;
             groups[0] = {
                 name: 'All',   //"Lightset 0"
                 type: 'LightGroup',
                 id: 0,
                 action: {
-                    alert:  'select',
-                    bri:    0,
+                    alert: 'select',
+                    bri: 0,
                     colormode: '',
-                    ct:     0,
+                    ct: 0,
                     effect: 'none',
-                    hue:    0,
-                    on:     false,
-                    sat:    0,
-                    xy:     '0,0'
+                    hue: 0,
+                    on: false,
+                    sat: 0,
+                    xy: '0,0'
                 }
             };
-            for (let gid in groups) {
+            for (const gid in groups) {
                 if (!groups.hasOwnProperty(gid)) {
                     continue;
                 }
-                let group = groups[gid];
+                const group = groups[gid];
 
                 let groupName = config.config.name + '.' + group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
-                    let newGroupName = groupName + ' ' + group.type;
+                    const newGroupName = groupName + ' ' + group.type;
                     if (channelNames.indexOf(newGroupName) !== -1) {
                         adapter.log.error('channel "' + groupName.replace(/\s/g, '_') + '" already exists, could not use "' + newGroupName.replace(/\s/g, '_') + '" as well, skipping group ' + gid);
                         continue;
@@ -1028,29 +1046,29 @@ function connect(cb) {
                 groupIds[groupName.replace(/\s/g, '_')] = gid;
                 pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
 
-                group.action.r      = 0;
-                group.action.g      = 0;
-                group.action.b      = 0;
+                group.action.r = 0;
+                group.action.g = 0;
+                group.action.b = 0;
                 group.action.command = '{}';
-                group.action.level  = 0;
+                group.action.level = 0;
 
-                for (let action in group.action) {
+                for (const action in group.action) {
                     if (!group.action.hasOwnProperty(action)) {
                         continue;
                     }
 
-                    let gobjId = groupName + '.' + action;
+                    const gobjId = groupName + '.' + action;
 
-                    let gobj = {
-                        _id:        adapter.namespace + '.' + gobjId.replace(/\s/g, '_'),
-                        type:       'state',
+                    const gobj = {
+                        _id: adapter.namespace + '.' + gobjId.replace(/\s/g, '_'),
+                        type: 'state',
                         common: {
-                            name:   gobjId.replace(/\s/g, '_'),
-                            read:   true,
-                            write:  true
+                            name: gobjId.replace(/\s/g, '_'),
+                            read: true,
+                            write: true
                         },
                         native: {
-                            id:     gid
+                            id: gid
                         }
                     };
                     if (typeof group.action[action] === 'object') {
@@ -1065,27 +1083,27 @@ function connect(cb) {
                         case 'bri':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.dimmer';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 254;
+                            gobj.common.min = 0;
+                            gobj.common.max = 254;
                             break;
                         case 'level':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.dimmer';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 100;
+                            gobj.common.min = 0;
+                            gobj.common.max = 100;
                             break;
                         case 'hue':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.hue';
                             gobj.common.unit = '°';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 360;
+                            gobj.common.min = 0;
+                            gobj.common.max = 360;
                             break;
                         case 'sat':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.saturation';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 254;
+                            gobj.common.min = 0;
+                            gobj.common.max = 254;
                             break;
                         case 'xy':
                             gobj.common.type = 'string';
@@ -1095,8 +1113,8 @@ function connect(cb) {
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.temperature';
                             gobj.common.unit = '°K';
-                            gobj.common.min  = 2200; // 500
-                            gobj.common.max  = 6500; // 153
+                            gobj.common.min = 2200; // 500
+                            gobj.common.max = 6500; // 153
                             break;
                         case 'alert':
                             gobj.common.type = 'string';
@@ -1114,20 +1132,20 @@ function connect(cb) {
                         case 'r':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.red';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 255;
+                            gobj.common.min = 0;
+                            gobj.common.max = 255;
                             break;
                         case 'g':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.green';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 255;
+                            gobj.common.min = 0;
+                            gobj.common.max = 255;
                             break;
                         case 'b':
                             gobj.common.type = 'number';
                             gobj.common.role = 'level.color.blue';
-                            gobj.common.min  = 0;
-                            gobj.common.max  = 255;
+                            gobj.common.min = 0;
+                            gobj.common.max = 255;
                             break;
                         case 'command':
                             gobj.common.type = 'string';
@@ -1142,16 +1160,16 @@ function connect(cb) {
                 }
 
                 objs.push({
-                    _id:        adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
-                    type:       'channel',
+                    _id: adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
+                    type: 'channel',
                     common: {
-                        name:   groupName.replace(/\s/g, '_'),
-                        role:   group.type
+                        name: groupName.replace(/\s/g, '_'),
+                        role: group.type
                     },
                     native: {
-                        id:     gid,
-                        type:   group.type,
-                        name:   group.name,
+                        id: gid,
+                        type: group.type,
+                        name: group.name,
                         lights: group.lights
                     }
                 });
@@ -1163,7 +1181,7 @@ function connect(cb) {
         // Create/update device
         adapter.log.info('creating/updating bridge device');
         objs.push({
-            _id:    adapter.namespace + '.' + config.config.name.replace(/\s/g, '_'),
+            _id: adapter.namespace + '.' + config.config.name.replace(/\s/g, '_'),
             type: 'device',
             common: {
                 name: config.config.name.replace(/\s/g, '_')
@@ -1171,7 +1189,7 @@ function connect(cb) {
             native: config.config
         });
 
-        syncObjects(objs, () => syncStates(states, false, cb))
+        syncObjects(objs, () => syncStates(states, false, cb));
     });
 }
 
@@ -1179,7 +1197,7 @@ function syncObjects(objs, callback) {
     if (!objs || !objs.length) {
         return callback && callback();
     }
-    let task = objs.shift();
+    const task = objs.shift();
 
     adapter.getForeignObject(task._id, (err, obj) => {
         // add saturation into enum.functions.color
@@ -1219,7 +1237,7 @@ function syncStates(states, isChanged, callback) {
     if (!states || !states.length) {
         return callback && callback();
     }
-    let task = states.shift();
+    const task = states.shift();
 
     if (typeof task.val === 'object' && task.val !== null && task.val !== undefined) {
         task.val = task.val.toString();
@@ -1232,6 +1250,7 @@ function syncStates(states, isChanged, callback) {
 }
 
 let pollingState = false;
+
 function poll() {
     if (pollingState)
         return;
@@ -1271,20 +1290,20 @@ function main() {
     groupQueue = new Bottleneck({
         reservoir: 1, // initial value
         reservoirRefreshAmount: 1,
-        reservoirRefreshInterval: 1*1000, // must be divisible by 250
+        reservoirRefreshInterval: 1 * 1000, // must be divisible by 250
         minTime: 25, // wait a minimum of 25 ms between command executions
         highWater: 100 // start to drop older commands if > 100 commands in the queue
     });
-    groupQueue.on("depleted", function (empty) {
+    groupQueue.on('depleted', () => {
         adapter.log.debug('groupQueue full. Throttling down...');
     });
-    groupQueue.on("error", function (error) {
-        adapter.log.error('groupQueue error: ', err);
+    groupQueue.on('error', err => {
+        adapter.log.error(`groupQueue error: ${err}`);
     });
-    groupQueue.on("retry", function (error, jobInfo) {
-        adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
+    groupQueue.on('retry', (error, jobInfo) => {
+        adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
-    groupQueue.on("failed", function (error, jobInfo) {
+    groupQueue.on('failed', (error, jobInfo) => {
         const id = jobInfo.options.id;
         if (error instanceof hue.ApiError) {
             adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
@@ -1300,20 +1319,20 @@ function main() {
     lightQueue = new Bottleneck({
         reservoir: 10, // initial value
         reservoirRefreshAmount: 10,
-        reservoirRefreshInterval: 1*1000, // must be divisible by 250
+        reservoirRefreshInterval: 1000, // must be divisible by 250
         minTime: 25, // wait a minimum of 25 ms between command executions
         highWater: 1000 // start to drop older commands if > 1000 commands in the queue
     });
-    lightQueue.on("depleted", function (empty) {
+    lightQueue.on('depleted', () => {
         adapter.log.debug('lightQueue full. Throttling down...');
     });
-    lightQueue.on("error", function (error) {
-        adapter.log.error('lightQueue error: ', err);
+    lightQueue.on('error', (err) => {
+        adapter.log.error(`lightQueue error: ${err}`);
     });
-    lightQueue.on("retry", function (error, jobInfo) {
-        adapter.log.warn(`lightQueue: retry [${jobInfo.retryCount+1}/10] job ${jobInfo.options.id}`);
+    lightQueue.on('retry', (error, jobInfo) => {
+        adapter.log.warn(`lightQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
-    lightQueue.on("failed", function (error, jobInfo) {
+    lightQueue.on('failed', (error, jobInfo) => {
         const id = jobInfo.options.id;
         if (error instanceof hue.ApiError) {
             adapter.log.error(`lightQueue: job ${id} failed: ${error}`);
@@ -1336,13 +1355,13 @@ function main() {
 }
 
 function convertTemperature(value) {
-    if (value !== null){
+    if (value !== null) {
         value = value.toString();
-        var last = value.substring(value.length - 2, value.length);
-        var first = value.substring(0, value.length - 2);
-        value = first + "." + last;
+        const last = value.substring(value.length - 2, value.length);
+        const first = value.substring(0, value.length - 2);
+        value = first + '.' + last;
     } else {
-        value = "0";
+        value = '0';
     }
     return value;
 }
