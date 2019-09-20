@@ -159,7 +159,7 @@ function startAdapter(options) {
 
                 // Walk through the rest or ack=false (=to be changed) values
                 for (const idState in idStates) {
-                    if (!idStates.hasOwnProperty(idState) || idStates[idState].val === null || idStates[idState].handled) {
+                    if (!idStates[idState] || idStates[idState].val === null || idStates[idState].handled) {
                         continue;
                     }
                     handleParam(idState, false);
@@ -1215,7 +1215,7 @@ function connect(cb) {
 
                 // Create obj to get groupname in constant time
                 const groupNames = {};
-                for (const key in groupIds){
+                for (const key in groupIds) {
                     groupNames[groupIds[key]] = key;
                 } // endFor
 
@@ -1379,12 +1379,17 @@ function main() {
     groupQueue.on('retry', (error, jobInfo) => {
         adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
-    groupQueue.on('failed', (error, jobInfo) => {
+    groupQueue.on('failed', async (error, jobInfo) => {
         const id = jobInfo.options.id;
         if (error instanceof hue.ApiError) {
             adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
         } else if (jobInfo.retryCount >= 10) {
             adapter.log.error(`groupQueue: job ${id} max retry reached: ${error}`);
+            if (/Api Error: resource, \/groups\/.+, not available,/.test(error)) {
+                // seems like a room has been deleted -> resync by restarting adapter
+                adapter.log.warn('Room deleted -> restarting adapter to resync');
+                adapter.restart();
+            } // endIf
         } else {
             adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
             return 25; // retry in 25 ms

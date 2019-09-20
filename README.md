@@ -26,6 +26,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 * (foxriver76) internal optimizations
 * (foxriver76) usage of iobroker testing
 * (foxriver76) add possibility to sync scenes
+* (foxriver76) restart adapter when room is deleted in app
 
 ### 1.2.4 (2019.09.18)
 * (Apollon77) Make compatible with js-controller 2.0
