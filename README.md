@@ -31,6 +31,7 @@ __ATTENTION: Remove all objects once, ids have changed__
 * (foxriver76) fix .hue value, user had to set 0-360° but adapter set 0-65535
 * (foxriver76) fix .color.temperature
 * (foxriver76) remove unnecessary bridge channel, adapter namespace is the bridge
+* (foxriver76) add "update available" indicator for light bulbs
 
 ### 1.2.4 (2019.09.18)
 * (Apollon77) Make compatible with js-controller 2.0

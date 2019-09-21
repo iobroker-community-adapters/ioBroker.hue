@@ -659,6 +659,10 @@ function updateLightState(light, prio, callback) {
         const values = [];
         const states = {};
 
+        if (result.swupdate && result.swupdate.state) {
+            values.push({id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state});
+        } // endIf
+
         for (const stateA in result.state) {
             if (!result.state.hasOwnProperty(stateA)) {
                 continue;
@@ -914,6 +918,28 @@ function connect(cb) {
                 light.state.command = '{}';
                 light.state.level = 0;
             }
+
+            // Create swUpdate state for every light
+            if (light.swupdate && light.swupdate.state) {
+                const objId = `${channelName}.updateable`;
+
+                const lobj = {
+                    _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                    type: 'state',
+                    common: {
+                        name: objId,
+                        read: true,
+                        write: false,
+                        type: 'string',
+                        role: 'indicator.update'
+                    },
+                    native: {
+                        id: lid
+                    }
+                };
+                objs.push(lobj);
+                states.push({id: lobj._id, val: light.swupdate.state});
+            } // endIf
 
             for (const state in light.state) {
                 if (!light.state.hasOwnProperty(state)) {
