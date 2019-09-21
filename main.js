@@ -756,7 +756,7 @@ function connect(cb) {
 
             if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type == 'Daylight' || sensor.type == 'ZLLTemperature' || sensor.type == 'ZLLPresence' || sensor.type == 'ZLLLightLevel') {
 
-                let channelName = config.config.name + '.' + sensor.name;
+                let channelName = sensor.name;
                 if (channelNames.indexOf(channelName) !== -1) {
                     const newChannelName = channelName + ' ' + sensor.type;
                     if (channelNames.indexOf(newChannelName) !== -1) {
@@ -785,7 +785,7 @@ function connect(cb) {
                         _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
                         type: 'state',
                         common: {
-                            name: objId.replace(/\s/g, '_'),
+                            name: objId,
                             read: true,
                             write: true
                         },
@@ -858,7 +858,7 @@ function connect(cb) {
                     _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
                     type: 'channel',
                     common: {
-                        name: channelName.replace(/\s/g, '_'),
+                        name: channelName,
                         role: sensorCopy.type
                     },
                     native: {
@@ -880,7 +880,7 @@ function connect(cb) {
             }
             const light = lights[lid];
 
-            let channelName = config.config.name + '.' + light.name;
+            let channelName = light.name;
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = channelName + ' ' + light.type;
                 if (channelNames.indexOf(newChannelName) !== -1) {
@@ -918,7 +918,7 @@ function connect(cb) {
                     _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
                     type: 'state',
                     common: {
-                        name: objId.replace(/\s/g, '_'),
+                        name: objId,
                         read: true,
                         write: true
                     },
@@ -1039,7 +1039,7 @@ function connect(cb) {
                 _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
                 type: 'channel',
                 common: {
-                    name: channelName.replace(/\s/g, '_'),
+                    name: channelName,
                     role: role
                 },
                 native: {
@@ -1080,7 +1080,7 @@ function connect(cb) {
                 }
                 const group = groups[gid];
 
-                let groupName = config.config.name + '.' + group.name;
+                let groupName = group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
                     const newGroupName = groupName + ' ' + group.type;
                     if (channelNames.indexOf(newGroupName) !== -1) {
@@ -1113,7 +1113,7 @@ function connect(cb) {
                         _id: adapter.namespace + '.' + gobjId.replace(/\s/g, '_'),
                         type: 'state',
                         common: {
-                            name: gobjId.replace(/\s/g, '_'),
+                            name: gobjId,
                             read: true,
                             write: true
                         },
@@ -1213,7 +1213,7 @@ function connect(cb) {
                     _id: adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
                     type: 'channel',
                     common: {
-                        name: groupName.replace(/\s/g, '_'),
+                        name: groupName,
                         role: group.type
                     },
                     native: {
@@ -1239,6 +1239,8 @@ function connect(cb) {
                     groupNames[groupIds[key]] = key;
                 } // endFor
 
+                let sceneChannelCreated = false;
+
                 for (const scene of scenes) {
                     if (scene.type === 'GroupScene') {
                         if (adapter.config.ignoreGroups) continue;
@@ -1256,6 +1258,18 @@ function connect(cb) {
                             }
                         });
                     } else {
+                        if (!sceneChannelCreated) {
+                            objs.push({
+                                _id: `${adapter.namespace}.lightScenes`,
+                                type: 'channel',
+                                common: {
+                                    name: 'Light scenes'
+                                },
+                                native: {}
+                            });
+                            sceneChannelCreated = true;
+                        } // endIf
+
                         adapter.log.debug(`Create ${scene.name}`);
                         objs.push({
                             _id: `${adapter.namespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
@@ -1280,10 +1294,10 @@ function connect(cb) {
         // Create/update device
         adapter.log.info('creating/updating bridge device');
         objs.push({
-            _id: adapter.namespace + '.' + config.config.name.replace(/\s/g, '_'),
+            _id: adapter.namespace,
             type: 'device',
             common: {
-                name: config.config.name.replace(/\s/g, '_')
+                name: config.config.name
             },
             native: config.config
         });
