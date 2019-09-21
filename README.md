@@ -28,6 +28,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 * (foxriver76) add possibility to sync scenes
 * (foxriver76) restart adapter when room is deleted in app
 * (foxriver76) fix .hue value, user had to set 0-360° but adapter set 0-65535
+* (foxriver76) fix .color.temperature
 
 ### 1.2.4 (2019.09.18)
 * (Apollon77) Make compatible with js-controller 2.0

@@ -259,9 +259,9 @@ function startAdapter(options) {
                         finalLS.b = Math.round(rgb.Blue * 254);
                     }
                     if ('ct' in ls) {
-                        //finalLS.ct = Math.max(153, Math.min(500, ls.ct));
                         finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
-                        finalLS.ct = (500 - 153) - ((finalLS.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
+                        // convert kelvin to mired
+                        finalLS.ct = Math.round(1e6 / finalLS.ct);
 
                         lightState = lightState.ct(finalLS.ct);
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
@@ -628,6 +628,10 @@ function updateGroupState(group, prio, callback) {
         if (states.hue !== undefined) {
             states.hue = Math.round(states.hue / 65535 * 360);
         }
+        if (states.ct !== undefined) {
+            // convert color temperature from mired to kelvin
+            states.ct = Math.round(1e6 / states.ct);
+        }
 
         for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
@@ -678,6 +682,10 @@ function updateLightState(light, prio, callback) {
 
         if (states.hue !== undefined) {
             states.hue = Math.round(states.hue / 65535 * 360);
+        }
+        if (states.ct !== undefined) {
+            // convert color temperature from mired to kelvin
+            states.ct = Math.round(1e6 / states.ct);
         }
         for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
@@ -960,6 +968,7 @@ function connect(cb) {
                         lobj.common.unit = '°K';
                         lobj.common.min = 2200; // 500
                         lobj.common.max = 6500; // 153
+                        value = Math.round(1e6 / value);
                         break;
                     case 'alert':
                         lobj.common.type = 'string';
