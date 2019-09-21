@@ -41,11 +41,19 @@ function startAdapter(options) {
                     // its a scene -> get scene id to start it
                     const obj = await adapter.getForeignObjectAsync(id);
 
-                    await api.activateScene(obj.native.id);
-                    adapter.log.info(`Started scene: ${obj.common.name}`);
+                    submitHueCmd('activateScene', {
+                        id: obj.native.id,
+                        prio: 1
+                    }, (err) => {
+                        if (!err) {
+                            adapter.log.info(`Started scene: ${obj.common.name}`);
+                        } else {
+                            adapter.log.warn(`Could not start scene: ${err}`);
+                        } // endElse
+                    });
                 } catch (e) {
                     adapter.log.warn(`Could not start scene: ${e}`);
-                }
+                } // endCatch
                 return;
             } // endIf
 
@@ -1231,7 +1239,7 @@ function connect(cb) {
         // create scene states
         if (!adapter.config.ignoreScenes) {
             try {
-                const scenes = await api.scenes();
+                const scenes = config.scenes;
 
                 // Create obj to get groupname in constant time
                 const groupNames = {};
@@ -1241,7 +1249,9 @@ function connect(cb) {
 
                 let sceneChannelCreated = false;
 
-                for (const scene of scenes) {
+                let sceneCounter = 0;
+                for (const sceneId in scenes) {
+                    const scene = scenes[sceneId];
                     if (scene.type === 'GroupScene') {
                         if (adapter.config.ignoreGroups) continue;
                         adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
@@ -1253,10 +1263,11 @@ function connect(cb) {
                                 role: 'button'
                             },
                             native: {
-                                id: scene.id,
+                                id: sceneId,
                                 group: scene.group
                             }
                         });
+                        sceneCounter++;
                     } else {
                         if (!sceneChannelCreated) {
                             objs.push({
@@ -1279,12 +1290,13 @@ function connect(cb) {
                                 role: 'button'
                             },
                             native: {
-                                id: scene.id
+                                id: sceneId
                             }
                         });
+                        sceneCounter++;
                     } // edElse
                 } // endFor
-                adapter.log.info(`created/updated ${scenes.length} scenes`);
+                adapter.log.info(`created/updated ${sceneCounter} scenes`);
             } catch (e) {
                 adapter.log.warn(`Error syncing scenes: ${e}`);
             } // endCatch

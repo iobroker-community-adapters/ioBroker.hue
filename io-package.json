@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "hue",
-        "version": "1.2.4",
+        "version": "2.0.0",
         "news": {
             "1.2.4": {
                 "en": "js-controller 2.0 compatibility, dependency updates",
@@ -86,21 +86,6 @@
                 "en": "Enable adapter by default",
                 "de": "Aktiviere Adapter nach der Installation",
                 "ru": "Запускать драйвер после установки"
-            },
-            "0.6.8": {
-                "en": "Poll groups",
-                "de": "Frage Gruppen ab",
-                "ru": "Опрашивает группы"
-            },
-            "0.6.7": {
-                "en": "Do not turn on the lights by start",
-                "de": "Schalte nicht die Lichte beim Start ein",
-                "ru": "Не включать лампы при старте"
-            },
-            "0.6.6": {
-                "en": "Use new verions of npm library",
-                "de": "Benutze neue Version von NPM Bibliothek",
-                "ru": "Используется новая версия NPM библиотеки"
             }
         },
         "title": "Philips Hue Bridge",
