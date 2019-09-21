@@ -272,9 +272,9 @@ function startAdapter(options) {
                         }
                     }
                     if ('hue' in ls) {
-                        finalLS.hue = finalLS.hue % 360;
+                        finalLS.hue = Math.min(ls.hue, 360);
                         if (finalLS.hue < 0) {
-                            finalLS.hue += 360;
+                            finalLS.hue = 360;
                         }
                         // Convert 360° into 0-65535 value
                         finalLS.hue = Math.round(finalLS.hue / 360 * 65535);
@@ -624,6 +624,11 @@ function updateGroupState(group, prio, callback) {
         if (states.bri !== undefined) {
             states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
         }
+
+        if (states.hue !== undefined) {
+            states.hue = Math.round(states.hue / 65535 * 360);
+        }
+
         for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
                 continue;
@@ -669,6 +674,10 @@ function updateLightState(light, prio, callback) {
         }
         if (states.bri !== undefined) {
             states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+        }
+
+        if (states.hue !== undefined) {
+            states.hue = Math.round(states.hue / 65535 * 360);
         }
         for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
@@ -894,6 +903,7 @@ function connect(cb) {
                 if (!light.state.hasOwnProperty(state)) {
                     continue;
                 }
+                let value = light.state[state];
                 const objId = channelName + '.' + state;
 
                 const lobj = {
@@ -932,6 +942,7 @@ function connect(cb) {
                         lobj.common.unit = '°';
                         lobj.common.min = 0;
                         lobj.common.max = 360;
+                        value = Math.round(value / 65535 * 360);
                         break;
                     case 'sat':
                         lobj.common.type = 'number';
@@ -1005,7 +1016,7 @@ function connect(cb) {
                 }
 
                 objs.push(lobj);
-                states.push({id: lobj._id, val: light.state[state]});
+                states.push({id: lobj._id, val: value});
             }
 
             let role = 'light.color';
