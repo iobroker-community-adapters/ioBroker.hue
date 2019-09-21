@@ -1399,7 +1399,7 @@ function main() {
     groupQueue.on('retry', (error, jobInfo) => {
         adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
-    groupQueue.on('failed', (error, jobInfo) => {
+    groupQueue.on('failed', async (error, jobInfo) => {
         const id = jobInfo.options.id;
         if (error instanceof hue.ApiError) {
             adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
@@ -1408,7 +1408,8 @@ function main() {
             if (/Api Error: resource, \/groups\/.+, not available,/.test(error)) {
                 // seems like a room has been deleted -> resync by restarting adapter
                 adapter.log.warn('Room deleted -> restarting adapter to resync');
-                adapter.restart();
+                const obj = await adapter.getForeignObjectAsync(`system.adapter.${adapter.namespace}`);
+                if (obj) adapter.setForeignObject(`system.adapter.${adapter.namespace}`, obj);
             } // endIf
         } else {
             adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
