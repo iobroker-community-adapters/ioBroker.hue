@@ -1384,10 +1384,10 @@ function poll() {
         return;
 
     pollingState = true;
-    const states = [];
 
     submitHueCmd('getFullState', {prio: 5, id: 'getFullState'}, (err, config) => {
         const channelNames = [];
+        const states = [];
 
         // update lamps
         const lights = config.lights;
@@ -1412,6 +1412,8 @@ function poll() {
                         adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for sensor ' + sid);
                         channelName = newChannelName;
                     }
+                } else {
+                    channelNames.push(channelName);
                 }
 
                 const sensorCopy = JSON.parse(JSON.stringify(sensor));
@@ -1519,6 +1521,8 @@ function poll() {
                         adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, using "' + newGroupName.replace(/\s/g, '_') + '" for group ' + gid);
                         groupName = newGroupName;
                     }
+                } else {
+                    channelNames.push(groupName);
                 }
 
                 groupIds[groupName.replace(/\s/g, '_')] = gid;
