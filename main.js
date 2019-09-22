@@ -1386,175 +1386,139 @@ function poll() {
     pollingState = true;
 
     submitHueCmd('getFullState', {prio: 5, id: 'getFullState'}, (err, config) => {
-        const channelNames = [];
-        const states = [];
+        const values = [];
 
         // update lamps
         const lights = config.lights;
         const sensors = config.sensors;
 
         for (const sid in sensors) {
-            if (!sensors.hasOwnProperty(sid)) {
-                continue;
+            const sensor = sensors[sid];
+            const states = {};
+
+            for (const stateA in sensor.state) {
+                if (!sensor.state.hasOwnProperty(stateA)) {
+                    continue;
+                }
+                states[stateA] = sensor.state[stateA];
             }
 
-            const sensor = sensors[sid];
-
-            if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type == 'Daylight' || sensor.type == 'ZLLTemperature' || sensor.type == 'ZLLPresence' || sensor.type == 'ZLLLightLevel') {
-
-                let channelName = sensor.name;
-                if (channelNames.indexOf(channelName) !== -1) {
-                    const newChannelName = channelName + ' ' + sensor.type;
-                    if (channelNames.indexOf(newChannelName) !== -1) {
-                        adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping sensor ' + sid);
-                        continue;
-                    } else {
-                        adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for sensor ' + sid);
-                        channelName = newChannelName;
-                    }
-                } else {
-                    channelNames.push(channelName);
+            if (states.temperature !== undefined) {
+                states.temperature = convertTemperature(states.temperature);
+            }
+            for (const stateB in states) {
+                if (!states.hasOwnProperty(stateB)) {
+                    continue;
                 }
-
-                const sensorCopy = JSON.parse(JSON.stringify(sensor));
-                for (const state in Object.assign(sensorCopy.state, sensorCopy.config)) {
-                    if (!sensorCopy.state.hasOwnProperty(state)) {
-                        continue;
-                    }
-                    const objId = `${adapter.namespace}.${channelName}.${state}`;
-
-                    const value = sensorCopy.state[state];
-
-                    states.push({id: objId.replace(/\s/g, '_'), val: value});
-                } // endFor
-            } // endIf
+                values.push({id: adapter.namespace + '.' + sensor.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
+            }
         } // endFor
 
+        // LIGHTS
         for (const lid in lights) {
-            if (!lights.hasOwnProperty(lid)) {
-                continue;
-            }
+            const states = {};
+
             const light = lights[lid];
 
-            let channelName = light.name;
-            if (channelNames.indexOf(channelName) !== -1) {
-                const newChannelName = channelName + ' ' + light.type;
-                if (channelNames.indexOf(newChannelName) !== -1) {
-                    adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping light ' + lid);
-                    continue;
-                } else {
-                    adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for light ' + lid);
-                    channelName = newChannelName;
-                }
-            } else {
-                channelNames.push(channelName);
-            }
-            channelIds[channelName.replace(/\s/g, '_')] = lid;
-
-            if (light.type === 'Extended color light' || light.type === 'Color light') {
-                light.state.r = 0;
-                light.state.g = 0;
-                light.state.b = 0;
-            }
-
-            if (light.type !== 'On/Off plug-in unit') {
-                light.state.command = '{}';
-                light.state.level = 0;
-            }
-
-            // Create swUpdate state for every light
             if (light.swupdate && light.swupdate.state) {
-                const objId = `${adapter.namespace}.${channelName}.updateable`;
-
-                states.push({id: objId.replace(/\s/g, '_'), val: light.swupdate.state});
+                values.push({id: `${adapter.namespace}.${light.name.replace(/\s/g, '_')}.updateable`, val: light.swupdate.state});
             } // endIf
 
-            for (const state in light.state) {
-                if (!light.state.hasOwnProperty(state)) {
+            for (const stateA in light.state) {
+                if (!light.state.hasOwnProperty(stateA)) {
                     continue;
                 }
-                let value = light.state[state];
-
-                if (state === 'hue') {
-                    value = Math.round(value / 65535 * 360);
-                } else if (state === 'ct') {
-                    value = Math.round(1e6 / value);
-                } // endElse
-
-                const objId = `${adapter.namespace}.${channelName}.${state}`;
-
-                states.push({id: objId.replace(/\s/g, '_'), val: value});
+                states[stateA] = light.state[stateA];
             }
-        }
+
+            if (!adapter.config.ignoreOsram) {
+                if (states.reachable === false && states.bri !== undefined) {
+                    states.bri = 0;
+                    states.on = false;
+                }
+            }
+
+            if (states.on === false && states.bri !== undefined) {
+                states.bri = 0;
+            }
+            if (states.xy !== undefined) {
+                const xy = states.xy.toString().split(',');
+                states.xy = states.xy.toString();
+                const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                states.r = Math.round(rgb.Red * 254);
+                states.g = Math.round(rgb.Green * 254);
+                states.b = Math.round(rgb.Blue * 254);
+            }
+            if (states.bri !== undefined) {
+                states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+            }
+
+            if (states.hue !== undefined) {
+                states.hue = Math.round(states.hue / 65535 * 360);
+            }
+            if (states.ct !== undefined) {
+                // convert color temperature from mired to kelvin
+                states.ct = Math.round(1e6 / states.ct);
+            }
+            for (const stateB in states) {
+                if (!states.hasOwnProperty(stateB)) {
+                    continue;
+                }
+                values.push({id: adapter.namespace + '.' + light.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
+            }
+        } // endFor
+
         // Create/update groups
         if (!adapter.config.ignoreGroups) {
             const groups = config.groups;
-            groups[0] = {
-                name: 'All',   //"Lightset 0"
-                type: 'LightGroup',
-                id: 0,
-                action: {
-                    alert: 'select',
-                    bri: 0,
-                    colormode: '',
-                    ct: 0,
-                    effect: 'none',
-                    hue: 0,
-                    on: false,
-                    sat: 0,
-                    xy: '0,0'
-                }
-            };
+
             for (const gid in groups) {
-                if (!groups.hasOwnProperty(gid)) {
-                    continue;
-                }
-                const group = groups[gid];
+                const states = {};
+                const group = groups[gid]
 
-                let groupName = group.name;
-                if (channelNames.indexOf(groupName) !== -1) {
-                    const newGroupName = groupName + ' ' + group.type;
-                    if (channelNames.indexOf(newGroupName) !== -1) {
-                        adapter.log.error('channel "' + groupName.replace(/\s/g, '_') + '" already exists, could not use "' + newGroupName.replace(/\s/g, '_') + '" as well, skipping group ' + gid);
-                        continue;
-                    } else {
-                        adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, using "' + newGroupName.replace(/\s/g, '_') + '" for group ' + gid);
-                        groupName = newGroupName;
-                    }
-                } else {
-                    channelNames.push(groupName);
-                }
-
-                groupIds[groupName.replace(/\s/g, '_')] = gid;
-
-                group.action.r = 0;
-                group.action.g = 0;
-                group.action.b = 0;
-                group.action.command = '{}';
-                group.action.level = 0;
-
-                for (const action in group.action) {
-                    if (!group.action.hasOwnProperty(action)) {
+                for (const stateA in group.lastAction) {
+                    if (!group.lastAction.hasOwnProperty(stateA)) {
                         continue;
                     }
+                    states[stateA] = group.lastAction[stateA];
+                }
+                if (states.reachable === false && states.bri !== undefined) {
+                    states.bri = 0;
+                    states.on = false;
+                }
+                if (states.on === false && states.bri !== undefined) {
+                    states.bri = 0;
+                }
+                if (states.xy !== undefined) {
+                    const xy = states.xy.toString().split(',');
+                    states.xy = states.xy.toString();
+                    const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                    states.r = Math.round(rgb.Red * 254);
+                    states.g = Math.round(rgb.Green * 254);
+                    states.b = Math.round(rgb.Blue * 254);
+                }
+                if (states.bri !== undefined) {
+                    states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+                }
 
-                    const gobjId = `${adapter.namespace}.${groupName}.${action}`;
+                if (states.hue !== undefined) {
+                    states.hue = Math.round(states.hue / 65535 * 360);
+                }
+                if (states.ct !== undefined) {
+                    // convert color temperature from mired to kelvin
+                    states.ct = Math.round(1e6 / states.ct);
+                }
 
-                    if (typeof group.action[action] === 'object') {
-                        group.action[action] = group.action[action].toString();
+                for (const stateB in states) {
+                    if (!states.hasOwnProperty(stateB)) {
+                        continue;
                     }
+                    values.push({id: adapter.namespace + '.' + group.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
+                }
 
-                    if (action === 'hue') {
-                        group.action[action] = Math.round(group.action[action] / 65535 * 360);
-                    } else if (action === 'ct') {
-                        group.action[action] = Math.round(1e6 / group.action[action]);
-                    } // endElse
-
-                    states.push({id: gobjId.replace(/\s/g, '_'), val: group.action[action]});
-                } // endFor
-            } // endFor
+            }
         } // endIf
-        syncStates(states, true);
+        syncStates(values, true);
         pollingState = false;
     });
 } // endPoll
