@@ -1515,7 +1515,6 @@ function poll() {
                     }
                     values.push({id: adapter.namespace + '.' + group.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
                 }
-
             }
         } // endIf
         syncStates(values, true);

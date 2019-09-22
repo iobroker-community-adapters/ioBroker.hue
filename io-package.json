@@ -120,6 +120,11 @@
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "messagebox": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ],
         "enabled": true,
         "compact": true,
         "readme": "https://github.com/iobroker-community-adapters/ioBroker.hue/blob/master/README.md",
