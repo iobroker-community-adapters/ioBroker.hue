@@ -32,6 +32,8 @@ __ATTENTION: Remove all objects once, ids have changed__
 * (foxriver76) fix .color.temperature
 * (foxriver76) remove unnecessary bridge channel, adapter namespace is the bridge
 * (foxriver76) add "update available" indicator for light bulbs
+* (foxriver76) we now poll the root endpoint instead of (|lights| + |groups| + |sensors|) endpoints every pollingInterval seconds
+* (foxriver76) min poll interval now 3 seconds instead of 5 seconds
 
 ### 1.2.4 (2019.09.18)
 * (Apollon77) Make compatible with js-controller 2.0

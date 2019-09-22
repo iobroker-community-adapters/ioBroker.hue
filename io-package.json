@@ -142,7 +142,7 @@
         "port": 80,
         "user": "",
         "polling": true,
-        "pollingInterval": 30,
+        "pollingInterval": 15,
         "ignoreGroups": false,
         "ignoreScenes": false
     },
