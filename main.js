@@ -1379,7 +1379,7 @@ function syncStates(states, isChanged, callback) {
 
 let pollingState = false;
 
-async function poll() {
+function poll() {
     if (pollingState)
         return;
 
