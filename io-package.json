@@ -3,6 +3,18 @@
         "name": "hue",
         "version": "2.0.0",
         "news": {
+            "2.0.0": {
+                "en": "fixed hue and ct, sync scenes, reduce poll interval, reorganize object structure, add update indicator of every bulb",
+                "de": "Farbton und CT korrigiert, Szenen synchronisiert, Abfrageintervall verkürzt, Objektstruktur neu organisiert, Aktualisierungsanzeige für jede Lampe hinzugefügt",
+                "ru": "фиксированный оттенок и ct, синхронизация сцен, уменьшение интервала опроса, реорганизация структуры объекта, добавление индикатора обновления каждой лампы",
+                "pt": "tonalidade e tom fixos, sincronize cenas, reduza o intervalo de pesquisa, reorganize a estrutura do objeto, adicione o indicador de atualização de cada bulbo",
+                "nl": "vaste tint en ct, scènes synchroniseren, pollinterval verminderen, objectstructuur reorganiseren, update-indicator van elke lamp toevoegen",
+                "fr": "teinte et ct fixes, synchroniser les scènes, réduire l'intervalle d'interrogation, réorganiser la structure de l'objet, ajouter un indicateur de mise à jour de chaque ampoule",
+                "it": "tonalità e ct fissi, sincronizzazione delle scene, riduzione dell'intervallo di polling, riorganizzazione della struttura degli oggetti, aggiunta dell'indicatore di aggiornamento di ogni lampadina",
+                "es": "tono y ct fijos, sincronizar escenas, reducir el intervalo de sondeo, reorganizar la estructura del objeto, agregar un indicador de actualización de cada foco",
+                "pl": "naprawiono odcień i ct, synchronizuje sceny, skraca czas odpytywania, reorganizuje strukturę obiektu, dodaje wskaźnik aktualizacji każdej żarówki",
+                "zh-cn": "固定色调和ct，同步场景，减少轮询间隔，重组对象结构，添加每个灯泡的更新指示器"
+            },
             "1.2.4": {
                 "en": "js-controller 2.0 compatibility, dependency updates",
                 "de": "Kompatibilität mit js-controller 2.0, Abhängigkeitsaktualisierungen",

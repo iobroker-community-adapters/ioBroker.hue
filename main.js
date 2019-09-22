@@ -1385,15 +1385,19 @@ function poll() {
 
     pollingState = true;
 
+    adapter.log.debug('Poll all states');
+
     submitHueCmd('getFullState', {prio: 5, id: 'getFullState'}, (err, config) => {
         const values = [];
-
-        // update lamps
         const lights = config.lights;
         const sensors = config.sensors;
+        const groups = config.groups;
 
-        for (const sid in sensors) {
-            const sensor = sensors[sid];
+        // update sensors
+        pollSensors.forEach(sensor => {
+            const sensorName = sensor.name;
+            sensor = sensors[sensor.id];
+            sensor.name = sensorName;
             const states = {};
 
             for (const stateA in sensor.state) {
@@ -1410,18 +1414,26 @@ function poll() {
                 if (!states.hasOwnProperty(stateB)) {
                     continue;
                 }
-                values.push({id: adapter.namespace + '.' + sensor.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
+                values.push({
+                    id: adapter.namespace + '.' + sensor.name + '.' + stateB,
+                    val: states[stateB]
+                });
             }
-        } // endFor
+        });
 
         // LIGHTS
-        for (const lid in lights) {
+        pollLights.forEach(light => {
             const states = {};
 
-            const light = lights[lid];
+            const lightName = light.name;
+            light = lights[light.id];
+            light.name = lightName;
 
             if (light.swupdate && light.swupdate.state) {
-                values.push({id: `${adapter.namespace}.${light.name.replace(/\s/g, '_')}.updateable`, val: light.swupdate.state});
+                values.push({
+                    id: `${adapter.namespace}.${light.name}.updateable`,
+                    val: light.swupdate.state
+                });
             } // endIf
 
             for (const stateA in light.state) {
@@ -1464,58 +1476,70 @@ function poll() {
                 if (!states.hasOwnProperty(stateB)) {
                     continue;
                 }
-                values.push({id: adapter.namespace + '.' + light.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
+                values.push({
+                    id: adapter.namespace + '.' + light.name + '.' + stateB,
+                    val: states[stateB]
+                });
             }
-        } // endFor
+        });
 
         // Create/update groups
         if (!adapter.config.ignoreGroups) {
-            const groups = config.groups;
+            pollGroups.forEach(group => {
+                // Group 0 needs extra polling
+                if (group.id !== '0') {
+                    const states = {};
+                    const groupName = group.name;
+                    group = groups[group.id];
+                    group.name = groupName;
 
-            for (const gid in groups) {
-                const states = {};
-                const group = groups[gid]
-
-                for (const stateA in group.lastAction) {
-                    if (!group.lastAction.hasOwnProperty(stateA)) {
-                        continue;
+                    for (const stateA in group.action) {
+                        if (!group.action.hasOwnProperty(stateA)) {
+                            continue;
+                        }
+                        states[stateA] = group.action[stateA];
                     }
-                    states[stateA] = group.lastAction[stateA];
-                }
-                if (states.reachable === false && states.bri !== undefined) {
-                    states.bri = 0;
-                    states.on = false;
-                }
-                if (states.on === false && states.bri !== undefined) {
-                    states.bri = 0;
-                }
-                if (states.xy !== undefined) {
-                    const xy = states.xy.toString().split(',');
-                    states.xy = states.xy.toString();
-                    const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-                    states.r = Math.round(rgb.Red * 254);
-                    states.g = Math.round(rgb.Green * 254);
-                    states.b = Math.round(rgb.Blue * 254);
-                }
-                if (states.bri !== undefined) {
-                    states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
-                }
-
-                if (states.hue !== undefined) {
-                    states.hue = Math.round(states.hue / 65535 * 360);
-                }
-                if (states.ct !== undefined) {
-                    // convert color temperature from mired to kelvin
-                    states.ct = Math.round(1e6 / states.ct);
-                }
-
-                for (const stateB in states) {
-                    if (!states.hasOwnProperty(stateB)) {
-                        continue;
+                    if (states.reachable === false && states.bri !== undefined) {
+                        states.bri = 0;
+                        states.on = false;
                     }
-                    values.push({id: adapter.namespace + '.' + group.name.replace(/\s/g, '_') + '.' + stateB, val: states[stateB]});
+                    if (states.on === false && states.bri !== undefined) {
+                        states.bri = 0;
+                    }
+                    if (states.xy !== undefined) {
+                        const xy = states.xy.toString().split(',');
+                        states.xy = states.xy.toString();
+                        const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                        states.r = Math.round(rgb.Red * 254);
+                        states.g = Math.round(rgb.Green * 254);
+                        states.b = Math.round(rgb.Blue * 254);
+                    }
+                    if (states.bri !== undefined) {
+                        states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+                    }
+
+                    if (states.hue !== undefined) {
+                        states.hue = Math.round(states.hue / 65535 * 360);
+                    }
+                    if (states.ct !== undefined) {
+                        // convert color temperature from mired to kelvin
+                        states.ct = Math.round(1e6 / states.ct);
+                    }
+
+                    for (const stateB in states) {
+                        if (!states.hasOwnProperty(stateB)) {
+                            continue;
+                        }
+                        values.push({
+                            id: adapter.namespace + '.' + group.name + '.' + stateB,
+                            val: states[stateB]
+                        });
+                    }
+                } else {
+                    // poll the 0 - ALL group
+                    updateGroupState(group, {prio: 5, id: group.id});
                 }
-            }
+            });
         } // endIf
         syncStates(values, true);
         pollingState = false;
