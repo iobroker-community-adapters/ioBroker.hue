@@ -1218,8 +1218,27 @@ function connect(cb) {
                     }
                     objs.push(gobj);
                     states.push({id: gobj._id, val: group.action[action]});
-                }
+                } // endFor
 
+                // Create anyOn state
+                if (gid !== '0') {
+                    objs.push({
+                        _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                        type: 'state',
+                        common: {
+                            name: `${groupName}.anyOn`,
+                            role: 'indicator.switch',
+                            read: true,
+                            write: false
+                        },
+                        native: {}
+                    });
+
+                    states.push({
+                        id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                        val: group.state['any_on']
+                    });
+                } // endIf
                 objs.push({
                     _id: adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
                     type: 'channel',
@@ -1234,7 +1253,7 @@ function connect(cb) {
                         lights: group.lights
                     }
                 });
-            }
+            } // endFor
             adapter.log.info('created/updated ' + pollGroups.length + ' groups channels');
 
         }
@@ -1534,7 +1553,12 @@ function poll() {
                             id: adapter.namespace + '.' + group.name + '.' + stateB,
                             val: states[stateB]
                         });
-                    }
+                    } // endFor
+                    // set anyOn state
+                    values.push({
+                        id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                        val: group.state['any_on']
+                    });
                 } else {
                     // poll the 0 - ALL group
                     updateGroupState(group, {prio: 5, id: group.id});
