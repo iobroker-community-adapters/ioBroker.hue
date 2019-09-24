@@ -161,7 +161,8 @@
         "polling": true,
         "pollingInterval": 15,
         "ignoreGroups": false,
-        "ignoreScenes": false
+        "ignoreScenes": false,
+        "useLegacyStructure": false
     },
     "objects": [
         {

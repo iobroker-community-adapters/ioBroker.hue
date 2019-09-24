@@ -262,5 +262,17 @@ systemDictionary = {
         'es': 'Ignorar escenas',
         'pl': 'Ignoruj sceny',
         'zh-cn': '忽略场景'
+    },
+    '"Legacy" structure': {
+        'en': '"Legacy" structure',
+        'de': '"Legacy"-Struktur',
+        'ru': '"Наследие" структура',
+        'pt': 'Estrutura "herdada"',
+        'nl': '"Legacy"-structuur',
+        'fr': '"Legacy" structure',
+        'it': 'Struttura "legacy"',
+        'es': 'Estructura "heredada"',
+        'pl': 'Struktura „Legacy”',
+        'zh-cn': '“传统”结构'
     }
 };

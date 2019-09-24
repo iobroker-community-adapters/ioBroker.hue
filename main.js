@@ -745,7 +745,7 @@ function connect(cb) {
 
             if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type == 'Daylight' || sensor.type == 'ZLLTemperature' || sensor.type == 'ZLLPresence' || sensor.type == 'ZLLLightLevel') {
 
-                let channelName = sensor.name;
+                let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
                 if (channelNames.indexOf(channelName) !== -1) {
                     const newChannelName = channelName + ' ' + sensor.type;
                     if (channelNames.indexOf(newChannelName) !== -1) {
@@ -869,7 +869,7 @@ function connect(cb) {
             }
             const light = lights[lid];
 
-            let channelName = light.name;
+            let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${light.name}` : light.name;
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = channelName + ' ' + light.type;
                 if (channelNames.indexOf(newChannelName) !== -1) {
@@ -1091,7 +1091,7 @@ function connect(cb) {
                 }
                 const group = groups[gid];
 
-                let groupName = group.name;
+                let groupName = adapter.config.useLegacyStructure ? `${config.config.name}.${group.name}` : group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
                     const newGroupName = groupName + ' ' + group.type;
                     if (channelNames.indexOf(newGroupName) !== -1) {
@@ -1272,6 +1272,7 @@ function connect(cb) {
                 let sceneChannelCreated = false;
 
                 let sceneCounter = 0;
+                const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : `${adapter.namespace}`;
                 for (const sceneId in scenes) {
                     const scene = scenes[sceneId];
                     if (scene.type === 'GroupScene') {
@@ -1293,7 +1294,7 @@ function connect(cb) {
                     } else {
                         if (!sceneChannelCreated) {
                             objs.push({
-                                _id: `${adapter.namespace}.lightScenes`,
+                                _id: `${sceneNamespace}.lightScenes`,
                                 type: 'channel',
                                 common: {
                                     name: 'Light scenes'
@@ -1305,7 +1306,7 @@ function connect(cb) {
 
                         adapter.log.debug(`Create ${scene.name}`);
                         objs.push({
-                            _id: `${adapter.namespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                            _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
                             type: 'state',
                             common: {
                                 name: `Scene ${scene.name}`,
