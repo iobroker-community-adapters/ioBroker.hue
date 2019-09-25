@@ -715,7 +715,7 @@ function updateLightState(light, prio, callback) {
     });
 }
 
-function connect(cb) {
+async function connect(cb) {
     api.getFullState(async (err, config) => {
         if (err) {
             adapter.log.warn('could not connect to HUE bridge (' + adapter.config.bridge + ':' + adapter.config.port + ')');
@@ -727,6 +727,15 @@ function connect(cb) {
             reconnectTimeout = setTimeout(connect, 5000, cb);
             return;
         }
+
+        // even if useLegacyStructure is false, we check if the structure exists to not create chaos
+        if (!adapter.config.useLegacyStructure) {
+            const legacyObj = await adapter.getObjectAsync(`${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}`);
+            if (legacyObj) {
+                adapter.config.useLegacyStructure = true;
+                adapter.log.info('Use legacy structure, because existing');
+            } // endIf
+        } // endIf
 
         const channelNames = [];
 
@@ -1329,7 +1338,7 @@ function connect(cb) {
         // Create/update device
         adapter.log.info('creating/updating bridge device');
         objs.push({
-            _id: adapter.namespace,
+            _id: adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : adapter.namespace,
             type: 'device',
             common: {
                 name: config.config.name
