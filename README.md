@@ -10,12 +10,16 @@
 [![NPM](https://nodei.co/npm/iobroker.hue.png?downloads=true)](https://nodei.co/npm/iobroker.hue/)
 
 ## English :gb:
-Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other 
-SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges to ioBroker.
+This adapter connects your Philips Hue Bridges with ioBroker to control Philips Hue LED bulbs, Friends of Hue LED lamps, stripes, plugs like from Osram, and other SmartLink capable devices (like LivingWhites and some LivingColors).
 
-You must first link you HUE bridge with ioBroker. 
-1. For that find first the IP address by pressing "Find Bridge" button. It is only enabled if no IP address entered.
-2. After IP address is found the USER must be created. For that press the "Create User" button and then press "Link" button on HUE bridge. "Create User" button is only enabled if no USER entered
+### Setup
+Once you have installed this adapter within ioBroker, create an adapter instance accordingly. Next, you need to connect your Hue bridge with ioBroker within the adapter settings:
+1. Click on "Find Bridge" button to get the IP address of your bridge. This will search for all bridges in your environment. Then select the bridge to which you want to connect. The field "Bridge Address" will be populated with the IP address of your chosen Hue bridge.
+2. Next, click on "Create User" button in the settings and then walk to your Hue bridge device, so your hardware, to push its round button. You'll gonna have 30 seconds to proceed. Once you pushed the button, the field "Bridge User" should be populated with a generated string.
+4. Modify any other options in the adapter settings and then select "save and close".
+5. Finally, you should be all set: The adapter will generate all objects to control your Hue devices accordingly.
+
+Please note: Adapter settings button "Find Bridge" will be inactive if field "Bridge Address" is populated, and button "Create User" will be inactive if field "Bridge User" is populated.
 
 ## Deutsch :de:
 Bindet Philips Hue / LivingColors / LivingWhites Lampen ein. 
