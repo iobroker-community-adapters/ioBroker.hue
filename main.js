@@ -207,7 +207,7 @@ function startAdapter(options) {
                 // get lightState
                 adapter.getObject(id, (err, obj) => {
                     if (err || !obj) {
-                        if (!err) err = new Error('obj "' + id + '" in callback getObject is null or undefined');
+                        if (!err) err = new Error(`obj "${id}" in callback getObject is null or undefined`);
                         adapter.log.error(err);
                         return;
                     }
@@ -415,7 +415,7 @@ function startAdapter(options) {
                     if (obj.common.role === 'LightGroup' || obj.common.role === 'Room') {
                         if (!adapter.config.ignoreGroups) {
                             // log final changes / states
-                            adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                            adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
                             submitHueCmd('setGroupLightState', {
                                 id: groupIds[id],
@@ -426,7 +426,7 @@ function startAdapter(options) {
                                     id: groupIds[id],
                                     name: obj.common.name
                                 }, 3, (err, result) => {
-                                    adapter.log.debug('updated group state(' + groupIds[id] + ') after change');
+                                    adapter.log.debug(`updated group state(${groupIds[id]}) after change`);
                                 });
                             });
                         }
@@ -434,7 +434,7 @@ function startAdapter(options) {
                         if (finalLS.hasOwnProperty('on')) {
                             finalLS = {on: finalLS.on};
                             // log final changes / states
-                            adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                            adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
                             lightState = hue.lightState.create();
                             lightState.on(finalLS.on);
@@ -448,7 +448,7 @@ function startAdapter(options) {
                                     id: channelIds[id],
                                     name: obj.common.name
                                 }, 3, (err, result) => {
-                                    adapter.log.debug('updated lighstate(' + channelIds[id] + ') after change');
+                                    adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                                 });
                             });
                         } else {
@@ -456,7 +456,7 @@ function startAdapter(options) {
                         }
                     } else {
                         // log final changes / states
-                        adapter.log.debug('final lightState for ' + obj.common.name + ':' + JSON.stringify(finalLS));
+                        adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
                         submitHueCmd('setLightState', {
                             id: channelIds[id],
@@ -467,7 +467,7 @@ function startAdapter(options) {
                                 id: channelIds[id],
                                 name: obj.common.name
                             }, 3, (err, result) => {
-                                adapter.log.debug('updated lighstate(' + channelIds[id] + ') after change');
+                                adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                             });
                         });
                     }
@@ -487,7 +487,7 @@ function startAdapter(options) {
                         wait = true;
                         break;
                     default:
-                        adapter.log.warn('Unknown command: ' + obj.command);
+                        adapter.log.warn(`Unknown command: ${obj.command}`);
                         break;
                 }
             }
@@ -538,7 +538,7 @@ function createUser(ip, callback) {
         const api = new HueApi();
         api.registerUser(ip, newUserName, userDescription)
             .then(newUser => {
-                adapter.log.info('created new User: ' + newUser);
+                adapter.log.info(`created new User: ${newUser}`);
                 callback({error: 0, message: newUser});
             })
             .fail(err => {
@@ -577,7 +577,7 @@ function submitHueCmd(cmd, args, callback) {
     // skip any job submit if a job with the same id already exists in the
     // queue
     if (queue.jobStatus(id) !== null) {
-        adapter.log.debug('job ' + id + ' already in queue, skipping..');
+        adapter.log.debug(`job ${id} already in queue, skipping..`);
         return;
     }
 
@@ -600,14 +600,14 @@ function submitHueCmd(cmd, args, callback) {
         }
     }, args, (err, result) => {
         if (err === null && result !== false) {
-            adapter.log.debug(id + ' result: ' + JSON.stringify(result));
+            adapter.log.debug(`${id} result: ${JSON.stringify(result)}`);
             callback(err, result);
         }
     });
 }
 
 function updateGroupState(group, prio, callback) {
-    adapter.log.debug('polling group ' + group.name + ' (' + group.id + ') with prio ' + prio);
+    adapter.log.debug(`polling group ${group.name} (${group.id}) with prio ${prio}`);
 
     submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
         const values = [];
@@ -650,7 +650,7 @@ function updateGroupState(group, prio, callback) {
             if (!states.hasOwnProperty(stateB)) {
                 continue;
             }
-            values.push({id: adapter.namespace + '.' + group.name + '.' + stateB, val: states[stateB]});
+            values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
 
         syncStates(values, true, callback);
@@ -658,7 +658,7 @@ function updateGroupState(group, prio, callback) {
 }
 
 function updateLightState(light, prio, callback) {
-    adapter.log.debug('polling light ' + light.name + ' (' + light.id + ') with prio ' + prio);
+    adapter.log.debug(`polling light ${light.name} (${light.id}) with prio ${prio}`);
 
     submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
         const values = [];
@@ -708,7 +708,7 @@ function updateLightState(light, prio, callback) {
             if (!states.hasOwnProperty(stateB)) {
                 continue;
             }
-            values.push({id: adapter.namespace + '.' + light.name + '.' + stateB, val: states[stateB]});
+            values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
         }
 
         syncStates(values, true, callback);
@@ -718,12 +718,12 @@ function updateLightState(light, prio, callback) {
 async function connect(cb) {
     api.getFullState(async (err, config) => {
         if (err) {
-            adapter.log.warn('could not connect to HUE bridge (' + adapter.config.bridge + ':' + adapter.config.port + ')');
+            adapter.log.warn(`could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
             adapter.log.error(err);
             reconnectTimeout = setTimeout(connect, 5000, cb);
             return;
         } else if (!config) {
-            adapter.log.warn('could not get configuration from HUE bridge (' + adapter.config.bridge + ':' + adapter.config.port + ')');
+            adapter.log.warn(`could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
             reconnectTimeout = setTimeout(connect, 5000, cb);
             return;
         }
@@ -758,10 +758,10 @@ async function connect(cb) {
                 if (channelNames.indexOf(channelName) !== -1) {
                     const newChannelName = channelName + ' ' + sensor.type;
                     if (channelNames.indexOf(newChannelName) !== -1) {
-                        adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping sensor ' + sid);
+                        adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
                         continue;
                     } else {
-                        adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for sensor ' + sid);
+                        adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
                         channelName = newChannelName;
                     }
                 } else {
@@ -772,15 +772,15 @@ async function connect(cb) {
 
                 pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
 
-                const sensorCopy = JSON.parse(JSON.stringify(sensor));
-                for (const state in Object.assign(sensorCopy.state, sensorCopy.config)) {
-                    if (!sensorCopy.state.hasOwnProperty(state)) {
+                const sensorCopy = {...sensor.state, ...sensor.config};
+                for (const state in sensorCopy) {
+                    if (!sensorCopy.hasOwnProperty(state)) {
                         continue;
                     }
-                    const objId = channelName + '.' + state;
+                    const objId = `${channelName}.${state}`;
 
                     const lobj = {
-                        _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                        _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
                         type: 'state',
                         common: {
                             name: objId,
@@ -792,7 +792,7 @@ async function connect(cb) {
                         }
                     };
 
-                    let value = sensorCopy.state[state];
+                    let value = sensorCopy[state];
 
                     switch (state) {
                         case 'on':
@@ -844,7 +844,7 @@ async function connect(cb) {
                             value = convertTemperature(value);
                             break;
                         default:
-                            adapter.log.info('skip switch: ' + objId);
+                            adapter.log.info(`skip switch: ${objId}`);
                             break;
                     }
 
@@ -853,24 +853,24 @@ async function connect(cb) {
                 }
 
                 objs.push({
-                    _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
+                    _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
                     type: 'channel',
                     common: {
                         name: channelName,
-                        role: sensorCopy.type
+                        role: sensor.type
                     },
                     native: {
                         id: sid,
-                        type: sensorCopy.type,
-                        name: sensorCopy.name,
-                        modelid: sensorCopy.modelid,
-                        swversion: sensorCopy.swversion,
+                        type: sensor.type,
+                        name: sensor.name,
+                        modelid: sensor.modelid,
+                        swversion: sensor.swversion,
                     }
                 });
             }
         }
 
-        adapter.log.info('created/updated ' + pollSensors.length + ' sensor channels');
+        adapter.log.info(`created/updated ${pollSensors.length} sensor channels`);
 
         for (const lid in lights) {
             if (!lights.hasOwnProperty(lid)) {
@@ -882,10 +882,10 @@ async function connect(cb) {
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = channelName + ' ' + light.type;
                 if (channelNames.indexOf(newChannelName) !== -1) {
-                    adapter.log.error('channel "' + channelName.replace(/\s/g, '_') + '" already exists, could not use "' + newChannelName.replace(/\s/g, '_') + '" as well, skipping light ' + lid);
+                    adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
                     continue;
                 } else {
-                    adapter.log.warn('channel "' + channelName.replace(/\s/g, '_') + '" already exists, using "' + newChannelName.replace(/\s/g, '_') + '" for light ' + lid);
+                    adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
                     channelName = newChannelName;
                 }
             } else {
@@ -910,7 +910,7 @@ async function connect(cb) {
                 const objId = `${channelName}.updateable`;
 
                 const lobj = {
-                    _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                    _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
                         name: objId,
@@ -932,10 +932,10 @@ async function connect(cb) {
                     continue;
                 }
                 let value = light.state[state];
-                const objId = channelName + '.' + state;
+                const objId = `${channelName}.${state}`;
 
                 const lobj = {
-                    _id: adapter.namespace + '.' + objId.replace(/\s/g, '_'),
+                    _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
                         name: objId,
@@ -1040,7 +1040,7 @@ async function connect(cb) {
                         break;
 
                     default:
-                        adapter.log.info('skip light: ' + objId);
+                        adapter.log.info(`skip light: ${objId}`);
                         break;
                 }
 
@@ -1056,7 +1056,7 @@ async function connect(cb) {
             }
 
             objs.push({
-                _id: adapter.namespace + '.' + channelName.replace(/\s/g, '_'),
+                _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
                 type: 'channel',
                 common: {
                     name: channelName,
@@ -1073,7 +1073,7 @@ async function connect(cb) {
             });
 
         }
-        adapter.log.info('created/updated ' + pollLights.length + ' light channels');
+        adapter.log.info(`created/updated ${pollLights.length} light channels`);
 
         // Create/update groups
         if (!adapter.config.ignoreGroups) {
@@ -1104,10 +1104,10 @@ async function connect(cb) {
                 if (channelNames.indexOf(groupName) !== -1) {
                     const newGroupName = groupName + ' ' + group.type;
                     if (channelNames.indexOf(newGroupName) !== -1) {
-                        adapter.log.error('channel "' + groupName.replace(/\s/g, '_') + '" already exists, could not use "' + newGroupName.replace(/\s/g, '_') + '" as well, skipping group ' + gid);
+                        adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
                         continue;
                     } else {
-                        adapter.log.warn('channel "' + groupName.replace(/\s/g, '_') + '" already exists, using "' + newGroupName.replace(/\s/g, '_') + '" for group ' + gid);
+                        adapter.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
                         groupName = newGroupName;
                     }
                 } else {
@@ -1127,10 +1127,10 @@ async function connect(cb) {
                         continue;
                     }
 
-                    const gobjId = groupName + '.' + action;
+                    const gobjId = `${groupName}.${action}`;
 
                     const gobj = {
-                        _id: adapter.namespace + '.' + gobjId.replace(/\s/g, '_'),
+                        _id: `${adapter.namespace}.${gobjId.replace(/\s/g, '_')}`,
                         type: 'state',
                         common: {
                             name: gobjId,
@@ -1222,7 +1222,7 @@ async function connect(cb) {
                             gobj.common.role = 'command';
                             break;
                         default:
-                            adapter.log.info('skip group: ' + gobjId);
+                            adapter.log.info(`skip group: ${gobjId}`);
                             continue;
                     }
                     objs.push(gobj);
@@ -1249,7 +1249,7 @@ async function connect(cb) {
                     });
                 } // endIf
                 objs.push({
-                    _id: adapter.namespace + '.' + groupName.replace(/\s/g, '_'),
+                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
                     type: 'channel',
                     common: {
                         name: groupName,
@@ -1263,7 +1263,7 @@ async function connect(cb) {
                     }
                 });
             } // endFor
-            adapter.log.info('created/updated ' + pollGroups.length + ' groups channels');
+            adapter.log.info(`created/updated ${pollGroups.length} groups channels`);
 
         }
 
@@ -1444,7 +1444,7 @@ function poll() {
                     continue;
                 }
                 values.push({
-                    id: adapter.namespace + '.' + sensor.name + '.' + stateB,
+                    id: `${adapter.namespace}.${sensor.name}.${stateB}`,
                     val: states[stateB]
                 });
             }
@@ -1560,7 +1560,7 @@ function poll() {
                             continue;
                         }
                         values.push({
-                            id: adapter.namespace + '.' + group.name + '.' + stateB,
+                            id: `${adapter.namespace}.${group.name}.${stateB}`,
                             val: states[stateB]
                         });
                     } // endFor
