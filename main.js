@@ -1429,11 +1429,12 @@ function poll() {
             sensor.name = sensorName;
             const states = {};
 
-            for (const stateA in sensor.state) {
-                if (!sensor.state.hasOwnProperty(stateA)) {
+            const sensorStates = {...sensor.config, ...sensor.state};
+            for (const stateA in sensorStates) {
+                if (!sensorStates.hasOwnProperty(stateA)) {
                     continue;
                 }
-                states[stateA] = sensor.state[stateA];
+                states[stateA] = sensorStates[stateA];
             }
 
             if (states.temperature !== undefined) {
