@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "bottleneck": "^2.19.5",
-        "node-hue-api": "^2.4.6",
+        "node-hue-api": "^3.2.1",
         "md5": "^2.2.1",
         "@iobroker/adapter-core": "^1.0.3"
     },

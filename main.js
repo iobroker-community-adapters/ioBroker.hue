@@ -23,6 +23,13 @@ let adapter;
 let pollingInterval;
 let reconnectTimeout;
 
+const supportedSensors = ['ZLLSwitch',
+    'ZGPSwitch',
+    'Daylight',
+    'ZLLTemperature',
+    'ZLLPresence',
+    'ZLLLightLevel'];
+
 function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
@@ -32,7 +39,7 @@ function startAdapter(options) {
                 return;
             }
 
-            adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
+            adapter.log.debug(`stateChange ${id} ${JSON.stringify(state)}`);
             const tmp = id.split('.');
             const dp = tmp.pop();
 
@@ -57,7 +64,20 @@ function startAdapter(options) {
                 return;
             } // endIf
 
+            // check if its a sensor
+            const channelId = id.substring(0, id.lastIndexOf('.'));
+            const channelObj = await adapter.getForeignObjectAsync(channelId);
+
+            if (channelObj && channelObj.common && supportedSensors.includes(channelObj.common.role)) {
+                // its a sensor - we need node-hue-api v3 for this
+                // const sensor = api.sensors.get(channelObj.native.id);
+                adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
+                return;
+            } // endIf
+
+
             id = tmp.slice(2).join('.');
+
             const fullIdBase = tmp.join('.') + '.';
             let ls = {};
             // if .on changed instead change .bri to 254 or 0
@@ -572,7 +592,7 @@ function submitHueCmd(cmd, args, callback) {
 
     // construct a unique id based on the command name
     // and serialized arguments
-    const id = cmd + ':' + args.id + ':' + md5(JSON.stringify(args));
+    const id = `${cmd}:${args.id}:${md5(JSON.stringify(args))}`;
 
     // skip any job submit if a job with the same id already exists in the
     // queue
@@ -752,7 +772,7 @@ async function connect(cb) {
 
             const sensor = sensors[sid];
 
-            if (sensor.type === 'ZLLSwitch' || sensor.type === 'ZGPSwitch' || sensor.type == 'Daylight' || sensor.type == 'ZLLTemperature' || sensor.type == 'ZLLPresence' || sensor.type == 'ZLLLightLevel') {
+            if (supportedSensors.includes(sensor.type)) {
 
                 let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
                 if (channelNames.indexOf(channelName) !== -1) {
