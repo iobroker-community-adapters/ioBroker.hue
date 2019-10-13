@@ -548,7 +548,7 @@ function browse(timeout, callback) {
     if (isNaN(timeout)) {
         timeout = 5000;
     }
-    hue.upnpSearch(timeout).then(callback).done();
+    v3.discovery.upnpSearch(timeout).then(callback);
 }
 
 function createUser(ip, callback) {
