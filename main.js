@@ -14,6 +14,7 @@
 'use strict';
 
 const hue = require('node-hue-api');
+const v3 = hue.v3;
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
 const Bottleneck = require('bottleneck');
@@ -78,7 +79,7 @@ function startAdapter(options) {
 
             id = tmp.slice(2).join('.');
 
-            const fullIdBase = tmp.join('.') + '.';
+            const fullIdBase = `${tmp.join('.')}.`;
             let ls = {};
             // if .on changed instead change .bri to 254 or 0
             let bri = 0;
@@ -170,20 +171,20 @@ function startAdapter(options) {
 
                 // work through the relevant states in the correct order for the logic to work
                 // but only if ack=true - so real values from device
-                handleParam(fullIdBase + 'on', true);
-                handleParam(fullIdBase + 'bri', true);
-                handleParam(fullIdBase + 'ct', true);
-                handleParam(fullIdBase + 'alert', true);
-                handleParam(fullIdBase + 'effect', true);
-                handleParam(fullIdBase + 'colormode', true);
-                handleParam(fullIdBase + 'r', true);
-                handleParam(fullIdBase + 'g', true);
-                handleParam(fullIdBase + 'b', true);
-                handleParam(fullIdBase + 'hue', true);
-                handleParam(fullIdBase + 'sat', true);
-                handleParam(fullIdBase + 'xy', true);
-                handleParam(fullIdBase + 'command', true);
-                handleParam(fullIdBase + 'level', true);
+                handleParam(`${fullIdBase}on`, true);
+                handleParam(`${fullIdBase}bri`, true);
+                handleParam(`${fullIdBase}ct`, true);
+                handleParam(`${fullIdBase}alert`, true);
+                handleParam(`${fullIdBase}effect`, true);
+                handleParam(`${fullIdBase}colormode`, true);
+                handleParam(`${fullIdBase}r`, true);
+                handleParam(`${fullIdBase}g`, true);
+                handleParam(`${fullIdBase}b`, true);
+                handleParam(`${fullIdBase}hue`, true);
+                handleParam(`${fullIdBase}sat`, true);
+                handleParam(`${fullIdBase}xy`, true);
+                handleParam(`${fullIdBase}command`, true);
+                handleParam(`${fullIdBase}level`, true);
 
                 // Walk through the rest or ack=false (=to be changed) values
                 for (const idState in idStates) {
@@ -245,12 +246,11 @@ function startAdapter(options) {
                         }
                         const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
                         ls.bri = xyb.b;
-                        ls.xy = xyb.x + ',' + xyb.y;
+                        ls.xy = `${xyb.x},${xyb.y}`;
                     }
 
-                    // create lightState from ls
-                    // and check values
-                    let lightState = hue.lightState.create();
+                    // create lightState from ls and check values
+                    let lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : hue.lightState.create();
                     let finalLS = {};
                     if (ls.bri > 0) {
                         lightState = lightState.on().bri(Math.min(254, ls.bri));
@@ -266,14 +266,14 @@ function startAdapter(options) {
                             if (ls.xy) {
                                 ls.xy = ls.xy.toString();
                             } else {
-                                adapter.log.warn('Invalid xy value: "' + ls.xy + '"');
+                                adapter.log.warn(`Invalid xy value: "${ls.xy}"`);
                                 ls.xy = '0,0';
                             }
                         }
                         let xy = ls.xy.toString().split(',');
                         xy = {'x': xy[0], 'y': xy[1]};
                         xy = hueHelper.GamutXYforModel(xy.x, xy.y, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
-                        finalLS.xy = xy.x + ',' + xy.y;
+                        finalLS.xy = `${xy.x},${xy.y}`;
                         lightState = lightState.xy(xy.x, xy.y);
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                             lightState = lightState.on();
@@ -776,7 +776,7 @@ async function connect(cb) {
 
                 let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
                 if (channelNames.indexOf(channelName) !== -1) {
-                    const newChannelName = channelName + ' ' + sensor.type;
+                    const newChannelName = `${channelName} ${sensor.type}`;
                     if (channelNames.indexOf(newChannelName) !== -1) {
                         adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
                         continue;
@@ -900,7 +900,7 @@ async function connect(cb) {
 
             let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${light.name}` : light.name;
             if (channelNames.indexOf(channelName) !== -1) {
-                const newChannelName = channelName + ' ' + light.type;
+                const newChannelName = `${channelName} ${light.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
                     adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
                     continue;
@@ -1122,7 +1122,7 @@ async function connect(cb) {
 
                 let groupName = adapter.config.useLegacyStructure ? `${config.config.name}.${group.name}` : group.name;
                 if (channelNames.indexOf(groupName) !== -1) {
-                    const newGroupName = groupName + ' ' + group.type;
+                    const newGroupName = `${groupName} ${group.type}`;
                     if (channelNames.indexOf(newGroupName) !== -1) {
                         adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
                         continue;
@@ -1527,7 +1527,7 @@ function poll() {
                     continue;
                 }
                 values.push({
-                    id: adapter.namespace + '.' + light.name + '.' + stateB,
+                    id: `${adapter.namespace}.${light.name}.${stateB}`,
                     val: states[stateB]
                 });
             }
@@ -1689,7 +1689,7 @@ function convertTemperature(value) {
         value = value.toString();
         const last = value.substring(value.length - 2, value.length);
         const first = value.substring(0, value.length - 2);
-        value = first + '.' + last;
+        value = `${first}.${last}`;
     } else {
         value = '0';
     }
