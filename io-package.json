@@ -4,7 +4,16 @@
         "version": "2.1.0",
         "news": {
             "2.1.0": {
-
+                "en": "added ability to turn lights on with last settings and minimum polling interval changed to 2 seconds",
+                "de": "Es wurde die Möglichkeit hinzugefügt, die Lichter mit den letzten Einstellungen einzuschalten und das minimale Abfrageintervall auf 2 Sekunden geändert",
+                "ru": "добавлена возможность включения подсветки с последними настройками, а минимальный интервал опроса изменен на 2 секунды",
+                "pt": "capacidade adicional de acender as luzes com as últimas configurações e o intervalo mínimo de pesquisa alterado para 2 segundos",
+                "nl": "extra mogelijkheid om lichten aan te zetten met de laatste instellingen en minimale polling-interval gewijzigd in 2 seconden",
+                "fr": "possibilité supplémentaire d'allumer les lumières avec les derniers réglages et l'intervalle d'interrogation minimum modifiés à 2 secondes",
+                "it": "aggiunta la possibilità di accendere le luci con le ultime impostazioni e l'intervallo di polling minimo modificato a 2 secondi",
+                "es": "capacidad adicional para encender las luces con la última configuración y el intervalo mínimo de sondeo cambiado a 2 segundos",
+                "pl": "dodano możliwość włączania świateł przy ostatnich ustawieniach i minimalny interwał odpytywania zmieniono na 2 sekundy",
+                "zh-cn": "添加了使用最后设置打开灯的功能，最小轮询间隔更改为2秒"
             },
             "2.0.1": {
                 "en": "fixed bug, that prevented some sensor states getting updated during runtime",
@@ -75,17 +84,6 @@
                 "it": "L'ignoranza dei gruppi è stata implementata",
                 "es": "Se implementó ignorar grupos",
                 "pl": "Ignorowanie grup zostało zaimplementowane"
-            },
-            "1.0.0": {
-                "en": "Enable/Disable OSRAM check from HUE Bridge, polling ZLLSwitch and ZGPSwitch",
-                "de": "Aktivieren / Deaktivieren der OSRAM-Prüfung von HUE Bridge, Abfragen von ZLLSwitch und ZGPSwitch",
-                "ru": "Включить / отключить проверку OSRAM с HUE Bridge, опрос ZLLSwitch и ZGPSwitch",
-                "pt": "Habilita / desabilita a verificação OSRAM do HUE Bridge, fazendo polling de ZLLSwitch e ZGPSwitch",
-                "nl": "Schakel OSRAM-controle in / uit vanuit HUE Bridge, polling ZLLSwitch en ZGPSwitch",
-                "fr": "Activer / désactiver la vérification OSRAM depuis HUE Bridge, en interrogeant ZLLSwitch et ZGPSwitch",
-                "it": "Abilita / Disabilita il controllo OSRAM da HUE Bridge, polling ZLLSwitch e ZGPSwitch",
-                "es": "Habilite / deshabilite la comprobación de OSRAM desde HUE Bridge, sondeando ZLLSwitch y ZGPSwitch",
-                "pl": "Włącz / wyłącz kontrolę OSRAM z mostka HUE, odpytywanie ZLLSwitch i ZGPSwitch"
             },
             "0.6.9": {
                 "en": "Enable adapter by default",
