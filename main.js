@@ -83,7 +83,7 @@ function startAdapter(options) {
             let ls = {};
             // if .on changed instead change .bri to 254 or 0
             let bri = 0;
-            if (dp === 'on') {
+            if (dp === 'on' && !adapter.config.nativeTurnOffBehaviour) {
                 bri = state.val ? 254 : 0;
                 adapter.setState([id, 'bri'].join('.'), {val: bri, ack: false});
                 return;
@@ -431,6 +431,17 @@ function startAdapter(options) {
                     if ('bri' in finalLS) {
                         finalLS.level = Math.max(Math.min(Math.round(finalLS.bri / 2.54), 100), 0);
                     }
+
+                    // if dp is on and we use native turn off behaviour only set the lightState
+                    if (dp === 'on' && adapter.config.nativeTurnOffBehaviour) {
+                        // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
+                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : hue.lightState.create();
+                        if (state.val) {
+                            lightState.on();
+                        } else {
+                            lightState.off();
+                        } // endElse
+                    } // endIf
 
                     if (obj.common.role === 'LightGroup' || obj.common.role === 'Room') {
                         if (!adapter.config.ignoreGroups) {
@@ -1606,7 +1617,7 @@ function main() {
     adapter.config.port = adapter.config.port ? parseInt(adapter.config.port, 10) : 80;
 
     // polling interval has to be greater equal 1
-    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10)  < 1 ? 1 : parseInt(adapter.config.pollingInterval, 10);
+    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10)  < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
 
     // create a bottleneck limiter to max 1 cmd per 1 sec
     groupQueue = new Bottleneck({

@@ -3,6 +3,9 @@
         "name": "hue",
         "version": "2.1.0",
         "news": {
+            "2.1.0": {
+
+            },
             "2.0.1": {
                 "en": "fixed bug, that prevented some sensor states getting updated during runtime",
                 "de": "Fehler behoben, der verhinderte, dass einige Sensorzustände zur Laufzeit aktualisiert wurden",
