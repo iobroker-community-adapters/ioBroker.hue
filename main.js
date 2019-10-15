@@ -441,7 +441,14 @@ function startAdapter(options) {
                         } else {
                             lightState.off();
                         } // endElse
-                    } // endIf
+                    } else if (dp === 'command' && adapter.config.nativeTurnOffBehaviour && Object.keys(JSON.parse(state.val)).length === 1 && JSON.parse(state.val).on !== undefined) {
+                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : hue.lightState.create();
+                        if (JSON.parse(state.val).on) {
+                            lightState.on();
+                        } else {
+                            lightState.off();
+                        } // endElse
+                    } // endElseIf
 
                     if (obj.common.role === 'LightGroup' || obj.common.role === 'Room') {
                         if (!adapter.config.ignoreGroups) {
