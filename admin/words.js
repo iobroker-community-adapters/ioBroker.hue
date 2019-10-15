@@ -230,15 +230,16 @@ systemDictionary = {
         'ru': 'Закрыть'
     },
     'polling_warning': {
-        'en': 'Notice: Adapter may send only 10 commands in 1 second inclusive the polling per device.',
-        'de': 'Hinweis: Der Adapter kann nur 10 Befehle in 1 Sekunde senden, einschließlich der Abfrage pro Gerät.',
-        'ru': 'Примечание. Адаптер может отправлять только 10 команд за 1 секунд, включая опрос на устройство.',
-        'pt': 'Aviso: O adaptador pode enviar apenas 10 comandos em 1 segundos, inclusive a pesquisa por dispositivo.',
-        'nl': 'Opmerking: Adapter verzendt mogelijk slechts 10 opdrachten binnen 1 seconden inclusief de polling per apparaat.',
-        'fr': 'Remarque: l\'adaptateur ne peut envoyer que 10 commandes en 1 secondes, y compris l\'interrogation par périphérique.',
-        'it': 'Avviso: l\'adattatore può inviare solo 10 comandi in 1 secondi, incluso il polling per dispositivo.',
-        'es': 'Aviso: El adaptador puede enviar solo 10 comandos en 1 segundos, incluido el sondeo por dispositivo.',
-        'pl': 'Uwaga: Adapter może wysłać tylko 10 poleceń w ciągu 1 sekund, łącznie z pollingiem na urządzenie.'
+        'en': 'Notice: Adapter may send only 10 commands in 1 second.',
+        'de': 'Hinweis: Der Adapter kann nur 10 Befehle in 1 Sekunde senden.',
+        'ru': 'Примечание. Адаптер может отправлять только 10 команд за 1 секунду.',
+        'pt': 'Aviso: O adaptador pode enviar apenas 10 comandos em 1 segundo.',
+        'nl': 'Opmerking: de adapter verzendt slechts 10 opdrachten in 1 seconde.',
+        'fr': 'Avis: L\'adaptateur peut envoyer seulement 10 commandes en 1 seconde.',
+        'it': 'Avviso: l\'adattatore può inviare solo 10 comandi in 1 secondo.',
+        'es': 'Aviso: el adaptador puede enviar solo 10 comandos en 1 segundo.',
+        'pl': 'Uwaga: Adapter może wysłać tylko 10 poleceń w ciągu 1 sekundy.',
+        'zh-cn': '注意：适配器在1秒钟内只能发送10条命令。'
     },
     'Ignore groups': {
         'en': 'Ignore groups',
@@ -274,5 +275,17 @@ systemDictionary = {
         'es': 'Estructura "heredada"',
         'pl': 'Struktura „Legacy”',
         'zh-cn': '“传统”结构'
+    },
+    'Native turn off/on behaviour': {
+        'en': 'Native turn off/on behaviour',
+        'de': 'Natives Ein- und Ausschaltverhalten',
+        'ru': 'Родное поведение включения / выключения',
+        'pt': 'Comportamento de ativação / desativação nativo',
+        'nl': 'Eigen in- / uitschakelgedrag',
+        'fr': 'Comportement natif d\'activation / désactivation',
+        'it': 'Disattivazione / attivazione nativa del comportamento',
+        'es': 'Comportamiento nativo de apagado / encendido',
+        'pl': 'Natywne zachowanie wyłączania / włączania',
+        'zh-cn': '本机关闭/打开行为'
     }
 };

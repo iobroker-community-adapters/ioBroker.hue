@@ -152,7 +152,8 @@
         "pollingInterval": 15,
         "ignoreGroups": false,
         "ignoreScenes": false,
-        "useLegacyStructure": false
+        "useLegacyStructure": false,
+        "nativeTurnOffBehaviour": false
     },
     "objects": [
         {
