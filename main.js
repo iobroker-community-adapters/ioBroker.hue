@@ -1605,10 +1605,8 @@ function main() {
     adapter.subscribeStates('*');
     adapter.config.port = adapter.config.port ? parseInt(adapter.config.port, 10) : 80;
 
-    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10);
-    if (adapter.config.pollingInterval < 3) {
-        adapter.config.pollingInterval = 3;
-    }
+    // polling interval has to be greater equal 1
+    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10)  < 1 ? 1 : parseInt(adapter.config.pollingInterval, 10);
 
     // create a bottleneck limiter to max 1 cmd per 1 sec
     groupQueue = new Bottleneck({
