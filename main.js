@@ -71,8 +71,18 @@ function startAdapter(options) {
 
             if (channelObj && channelObj.common && supportedSensors.includes(channelObj.common.role)) {
                 // its a sensor - we need node-hue-api v3 for this
-                // const sensor = api.sensors.get(channelObj.native.id);
-                adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
+                if (dp === 'on') {
+                    try {
+                        const sensor = api.sensors.get(channelObj.native.id);
+                        sensor.on = state.val;
+                        api.sensors.updateSensorState(sensor);
+                        adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                    } catch (e) {
+                        adapter.log.warn(`Cannot update sensor ${channelObj.native.id}: ${e}`);
+                    } // endCatch
+                } else {
+                    adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
+                } // endElse
                 return;
             } // endIf
 
@@ -713,7 +723,7 @@ function updateGroupState(group, prio, callback) {
 function updateLightState(light, prio, callback) {
     adapter.log.debug(`polling light ${light.name} (${light.id}) with prio ${prio}`);
 
-    submitHueCmd('lights.getLightById', {id: parseInt(light.id), prio: prio}, async (err, result) => {
+    submitHueCmd('lights.getLightById', {id: parseInt(light.id), prio: prio}, (err, result) => {
         const values = [];
         const states = {};
 
