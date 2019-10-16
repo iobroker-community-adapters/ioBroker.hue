@@ -250,7 +250,7 @@ function startAdapter(options) {
                     }
 
                     // create lightState from ls and check values
-                    let lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : hue.lightState.create();
+                    let lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
                     let finalLS = {};
                     if (ls.bri > 0) {
                         lightState = lightState.on().bri(Math.min(254, ls.bri));
@@ -435,14 +435,14 @@ function startAdapter(options) {
                     // if dp is on and we use native turn off behaviour only set the lightState
                     if (dp === 'on' && adapter.config.nativeTurnOffBehaviour) {
                         // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
-                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : hue.lightState.create();
+                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
                         if (state.val) {
                             lightState.on();
                         } else {
                             lightState.off();
                         } // endElse
                     } else if (dp === 'command' && adapter.config.nativeTurnOffBehaviour && Object.keys(JSON.parse(state.val)).length === 1 && JSON.parse(state.val).on !== undefined) {
-                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : hue.lightState.create();
+                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
                         if (JSON.parse(state.val).on) {
                             lightState.on();
                         } else {
@@ -455,7 +455,7 @@ function startAdapter(options) {
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                            submitHueCmd('setGroupLightState', {
+                            submitHueCmd('groups.setGroupState', {
                                 id: groupIds[id],
                                 data: lightState,
                                 prio: 1
@@ -474,10 +474,10 @@ function startAdapter(options) {
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                            lightState = hue.lightState.create();
+                            lightState = new v3.lightStates.LightState();
                             lightState.on(finalLS.on);
 
-                            submitHueCmd('setLightState', {
+                            submitHueCmd('lights.setLightState', {
                                 id: channelIds[id],
                                 data: lightState,
                                 prio: 1
@@ -496,7 +496,7 @@ function startAdapter(options) {
                         // log final changes / states
                         adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                        submitHueCmd('setLightState', {
+                        submitHueCmd('lights.setLightState', {
                             id: channelIds[id],
                             data: lightState,
                             prio: 1
@@ -584,7 +584,6 @@ async function createUser(ip, callback) {
     }
 } // endCreateUser
 
-const HueApi = hue.HueApi;
 let api;
 
 let groupQueue;
@@ -617,20 +616,41 @@ function submitHueCmd(cmd, args, callback) {
 
     // submit the job to the bottleneck
     // queue
-    queue.submit({priority: args.prio, expiration: 5000, id: id}, (arg, cb) => {
+    queue.submit({priority: args.prio, expiration: 5000, id: id}, async (arg, cb) => {
         if (cmd === 'getFullState') {
-            api.getFullState((err, result) => {
-                cb(err, result);
-            });
+            try {
+                const res = await api.configuration.getAll();
+                cb(null, res);
+            } catch (e) {
+                cb(e);
+            } // endCatch
         } else if (arg.data !== undefined) {
-            api[cmd](arg.id, arg.data, (err, result) => {
-                cb(err, result);
-            });
+            try {
+                if (cmd.split('.').length === 2) {
+                    const cmdArr = cmd.split('.');
+                    const res = await api[cmdArr[0]][cmdArr[1]](arg.id, arg.data);
+                    cb(null, res);
+                } else {
+                    const res = await api[cmd](arg.id, arg.data);
+                    cb(null, res);
+                } // endElse
+            } catch (e) {
+                cb(e);
+            } // endCatch
         } else {
-            api[cmd](arg.id, (err, result) => {
-                cb(err, result);
-            });
-        }
+            try {
+                if (cmd.split('.').length === 2) {
+                    const cmdArr = cmd.split('.');
+                    const res = await api[cmdArr[0]][cmdArr[1]](arg.id);
+                    cb(null, res);
+                } else {
+                    const res = await api[cmd](arg.id);
+                    cb(null, res);
+                } // endElse
+            } catch (e) {
+                cb(e);
+            } // endCatch
+        } // endElse
     }, args, (err, result) => {
         if (err === null && result !== false) {
             adapter.log.debug(`${id} result: ${JSON.stringify(result)}`);
@@ -642,9 +662,11 @@ function submitHueCmd(cmd, args, callback) {
 function updateGroupState(group, prio, callback) {
     adapter.log.debug(`polling group ${group.name} (${group.id}) with prio ${prio}`);
 
-    submitHueCmd('getGroup', {id: group.id, prio: prio}, (err, result) => {
+    submitHueCmd('groups.get', {id: group.id, prio: prio}, (err, result) => {
         const values = [];
         const states = {};
+        result = result['_rawData'];
+        //adapter.log.warn('updated ' + JSON.stringify(result))
 
         for (const stateA in result.lastAction) {
             if (!result.lastAction.hasOwnProperty(stateA)) {
@@ -693,9 +715,11 @@ function updateGroupState(group, prio, callback) {
 function updateLightState(light, prio, callback) {
     adapter.log.debug(`polling light ${light.name} (${light.id}) with prio ${prio}`);
 
-    submitHueCmd('lightStatus', {id: light.id, prio: prio}, (err, result) => {
+    submitHueCmd('lights.getLightById', {id: light.id, prio: prio}, (err, result) => {
         const values = [];
         const states = {};
+
+        // adapter.log.warn('updated ' + JSON.stringify(result))
 
         if (result.swupdate && result.swupdate.state) {
             values.push({id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state});
@@ -749,222 +773,71 @@ function updateLightState(light, prio, callback) {
 }
 
 async function connect(cb) {
-    api.getFullState(async (err, config) => {
-        if (err) {
-            adapter.log.warn(`could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
-            adapter.log.error(err);
-            reconnectTimeout = setTimeout(connect, 5000, cb);
-            return;
-        } else if (!config) {
-            adapter.log.warn(`could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
-            reconnectTimeout = setTimeout(connect, 5000, cb);
-            return;
-        }
+    let config;
+    try {
+        config = await api.configuration.getAll();
+    } catch (e) {
+        adapter.log.warn(`could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
+        adapter.log.error(e);
+        reconnectTimeout = setTimeout(connect, 5000, cb);
+        return;
+    } // endCatch
 
-        // even if useLegacyStructure is false, we check if the structure exists to not create chaos
-        if (!adapter.config.useLegacyStructure) {
-            const legacyObj = await adapter.getObjectAsync(`${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}`);
-            if (legacyObj) {
-                adapter.config.useLegacyStructure = true;
-                adapter.log.info('Use legacy structure, because existing');
-            } // endIf
+    if (!config) {
+        adapter.log.warn(`could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
+        reconnectTimeout = setTimeout(connect, 5000, cb);
+        return;
+    } // endIf
+
+    // even if useLegacyStructure is false, we check if the structure exists to not create chaos
+    if (!adapter.config.useLegacyStructure) {
+        const legacyObj = await adapter.getObjectAsync(`${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}`);
+        if (legacyObj) {
+            adapter.config.useLegacyStructure = true;
+            adapter.log.info('Use legacy structure, because existing');
         } // endIf
+    } // endIf
 
-        const channelNames = [];
+    const channelNames = [];
 
-        // Create/update lamps
-        const lights = config.lights;
-        const sensors = config.sensors;
-        const objs = [];
-        const states = [];
+    // Create/update lamps
+    const lights = config.lights;
+    const sensors = config.sensors;
+    const objs = [];
+    const states = [];
 
-        for (const sid in sensors) {
-            if (!sensors.hasOwnProperty(sid)) {
-                continue;
-            }
-
-            const sensor = sensors[sid];
-
-            if (supportedSensors.includes(sensor.type)) {
-
-                let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
-                if (channelNames.indexOf(channelName) !== -1) {
-                    const newChannelName = `${channelName} ${sensor.type}`;
-                    if (channelNames.indexOf(newChannelName) !== -1) {
-                        adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
-                        continue;
-                    } else {
-                        adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
-                        channelName = newChannelName;
-                    }
-                } else {
-                    channelNames.push(channelName);
-                }
-
-                const sensorName = sensor.name.replace(/\s/g, '');
-
-                pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
-
-                const sensorCopy = {...sensor.state, ...sensor.config};
-                for (const state in sensorCopy) {
-                    if (!sensorCopy.hasOwnProperty(state)) {
-                        continue;
-                    }
-                    const objId = `${channelName}.${state}`;
-
-                    const lobj = {
-                        _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
-                        type: 'state',
-                        common: {
-                            name: objId,
-                            read: true,
-                            write: true
-                        },
-                        native: {
-                            id: sid
-                        }
-                    };
-
-                    let value = sensorCopy[state];
-
-                    switch (state) {
-                        case 'on':
-                            lobj.common.type = 'boolean';
-                            lobj.common.role = 'switch';
-                            break;
-                        case 'reachable':
-                            lobj.common.type = 'boolean';
-                            lobj.common.write = false;
-                            lobj.common.role = 'indicator.reachable';
-                            break;
-                        case 'buttonevent':
-                            lobj.common.type = 'number';
-                            lobj.common.role = 'state';
-                            break;
-                        case 'lastupdated':
-                            lobj.common.type = 'string';
-                            lobj.common.role = 'date';
-                            break;
-                        case 'battery':
-                            lobj.common.type = 'number';
-                            lobj.common.role = 'config';
-                            break;
-                        case 'pending':
-                            lobj.common.type = 'number';
-                            lobj.common.role = 'config';
-                            break;
-                        case 'daylight':
-                            lobj.common.type = 'boolean';
-                            lobj.common.role = 'switch';
-                            break;
-                        case 'dark':
-                            lobj.common.type = 'boolean';
-                            lobj.common.role = 'switch';
-                            break;
-                        case 'presence':
-                            lobj.common.type = 'boolean';
-                            lobj.common.role = 'switch';
-                            break;
-                        case 'lightlevel':
-                            lobj.common.type = 'number';
-                            lobj.common.role = 'lightlevel';
-                            lobj.common.min = 0;
-                            lobj.common.max = 17000;
-                            break;
-                        case 'temperature':
-                            lobj.common.type = 'number';
-                            lobj.common.role = 'indicator.temperature';
-                            value = convertTemperature(value);
-                            break;
-                        default:
-                            adapter.log.info(`skip switch: ${objId}`);
-                            break;
-                    }
-
-                    objs.push(lobj);
-                    states.push({id: lobj._id, val: value});
-                }
-
-                objs.push({
-                    _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
-                    type: 'channel',
-                    common: {
-                        name: channelName,
-                        role: sensor.type
-                    },
-                    native: {
-                        id: sid,
-                        type: sensor.type,
-                        name: sensor.name,
-                        modelid: sensor.modelid,
-                        swversion: sensor.swversion,
-                    }
-                });
-            }
+    for (const sid in sensors) {
+        if (!sensors.hasOwnProperty(sid)) {
+            continue;
         }
 
-        adapter.log.info(`created/updated ${pollSensors.length} sensor channels`);
+        const sensor = sensors[sid];
 
-        for (const lid in lights) {
-            if (!lights.hasOwnProperty(lid)) {
-                continue;
-            }
-            const light = lights[lid];
+        if (supportedSensors.includes(sensor.type)) {
 
-            let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${light.name}` : light.name;
+            let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
             if (channelNames.indexOf(channelName) !== -1) {
-                const newChannelName = `${channelName} ${light.type}`;
+                const newChannelName = `${channelName} ${sensor.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
-                    adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
+                    adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
+                    adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
                     channelName = newChannelName;
                 }
             } else {
                 channelNames.push(channelName);
             }
-            channelIds[channelName.replace(/\s/g, '_')] = lid;
-            pollLights.push({id: lid, name: channelName.replace(/\s/g, '_')});
 
-            if (light.type === 'Extended color light' || light.type === 'Color light') {
-                light.state.r = 0;
-                light.state.g = 0;
-                light.state.b = 0;
-            }
+            const sensorName = sensor.name.replace(/\s/g, '');
 
-            if (light.type !== 'On/Off plug-in unit') {
-                light.state.command = '{}';
-                light.state.level = 0;
-            }
+            pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
 
-            // Create swUpdate state for every light
-            if (light.swupdate && light.swupdate.state) {
-                const objId = `${channelName}.updateable`;
-
-                const lobj = {
-                    _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
-                    type: 'state',
-                    common: {
-                        name: objId,
-                        read: true,
-                        write: false,
-                        type: 'string',
-                        role: 'indicator.update'
-                    },
-                    native: {
-                        id: lid
-                    }
-                };
-                objs.push(lobj);
-                states.push({id: lobj._id, val: light.swupdate.state});
-            } // endIf
-
-            for (const state in light.state) {
-                if (!light.state.hasOwnProperty(state)) {
+            const sensorCopy = {...sensor.state, ...sensor.config};
+            for (const state in sensorCopy) {
+                if (!sensorCopy.hasOwnProperty(state)) {
                     continue;
                 }
-                let value = light.state[state];
                 const objId = `${channelName}.${state}`;
 
                 const lobj = {
@@ -976,104 +849,63 @@ async function connect(cb) {
                         write: true
                     },
                     native: {
-                        id: lid
+                        id: sid
                     }
                 };
+
+                let value = sensorCopy[state];
 
                 switch (state) {
                     case 'on':
                         lobj.common.type = 'boolean';
-                        lobj.common.role = 'switch.light';
-                        break;
-                    case 'bri':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.dimmer';
-                        lobj.common.min = 0;
-                        lobj.common.max = 254;
-                        break;
-                    case 'level':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.dimmer';
-                        lobj.common.min = 0;
-                        lobj.common.max = 100;
-                        break;
-                    case 'hue':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.color.hue';
-                        lobj.common.unit = '°';
-                        lobj.common.min = 0;
-                        lobj.common.max = 360;
-                        value = Math.round(value / 65535 * 360);
-                        break;
-                    case 'sat':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.color.saturation';
-                        lobj.common.min = 0;
-                        lobj.common.max = 254;
-                        break;
-                    case 'xy':
-                        lobj.common.type = 'string';
-                        lobj.common.role = 'level.color.xy';
-                        break;
-                    case 'ct':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.color.temperature';
-                        lobj.common.unit = '°K';
-                        lobj.common.min = 2200; // 500
-                        lobj.common.max = 6500; // 153
-                        value = Math.round(1e6 / value);
-                        break;
-                    case 'alert':
-                        lobj.common.type = 'string';
                         lobj.common.role = 'switch';
-                        break;
-                    case 'effect':
-                        lobj.common.type = 'boolean';
-                        lobj.common.role = 'switch';
-                        break;
-                    case 'colormode':
-                        lobj.common.type = 'string';
-                        lobj.common.role = 'colormode';
-                        lobj.common.write = false;
                         break;
                     case 'reachable':
                         lobj.common.type = 'boolean';
                         lobj.common.write = false;
                         lobj.common.role = 'indicator.reachable';
                         break;
-                    case 'r':
+                    case 'buttonevent':
                         lobj.common.type = 'number';
-                        lobj.common.role = 'level.color.red';
-                        lobj.common.min = 0;
-                        lobj.common.max = 255;
+                        lobj.common.role = 'state';
                         break;
-                    case 'g':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.color.green';
-                        lobj.common.min = 0;
-                        lobj.common.max = 255;
-                        break;
-                    case 'b':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level.color.blue';
-                        lobj.common.min = 0;
-                        lobj.common.max = 255;
-                        break;
-                    case 'command':
+                    case 'lastupdated':
                         lobj.common.type = 'string';
-                        lobj.common.role = 'command';
+                        lobj.common.role = 'date';
+                        break;
+                    case 'battery':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'config';
                         break;
                     case 'pending':
                         lobj.common.type = 'number';
                         lobj.common.role = 'config';
                         break;
-                    case 'mode':
-                        lobj.common.type = 'string';
-                        lobj.common.role = 'text';
+                    case 'daylight':
+                        lobj.common.type = 'boolean';
+                        lobj.common.role = 'switch';
                         break;
-
+                    case 'dark':
+                        lobj.common.type = 'boolean';
+                        lobj.common.role = 'switch';
+                        break;
+                    case 'presence':
+                        lobj.common.type = 'boolean';
+                        lobj.common.role = 'switch';
+                        break;
+                    case 'lightlevel':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'lightlevel';
+                        lobj.common.min = 0;
+                        lobj.common.max = 17000;
+                        break;
+                    case 'temperature':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'indicator.temperature';
+                        value = convertTemperature(value);
+                        break;
                     default:
-                        adapter.log.info(`skip light: ${objId}`);
+                        adapter.log.info(`skip switch: ${objId}`);
                         break;
                 }
 
@@ -1081,306 +913,501 @@ async function connect(cb) {
                 states.push({id: lobj._id, val: value});
             }
 
-            let role = 'light.color';
-            if (light.type === 'Dimmable light' || light.type === 'Dimmable plug-in unit') {
-                role = 'light.dimmer';
-            } else if (light.type === 'On/Off plug-in unit') {
-                role = 'switch';
-            }
-
             objs.push({
                 _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
                 type: 'channel',
                 common: {
                     name: channelName,
-                    role: role
+                    role: sensor.type
                 },
                 native: {
-                    id: lid,
-                    type: light.type,
-                    name: light.name,
-                    modelid: light.modelid,
-                    swversion: light.swversion,
-                    pointsymbol: light.pointsymbol
+                    id: sid,
+                    type: sensor.type,
+                    name: sensor.name,
+                    modelid: sensor.modelid,
+                    swversion: sensor.swversion,
                 }
             });
-
         }
-        adapter.log.info(`created/updated ${pollLights.length} light channels`);
+    }
 
-        // Create/update groups
-        if (!adapter.config.ignoreGroups) {
-            const groups = config.groups;
-            groups[0] = {
-                name: 'All',   //"Lightset 0"
-                type: 'LightGroup',
-                id: 0,
-                action: {
-                    alert: 'select',
-                    bri: 0,
-                    colormode: '',
-                    ct: 0,
-                    effect: 'none',
-                    hue: 0,
-                    on: false,
-                    sat: 0,
-                    xy: '0,0'
+    adapter.log.info(`created/updated ${pollSensors.length} sensor channels`);
+
+    for (const lid in lights) {
+        if (!lights.hasOwnProperty(lid)) {
+            continue;
+        }
+        const light = lights[lid];
+
+        let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${light.name}` : light.name;
+        if (channelNames.indexOf(channelName) !== -1) {
+            const newChannelName = `${channelName} ${light.type}`;
+            if (channelNames.indexOf(newChannelName) !== -1) {
+                adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
+                continue;
+            } else {
+                adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
+                channelName = newChannelName;
+            }
+        } else {
+            channelNames.push(channelName);
+        }
+        channelIds[channelName.replace(/\s/g, '_')] = lid;
+        pollLights.push({id: lid, name: channelName.replace(/\s/g, '_')});
+
+        if (light.type === 'Extended color light' || light.type === 'Color light') {
+            light.state.r = 0;
+            light.state.g = 0;
+            light.state.b = 0;
+        }
+
+        if (light.type !== 'On/Off plug-in unit') {
+            light.state.command = '{}';
+            light.state.level = 0;
+        }
+
+        // Create swUpdate state for every light
+        if (light.swupdate && light.swupdate.state) {
+            const objId = `${channelName}.updateable`;
+
+            const lobj = {
+                _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
+                type: 'state',
+                common: {
+                    name: objId,
+                    read: true,
+                    write: false,
+                    type: 'string',
+                    role: 'indicator.update'
+                },
+                native: {
+                    id: lid
                 }
             };
-            for (const gid in groups) {
-                if (!groups.hasOwnProperty(gid)) {
-                    continue;
-                }
-                const group = groups[gid];
-
-                let groupName = adapter.config.useLegacyStructure ? `${config.config.name}.${group.name}` : group.name;
-                if (channelNames.indexOf(groupName) !== -1) {
-                    const newGroupName = `${groupName} ${group.type}`;
-                    if (channelNames.indexOf(newGroupName) !== -1) {
-                        adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
-                        continue;
-                    } else {
-                        adapter.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
-                        groupName = newGroupName;
-                    }
-                } else {
-                    channelNames.push(groupName);
-                }
-                groupIds[groupName.replace(/\s/g, '_')] = gid;
-                pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
-
-                group.action.r = 0;
-                group.action.g = 0;
-                group.action.b = 0;
-                group.action.command = '{}';
-                group.action.level = 0;
-
-                for (const action in group.action) {
-                    if (!group.action.hasOwnProperty(action)) {
-                        continue;
-                    }
-
-                    const gobjId = `${groupName}.${action}`;
-
-                    const gobj = {
-                        _id: `${adapter.namespace}.${gobjId.replace(/\s/g, '_')}`,
-                        type: 'state',
-                        common: {
-                            name: gobjId,
-                            read: true,
-                            write: true
-                        },
-                        native: {
-                            id: gid
-                        }
-                    };
-                    if (typeof group.action[action] === 'object') {
-                        group.action[action] = group.action[action].toString();
-                    }
-
-                    switch (action) {
-                        case 'on':
-                            gobj.common.type = 'boolean';
-                            gobj.common.role = 'switch';
-                            break;
-                        case 'bri':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.dimmer';
-                            gobj.common.min = 0;
-                            gobj.common.max = 254;
-                            break;
-                        case 'level':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.dimmer';
-                            gobj.common.min = 0;
-                            gobj.common.max = 100;
-                            break;
-                        case 'hue':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.color.hue';
-                            gobj.common.unit = '°';
-                            gobj.common.min = 0;
-                            gobj.common.max = 360;
-                            break;
-                        case 'sat':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.color.saturation';
-                            gobj.common.min = 0;
-                            gobj.common.max = 254;
-                            break;
-                        case 'xy':
-                            gobj.common.type = 'string';
-                            gobj.common.role = 'level.color.xy';
-                            break;
-                        case 'ct':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.color.temperature';
-                            gobj.common.unit = '°K';
-                            gobj.common.min = 2200; // 500
-                            gobj.common.max = 6500; // 153
-                            break;
-                        case 'alert':
-                            gobj.common.type = 'string';
-                            gobj.common.role = 'switch';
-                            break;
-                        case 'effect':
-                            gobj.common.type = 'boolean';
-                            gobj.common.role = 'switch';
-                            break;
-                        case 'colormode':
-                            gobj.common.type = 'string';
-                            gobj.common.role = 'sensor.colormode';
-                            gobj.common.write = false;
-                            break;
-                        case 'r':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.color.red';
-                            gobj.common.min = 0;
-                            gobj.common.max = 255;
-                            break;
-                        case 'g':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.color.green';
-                            gobj.common.min = 0;
-                            gobj.common.max = 255;
-                            break;
-                        case 'b':
-                            gobj.common.type = 'number';
-                            gobj.common.role = 'level.color.blue';
-                            gobj.common.min = 0;
-                            gobj.common.max = 255;
-                            break;
-                        case 'command':
-                            gobj.common.type = 'string';
-                            gobj.common.role = 'command';
-                            break;
-                        default:
-                            adapter.log.info(`skip group: ${gobjId}`);
-                            continue;
-                    }
-                    objs.push(gobj);
-                    states.push({id: gobj._id, val: group.action[action]});
-                } // endFor
-
-                // Create anyOn state
-                if (gid !== '0') {
-                    objs.push({
-                        _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
-                        type: 'state',
-                        common: {
-                            name: `${groupName}.anyOn`,
-                            role: 'indicator.switch',
-                            read: true,
-                            write: false
-                        },
-                        native: {}
-                    });
-
-                    states.push({
-                        id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
-                        val: group.state['any_on']
-                    });
-                } // endIf
-                objs.push({
-                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
-                    type: 'channel',
-                    common: {
-                        name: groupName,
-                        role: group.type
-                    },
-                    native: {
-                        id: gid,
-                        type: group.type,
-                        name: group.name,
-                        lights: group.lights
-                    }
-                });
-            } // endFor
-            adapter.log.info(`created/updated ${pollGroups.length} groups channels`);
-
-        }
-
-        // create scene states
-        if (!adapter.config.ignoreScenes) {
-            try {
-                const scenes = config.scenes;
-
-                // Create obj to get groupname in constant time
-                const groupNames = {};
-                for (const key in groupIds) {
-                    groupNames[groupIds[key]] = key;
-                } // endFor
-
-                let sceneChannelCreated = false;
-
-                let sceneCounter = 0;
-                const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : `${adapter.namespace}`;
-                for (const sceneId in scenes) {
-                    const scene = scenes[sceneId];
-                    if (scene.type === 'GroupScene') {
-                        if (adapter.config.ignoreGroups) continue;
-                        adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
-                        objs.push({
-                            _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
-                            type: 'state',
-                            common: {
-                                name: `Scene ${scene.name}`,
-                                role: 'button'
-                            },
-                            native: {
-                                id: sceneId,
-                                group: scene.group
-                            }
-                        });
-                        sceneCounter++;
-                    } else {
-                        if (!sceneChannelCreated) {
-                            objs.push({
-                                _id: `${sceneNamespace}.lightScenes`,
-                                type: 'channel',
-                                common: {
-                                    name: 'Light scenes'
-                                },
-                                native: {}
-                            });
-                            sceneChannelCreated = true;
-                        } // endIf
-
-                        adapter.log.debug(`Create ${scene.name}`);
-                        objs.push({
-                            _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
-                            type: 'state',
-                            common: {
-                                name: `Scene ${scene.name}`,
-                                role: 'button'
-                            },
-                            native: {
-                                id: sceneId
-                            }
-                        });
-                        sceneCounter++;
-                    } // edElse
-                } // endFor
-                adapter.log.info(`created/updated ${sceneCounter} scenes`);
-            } catch (e) {
-                adapter.log.warn(`Error syncing scenes: ${e}`);
-            } // endCatch
-
+            objs.push(lobj);
+            states.push({id: lobj._id, val: light.swupdate.state});
         } // endIf
 
-        // Create/update device
-        adapter.log.info('creating/updating bridge device');
+        for (const state in light.state) {
+            if (!light.state.hasOwnProperty(state)) {
+                continue;
+            }
+            let value = light.state[state];
+            const objId = `${channelName}.${state}`;
+
+            const lobj = {
+                _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
+                type: 'state',
+                common: {
+                    name: objId,
+                    read: true,
+                    write: true
+                },
+                native: {
+                    id: lid
+                }
+            };
+
+            switch (state) {
+                case 'on':
+                    lobj.common.type = 'boolean';
+                    lobj.common.role = 'switch.light';
+                    break;
+                case 'bri':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.dimmer';
+                    lobj.common.min = 0;
+                    lobj.common.max = 254;
+                    break;
+                case 'level':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.dimmer';
+                    lobj.common.min = 0;
+                    lobj.common.max = 100;
+                    break;
+                case 'hue':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.color.hue';
+                    lobj.common.unit = '°';
+                    lobj.common.min = 0;
+                    lobj.common.max = 360;
+                    value = Math.round(value / 65535 * 360);
+                    break;
+                case 'sat':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.color.saturation';
+                    lobj.common.min = 0;
+                    lobj.common.max = 254;
+                    break;
+                case 'xy':
+                    lobj.common.type = 'string';
+                    lobj.common.role = 'level.color.xy';
+                    break;
+                case 'ct':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.color.temperature';
+                    lobj.common.unit = '°K';
+                    lobj.common.min = 2200; // 500
+                    lobj.common.max = 6500; // 153
+                    value = Math.round(1e6 / value);
+                    break;
+                case 'alert':
+                    lobj.common.type = 'string';
+                    lobj.common.role = 'switch';
+                    break;
+                case 'effect':
+                    lobj.common.type = 'boolean';
+                    lobj.common.role = 'switch';
+                    break;
+                case 'colormode':
+                    lobj.common.type = 'string';
+                    lobj.common.role = 'colormode';
+                    lobj.common.write = false;
+                    break;
+                case 'reachable':
+                    lobj.common.type = 'boolean';
+                    lobj.common.write = false;
+                    lobj.common.role = 'indicator.reachable';
+                    break;
+                case 'r':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.color.red';
+                    lobj.common.min = 0;
+                    lobj.common.max = 255;
+                    break;
+                case 'g':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.color.green';
+                    lobj.common.min = 0;
+                    lobj.common.max = 255;
+                    break;
+                case 'b':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level.color.blue';
+                    lobj.common.min = 0;
+                    lobj.common.max = 255;
+                    break;
+                case 'command':
+                    lobj.common.type = 'string';
+                    lobj.common.role = 'command';
+                    break;
+                case 'pending':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'config';
+                    break;
+                case 'mode':
+                    lobj.common.type = 'string';
+                    lobj.common.role = 'text';
+                    break;
+
+                default:
+                    adapter.log.info(`skip light: ${objId}`);
+                    break;
+            }
+
+            objs.push(lobj);
+            states.push({id: lobj._id, val: value});
+        }
+
+        let role = 'light.color';
+        if (light.type === 'Dimmable light' || light.type === 'Dimmable plug-in unit') {
+            role = 'light.dimmer';
+        } else if (light.type === 'On/Off plug-in unit') {
+            role = 'switch';
+        }
+
         objs.push({
-            _id: adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : adapter.namespace,
-            type: 'device',
+            _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
+            type: 'channel',
             common: {
-                name: config.config.name
+                name: channelName,
+                role: role
             },
-            native: config.config
+            native: {
+                id: lid,
+                type: light.type,
+                name: light.name,
+                modelid: light.modelid,
+                swversion: light.swversion,
+                pointsymbol: light.pointsymbol
+            }
         });
 
-        syncObjects(objs, () => syncStates(states, false, cb));
+    }
+    adapter.log.info(`created/updated ${pollLights.length} light channels`);
+
+    // Create/update groups
+    if (!adapter.config.ignoreGroups) {
+        const groups = config.groups;
+        groups[0] = {
+            name: 'All',   //"Lightset 0"
+            type: 'LightGroup',
+            id: 0,
+            action: {
+                alert: 'select',
+                bri: 0,
+                colormode: '',
+                ct: 0,
+                effect: 'none',
+                hue: 0,
+                on: false,
+                sat: 0,
+                xy: '0,0'
+            }
+        };
+        for (const gid in groups) {
+            if (!groups.hasOwnProperty(gid)) {
+                continue;
+            }
+            const group = groups[gid];
+
+            let groupName = adapter.config.useLegacyStructure ? `${config.config.name}.${group.name}` : group.name;
+            if (channelNames.indexOf(groupName) !== -1) {
+                const newGroupName = `${groupName} ${group.type}`;
+                if (channelNames.indexOf(newGroupName) !== -1) {
+                    adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
+                    continue;
+                } else {
+                    adapter.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
+                    groupName = newGroupName;
+                }
+            } else {
+                channelNames.push(groupName);
+            }
+            groupIds[groupName.replace(/\s/g, '_')] = gid;
+            pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
+
+            group.action.r = 0;
+            group.action.g = 0;
+            group.action.b = 0;
+            group.action.command = '{}';
+            group.action.level = 0;
+
+            for (const action in group.action) {
+                if (!group.action.hasOwnProperty(action)) {
+                    continue;
+                }
+
+                const gobjId = `${groupName}.${action}`;
+
+                const gobj = {
+                    _id: `${adapter.namespace}.${gobjId.replace(/\s/g, '_')}`,
+                    type: 'state',
+                    common: {
+                        name: gobjId,
+                        read: true,
+                        write: true
+                    },
+                    native: {
+                        id: gid
+                    }
+                };
+                if (typeof group.action[action] === 'object') {
+                    group.action[action] = group.action[action].toString();
+                }
+
+                switch (action) {
+                    case 'on':
+                        gobj.common.type = 'boolean';
+                        gobj.common.role = 'switch';
+                        break;
+                    case 'bri':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.dimmer';
+                        gobj.common.min = 0;
+                        gobj.common.max = 254;
+                        break;
+                    case 'level':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.dimmer';
+                        gobj.common.min = 0;
+                        gobj.common.max = 100;
+                        break;
+                    case 'hue':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.color.hue';
+                        gobj.common.unit = '°';
+                        gobj.common.min = 0;
+                        gobj.common.max = 360;
+                        break;
+                    case 'sat':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.color.saturation';
+                        gobj.common.min = 0;
+                        gobj.common.max = 254;
+                        break;
+                    case 'xy':
+                        gobj.common.type = 'string';
+                        gobj.common.role = 'level.color.xy';
+                        break;
+                    case 'ct':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.color.temperature';
+                        gobj.common.unit = '°K';
+                        gobj.common.min = 2200; // 500
+                        gobj.common.max = 6500; // 153
+                        break;
+                    case 'alert':
+                        gobj.common.type = 'string';
+                        gobj.common.role = 'switch';
+                        break;
+                    case 'effect':
+                        gobj.common.type = 'boolean';
+                        gobj.common.role = 'switch';
+                        break;
+                    case 'colormode':
+                        gobj.common.type = 'string';
+                        gobj.common.role = 'sensor.colormode';
+                        gobj.common.write = false;
+                        break;
+                    case 'r':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.color.red';
+                        gobj.common.min = 0;
+                        gobj.common.max = 255;
+                        break;
+                    case 'g':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.color.green';
+                        gobj.common.min = 0;
+                        gobj.common.max = 255;
+                        break;
+                    case 'b':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'level.color.blue';
+                        gobj.common.min = 0;
+                        gobj.common.max = 255;
+                        break;
+                    case 'command':
+                        gobj.common.type = 'string';
+                        gobj.common.role = 'command';
+                        break;
+                    default:
+                        adapter.log.info(`skip group: ${gobjId}`);
+                        continue;
+                }
+                objs.push(gobj);
+                states.push({id: gobj._id, val: group.action[action]});
+            } // endFor
+
+            // Create anyOn state
+            if (gid !== '0') {
+                objs.push({
+                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                    type: 'state',
+                    common: {
+                        name: `${groupName}.anyOn`,
+                        role: 'indicator.switch',
+                        read: true,
+                        write: false
+                    },
+                    native: {}
+                });
+
+                states.push({
+                    id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                    val: group.state['any_on']
+                });
+            } // endIf
+            objs.push({
+                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
+                type: 'channel',
+                common: {
+                    name: groupName,
+                    role: group.type
+                },
+                native: {
+                    id: gid,
+                    type: group.type,
+                    name: group.name,
+                    lights: group.lights
+                }
+            });
+        } // endFor
+        adapter.log.info(`created/updated ${pollGroups.length} groups channels`);
+
+    }
+
+    // create scene states
+    if (!adapter.config.ignoreScenes) {
+        try {
+            const scenes = config.scenes;
+
+            // Create obj to get groupname in constant time
+            const groupNames = {};
+            for (const key in groupIds) {
+                groupNames[groupIds[key]] = key;
+            } // endFor
+
+            let sceneChannelCreated = false;
+
+            let sceneCounter = 0;
+            const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : `${adapter.namespace}`;
+            for (const sceneId in scenes) {
+                const scene = scenes[sceneId];
+                if (scene.type === 'GroupScene') {
+                    if (adapter.config.ignoreGroups) continue;
+                    adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
+                    objs.push({
+                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                        type: 'state',
+                        common: {
+                            name: `Scene ${scene.name}`,
+                            role: 'button'
+                        },
+                        native: {
+                            id: sceneId,
+                            group: scene.group
+                        }
+                    });
+                    sceneCounter++;
+                } else {
+                    if (!sceneChannelCreated) {
+                        objs.push({
+                            _id: `${sceneNamespace}.lightScenes`,
+                            type: 'channel',
+                            common: {
+                                name: 'Light scenes'
+                            },
+                            native: {}
+                        });
+                        sceneChannelCreated = true;
+                    } // endIf
+
+                    adapter.log.debug(`Create ${scene.name}`);
+                    objs.push({
+                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                        type: 'state',
+                        common: {
+                            name: `Scene ${scene.name}`,
+                            role: 'button'
+                        },
+                        native: {
+                            id: sceneId
+                        }
+                    });
+                    sceneCounter++;
+                } // edElse
+            } // endFor
+            adapter.log.info(`created/updated ${sceneCounter} scenes`);
+        } catch (e) {
+            adapter.log.warn(`Error syncing scenes: ${e}`);
+        } // endCatch
+
+    } // endIf
+
+    // Create/update device
+    adapter.log.info('creating/updating bridge device');
+    objs.push({
+        _id: adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : adapter.namespace,
+        type: 'device',
+        common: {
+            name: config.config.name
+        },
+        native: config.config
     });
+
+    syncObjects(objs, () => syncStates(states, false, cb));
 } // endConnect
 
 function syncObjects(objs, callback) {
@@ -1614,12 +1641,12 @@ function poll() {
     });
 } // endPoll
 
-function main() {
+async function main() {
     adapter.subscribeStates('*');
     adapter.config.port = adapter.config.port ? parseInt(adapter.config.port, 10) : 80;
 
     // polling interval has to be greater equal 1
-    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10)  < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
+    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10) < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
 
     // create a bottleneck limiter to max 1 cmd per 1 sec
     groupQueue = new Bottleneck({
@@ -1684,9 +1711,8 @@ function main() {
             return 25; // retry in 25 ms
         }
     });
-
-    api = new HueApi(adapter.config.bridge, adapter.config.user, 0, adapter.config.port);
-
+    // host, username, clientkey todo: make port configurable again
+    api = await v3.api.create(adapter.config.bridge, adapter.config.user, adapter.config.port);//, undefined, undefined, adapter.config.port);
     connect(() => {
         if (adapter.config.polling) {
             pollingInterval = setInterval(poll, adapter.config.pollingInterval * 1000);
