@@ -569,25 +569,20 @@ function browse(timeout, callback) {
     v3.discovery.upnpSearch(timeout).then(callback);
 }
 
-function createUser(ip, callback) {
+async function createUser(ip, callback) {
     const newUserName = null;
     const userDescription = 'ioBroker.hue';
     try {
-        const api = new HueApi();
-        api.registerUser(ip, newUserName, userDescription)
-            .then(newUser => {
-                adapter.log.info(`created new User: ${newUser}`);
-                callback({error: 0, message: newUser});
-            })
-            .fail(err => {
-                callback({error: err.type || err, message: err.message});
-            })
-            .done();
+        const api = await v3.api.create(adapter.config.bridge);
+        const newUser = await api.users.createUser(ip, newUserName, userDescription);
+        adapter.log.info(`created new User: ${newUser}`);
+        callback({error: 0, message: newUser});
     } catch (e) {
-        adapter.log.error(e);
-        callback({error: 1, message: JSON.stringify(e)});
+        // 101 is bridge button not pressed
+        if (e.getHueErrorType() !== 101) adapter.log.error(e);
+        callback({error: e.getHueErrorType(), message: JSON.stringify(e)});
     }
-}
+} // endCreateUser
 
 const HueApi = hue.HueApi;
 let api;
