@@ -48,9 +48,12 @@ function startAdapter(options) {
                 try {
                     // its a scene -> get scene id to start it
                     const obj = await adapter.getForeignObjectAsync(id);
+                    const groupState = new v3.lightStates.GroupLightState();
+                    groupState.scene(obj.native.id);
 
-                    submitHueCmd('activateScene', {
-                        id: obj.native.id,
+                    submitHueCmd('groups.setGroupState', {
+                        id: 0,
+                        data: groupState,
                         prio: 1
                     }, (err) => {
                         if (!err) {
