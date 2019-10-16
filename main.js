@@ -78,8 +78,10 @@ function startAdapter(options) {
                     try {
                         const sensor = await api.sensors.get(channelObj.native.id);
                         sensor.on = state.val;
-                        submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, () => {
-                            adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                        submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, e => {
+                            if (!e) {
+                                adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                            } // endIf
                         });
                     } catch (e) {
                         adapter.log.warn(`Cannot update sensor ${channelObj.native.id}: ${e}`);
