@@ -76,10 +76,11 @@ function startAdapter(options) {
                 // its a sensor - we need node-hue-api v3 for this
                 if (dp === 'on') {
                     try {
-                        const sensor = api.sensors.get(channelObj.native.id);
+                        const sensor = await api.sensors.get(channelObj.native.id);
                         sensor.on = state.val;
-                        api.sensors.updateSensorState(sensor);
-                        adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                        submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, () => {
+                            adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                        });
                     } catch (e) {
                         adapter.log.warn(`Cannot update sensor ${channelObj.native.id}: ${e}`);
                     } // endCatch
