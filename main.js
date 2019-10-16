@@ -685,6 +685,10 @@ function updateGroupState(group, prio, callback) {
             }
             states[stateA] = result.action[stateA];
         }
+
+        // add the anyOn State
+        states.anyOn = result.state['any_on'];
+
         if (states.reachable === false && states.bri !== undefined) {
             states.bri = 0;
             states.on = false;
@@ -1163,7 +1167,7 @@ async function connect(cb) {
                 hue: 0,
                 on: false,
                 sat: 0,
-                xy: '0,0'
+                xy: '0,0',
             }
         };
         for (const gid in groups) {
@@ -1302,19 +1306,18 @@ async function connect(cb) {
             } // endFor
 
             // Create anyOn state
+            objs.push({
+                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                type: 'state',
+                common: {
+                    name: `${groupName}.anyOn`,
+                    role: 'indicator.switch',
+                    read: true,
+                    write: false
+                },
+                native: {}
+            });
             if (gid !== '0') {
-                objs.push({
-                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
-                    type: 'state',
-                    common: {
-                        name: `${groupName}.anyOn`,
-                        role: 'indicator.switch',
-                        read: true,
-                        write: false
-                    },
-                    native: {}
-                });
-
                 states.push({
                     id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
                     val: group.state['any_on']

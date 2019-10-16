@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.1.0",
+        "version": "2.2.0",
         "news": {
+            "2.2.0": {
+                    "en": "migrated everything to Hue v3, added possibility to turn on/off sensor, added anyOn state for all group",
+                    "de": "alles zu Hue v3 migriert, Möglichkeit hinzugefügt, den Sensor ein- / auszuschalten, anyOn-Status für 'all' Gruppe hinzugefügt",
+                    "ru": "все перенесено в Hue v3, добавлена возможность включения / выключения датчика, добавлено состояние anyOn для всей группы",
+                    "pt": "migrou tudo para o Hue v3, acrescentou possibilidade de ligar / desligar o sensor, adicionou qualquer estado On para todos os grupos",
+                    "nl": "alles gemigreerd naar Hue v3, mogelijkheid toegevoegd om sensor aan / uit te zetten, anyOn status voor alle groepen toegevoegd",
+                    "fr": "tout migré vers Hue v3, possibilité supplémentaire d'activer / désactiver le capteur, ajout de l'état anyOn pour tous les groupes",
+                    "it": "migrato tutto su Hue v3, aggiunta possibilità di accendere / spegnere il sensore, aggiunto qualsiasi stato su tutto il gruppo",
+                    "es": "migró todo a Hue v3, agregó la posibilidad de encender / apagar el sensor, agregó cualquier estado On para todo el grupo",
+                    "pl": "migrowałem wszystko do Hue v3, dodaliśmy możliwość włączania / wyłączania czujnika, dodałem stan anyOn dla całej grupy",
+                    "zh-cn": "将所有内容迁移到Hue v3，增加了打开/关闭传感器的可能性，为所有组增加了anyOn状态"
+            },
             "2.1.0": {
                 "en": "added ability to turn lights on with last settings and minimum polling interval changed to 2 seconds",
                 "de": "Es wurde die Möglichkeit hinzugefügt, die Lichter mit den letzten Einstellungen einzuschalten und das minimale Abfrageintervall auf 2 Sekunden geändert",
@@ -50,18 +62,6 @@
                 "es": "Compatibilidad con js-controller 2.0, actualizaciones de dependencia",
                 "pl": "Zgodność z js-kontrolerem 2.0, aktualizacje zależności",
                 "zh-cn": "js-controller 2.0兼容性，依赖性更新"
-            },
-            "1.2.3": {
-                "en": "rework to queue commands using 'bottleneck'",
-                "de": "Umstellung auf 'bottleneck' um Kommandos zu queuen",
-                "ru": "переделать в очередь команды, используя «bottleneck»",
-                "pt": "retrabalho para enfileirar comandos usando 'bottleneck'",
-                "nl": "herwerken om commando's in de wachtrij te zetten met behulp van 'bottleneck'",
-                "fr": "retravailler les commandes en file d'attente en utilisant 'bottleneck'",
-                "it": "rielaborare i comandi di coda usando 'bottleneck'",
-                "es": "volver a trabajar para poner en cola los comandos usando 'bottleneck'",
-                "pl": "przeróbka kolejkowania poleceń za pomocą „bottleneck”",
-                "zh-cn": "使用'bottleneck'重新排序命令"
             },
             "1.1.2": {
                 "en": "Added compact mode",
