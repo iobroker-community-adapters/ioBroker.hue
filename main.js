@@ -666,13 +666,12 @@ function updateGroupState(group, prio, callback) {
         const values = [];
         const states = {};
         result = result['_rawData'];
-        //adapter.log.warn('updated ' + JSON.stringify(result))
 
-        for (const stateA in result.lastAction) {
-            if (!result.lastAction.hasOwnProperty(stateA)) {
+        for (const stateA in result.action) {
+            if (!result.action.hasOwnProperty(stateA)) {
                 continue;
             }
-            states[stateA] = result.lastAction[stateA];
+            states[stateA] = result.action[stateA];
         }
         if (states.reachable === false && states.bri !== undefined) {
             states.bri = 0;
@@ -1460,9 +1459,9 @@ function syncStates(states, isChanged, callback) {
         task.val = task.val.toString();
     }
     if (isChanged) {
-        adapter.setForeignStateChanged(task.id, task.val, true, () => setTimeout(syncStates, 0, states, isChanged, callback));
+        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, isChanged, callback));
     } else {
-        adapter.setForeignState(task.id, task.val, true, () => setTimeout(syncStates, 0, states, isChanged, callback));
+        adapter.setForeignState(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, isChanged, callback));
     }
 }
 
