@@ -598,7 +598,7 @@ const pollGroups = [];
 function submitHueCmd(cmd, args, callback) {
     // select the bottleneck queue to be used
     let queue = lightQueue;
-    if (cmd === 'getGroup' || cmd === 'setGroupLightState') {
+    if (cmd === 'groups.get' || cmd === 'groups.setGroupState') {
         queue = groupQueue;
     }
 
@@ -612,7 +612,6 @@ function submitHueCmd(cmd, args, callback) {
         adapter.log.debug(`job ${id} already in queue, skipping..`);
         return;
     }
-
 
     // submit the job to the bottleneck
     // queue
@@ -714,11 +713,11 @@ function updateGroupState(group, prio, callback) {
 function updateLightState(light, prio, callback) {
     adapter.log.debug(`polling light ${light.name} (${light.id}) with prio ${prio}`);
 
-    submitHueCmd('lights.getLightById', {id: light.id, prio: prio}, (err, result) => {
+    submitHueCmd('lights.getLightById', {id: parseInt(light.id), prio: prio}, async (err, result) => {
         const values = [];
         const states = {};
 
-        // adapter.log.warn('updated ' + JSON.stringify(result))
+        result = result['_rawData'];
 
         if (result.swupdate && result.swupdate.state) {
             values.push({id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state});
