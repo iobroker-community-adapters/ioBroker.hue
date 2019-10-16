@@ -1167,7 +1167,7 @@ async function connect(cb) {
                 hue: 0,
                 on: false,
                 sat: 0,
-                xy: '0,0',
+                xy: '0,0'
             }
         };
         for (const gid in groups) {
