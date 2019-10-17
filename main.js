@@ -594,8 +594,8 @@ async function createUser(ip, callback) {
     try {
         const api = await v3.api.create(adapter.config.bridge);
         const newUser = await api.users.createUser(ip, newUserName, userDescription);
-        adapter.log.info(`created new User: ${newUser}`);
-        callback({error: 0, message: newUser});
+        adapter.log.info(`created new User: ${newUser.username}`);
+        callback({error: 0, message: newUser.username});
     } catch (e) {
         // 101 is bridge button not pressed
         if (e.getHueErrorType() !== 101) adapter.log.error(e);
