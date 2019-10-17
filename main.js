@@ -77,6 +77,7 @@ function startAdapter(options) {
                 if (dp === 'on') {
                     try {
                         const sensor = await api.sensors.get(channelObj.native.id);
+                        adapter.log.warn(`Send this info to developer: ${JSON.stringify(sensor)}`);
                         sensor.on = state.val;
                         submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, e => {
                             if (!e) {
