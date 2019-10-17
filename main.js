@@ -77,9 +77,8 @@ function startAdapter(options) {
                 if (dp === 'on') {
                     try {
                         const sensor = await api.sensors.get(channelObj.native.id);
-                        adapter.log.warn(`Send this info to developer: ${JSON.stringify(sensor)}`);
-                        sensor.on = state.val;
-                        submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, e => {
+                        sensor['_rawData'].config.on = state.val;
+                        submitHueCmd('sensors.updateSensorConfig', {prio: 5, id: sensor}, e => {
                             if (!e) {
                                 adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                             } // endIf
@@ -836,7 +835,6 @@ async function connect(cb) {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
-
             let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = `${channelName} ${sensor.type}`;
@@ -1653,7 +1651,7 @@ function poll() {
                     });
                 } else {
                     // poll the 0 - ALL group
-                    updateGroupState(group, {prio: 5, id: group.id});
+                    updateGroupState(group, 5);
                 }
             });
         } // endIf
