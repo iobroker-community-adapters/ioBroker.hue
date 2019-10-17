@@ -286,11 +286,14 @@ function startAdapter(options) {
                                 ls.xy = '0,0';
                             }
                         }
+
                         let xy = ls.xy.toString().split(',');
                         xy = {'x': xy[0], 'y': xy[1]};
                         xy = hueHelper.GamutXYforModel(xy.x, xy.y, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
                         finalLS.xy = `${xy.x},${xy.y}`;
-                        lightState = lightState.xy(xy.x, xy.y);
+
+                        lightState = lightState.xy(parseFloat(xy.x), parseFloat(xy.y));
+
                         if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                             lightState = lightState.on();
                             lightState = lightState.bri(254);
