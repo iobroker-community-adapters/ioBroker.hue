@@ -1730,8 +1730,8 @@ async function main() {
             return 25; // retry in 25 ms
         }
     });
-    // host, username, clientkey todo: make port configurable again
-    api = await v3.api.create(adapter.config.bridge, adapter.config.user, adapter.config.port);//, undefined, undefined, adapter.config.port);
+    api = await v3.api.create(adapter.config.bridge, adapter.config.user, null, null, adapter.config.port);
+
     connect(() => {
         if (adapter.config.polling) {
             pollingInterval = setInterval(poll, adapter.config.pollingInterval * 1000);

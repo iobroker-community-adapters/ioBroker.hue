@@ -147,7 +147,7 @@
     },
     "native": {
         "bridge": "",
-        "port": 80,
+        "port": 443,
         "user": "",
         "polling": true,
         "pollingInterval": 15,
