@@ -147,14 +147,15 @@
     },
     "native": {
         "bridge": "",
-        "port": 443,
+        "port": 80,
         "user": "",
         "polling": true,
         "pollingInterval": 15,
         "ignoreGroups": false,
         "ignoreScenes": false,
         "useLegacyStructure": false,
-        "nativeTurnOffBehaviour": false
+        "nativeTurnOffBehaviour": false,
+        "ssl": false
     },
     "objects": [
         {
