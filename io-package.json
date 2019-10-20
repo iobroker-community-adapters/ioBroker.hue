@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.2.1",
+        "version": "2.2.2",
         "news": {
-            "2.2.1": {
+            "2.2.2": {
                 "en": "migrated everything to Hue v3, added possibility to turn on/off sensor, added anyOn state for all group",
                 "de": "alles zu Hue v3 migriert, Möglichkeit hinzugefügt, den Sensor ein- / auszuschalten, anyOn-Status für 'all' Gruppe hinzugefügt",
                 "ru": "все перенесено в Hue v3, добавлена возможность включения / выключения датчика, добавлено состояние anyOn для всей группы",
