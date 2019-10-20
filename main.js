@@ -592,7 +592,7 @@ async function createUser(ip, callback) {
     const newUserName = null;
     const userDescription = 'ioBroker.hue';
     try {
-        const api = await v3.api.create(adapter.config.bridge);
+        const api = await v3.api.create(adapter.config.bridge, null, null, null, adapter.config.port);
         const newUser = await api.users.createUser(ip, newUserName, userDescription);
         adapter.log.info(`created new User: ${newUser.username}`);
         callback({error: 0, message: newUser.username});
