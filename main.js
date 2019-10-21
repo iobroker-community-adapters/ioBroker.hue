@@ -1735,7 +1735,7 @@ async function main() {
         api = await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
     } else {
         adapter.log.debug(`Using insecure http to connect to ${adapter.config.bridge}:${adapter.config.port}`);
-        await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+        api = await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
     } // endElse
 
     connect(() => {
