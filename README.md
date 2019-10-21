@@ -27,10 +27,11 @@ Bindet Philips Hue / LivingColors / LivingWhites Lampen ein.
 In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfiguriert werden. Um einen User zu aktivieren einmal auf create user drücken und dann innerhalb von 30 Sekunden den Button an der Hue bridge drücken. Dann wird automatisch der User übergeben. 
 
 ## Changelog
-### 2.2.2 (2019-10-20)
+### 2.2.3 (2019-10-21)
 * (foxriver76) migrate everything to Hue v3
 * (foxriver76) add possibility to turn on/off sensor
 * (foxriver76) add anyOn state for all group
+* (foxriver76) different kinds of fixes for v3 (Osram Plugs, SSL connection, etc)
 
 ### 2.1.0 (2019-10-15)
 * (foxriver76) usage and adaptions for node-hue-api v3

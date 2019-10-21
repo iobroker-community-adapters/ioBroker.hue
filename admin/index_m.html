@@ -154,7 +154,15 @@
             }).on('keyup', function () {
                 $(this).trigger('change');
             });
-        }
+
+            $('#ssl').change(function() {
+               if ($(this).prop('checked')) {
+                   $('#port').val(443);
+               }  else {
+                   $('#port').val(80);
+               }
+            });
+        } // endLoad
 
         function save(callback) {
             var obj = {};

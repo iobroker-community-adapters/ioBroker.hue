@@ -13,6 +13,7 @@
 /* jslint node: true */
 'use strict';
 
+// process.env.NODE_HUE_API_USE_INSECURE_CONNECTION = true;
 const hue = require('node-hue-api');
 const v3 = hue.v3;
 const utils = require('@iobroker/adapter-core');
@@ -592,7 +593,7 @@ async function createUser(ip, callback) {
     const newUserName = null;
     const userDescription = 'ioBroker.hue';
     try {
-        const api = await v3.api.create(adapter.config.bridge, null, null, null, adapter.config.port);
+        const api = adapter.config.ssl ? await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect() : await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect();
         const newUser = await api.users.createUser(ip, newUserName, userDescription);
         adapter.log.info(`created new User: ${newUser.username}`);
         callback({error: 0, message: newUser.username});
@@ -1730,7 +1731,7 @@ async function main() {
             return 25; // retry in 25 ms
         }
     });
-    api = await v3.api.create(adapter.config.bridge, adapter.config.user, null, null, adapter.config.port);
+    api = adapter.config.ssl ? await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user) : await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
 
     connect(() => {
         if (adapter.config.polling) {
