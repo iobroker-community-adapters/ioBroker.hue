@@ -13,7 +13,6 @@
 /* jslint node: true */
 'use strict';
 
-// process.env.NODE_HUE_API_USE_INSECURE_CONNECTION = true;
 const hue = require('node-hue-api');
 const v3 = hue.v3;
 const utils = require('@iobroker/adapter-core');
@@ -1731,7 +1730,13 @@ async function main() {
             return 25; // retry in 25 ms
         }
     });
-    api = adapter.config.ssl ? await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user) : await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+    if (adapter.config.ssl) {
+        adapter.log.debug(`Using https to connect to ${adapter.config.bridge}:${adapter.config.port}`);
+        api = await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+    } else {
+        adapter.log.debug(`Using insecure http to connect to ${adapter.config.bridge}:${adapter.config.port}`);
+        await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+    } // endElse
 
     connect(() => {
         if (adapter.config.polling) {
