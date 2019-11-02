@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.2.3",
+        "version": "2.2.4",
         "news": {
+            "2.2.4": {
+                "en": "implemented fix for controlling 'on' state of sensors",
+                "de": "Fehlerbehebung für die Kontrolle des Einschaltzustands von Sensoren implementiert",
+                "ru": "реализовано исправление для контроля состояния датчиков",
+                "pt": "correção implementada para controlar o estado 'on' dos sensores",
+                "nl": "geïmplementeerde fix voor het regelen van de 'aan'-status van sensoren",
+                "fr": "correctif implémenté pour contrôler l'état d'activation des capteurs",
+                "it": "correzione implementata per il controllo dello stato dei sensori \"on\"",
+                "es": "Corrección implementada para controlar el estado 'activado' de los sensores",
+                "pl": "zaimplementowano poprawkę do kontrolowania stanu włączenia czujników",
+                "zh-cn": "已实现用于控制传感器“打开”状态的修复程序"
+            },
             "2.2.3": {
                 "en": "migrated everything to Hue v3, added possibility to turn on/off sensor, added anyOn state for all group",
                 "de": "alles zu Hue v3 migriert, Möglichkeit hinzugefügt, den Sensor ein- / auszuschalten, anyOn-Status für 'all' Gruppe hinzugefügt",
@@ -14,18 +26,6 @@
                 "es": "migró todo a Hue v3, agregó la posibilidad de encender / apagar el sensor, agregó cualquier estado On para todo el grupo",
                 "pl": "migrowałem wszystko do Hue v3, dodaliśmy możliwość włączania / wyłączania czujnika, dodałem stan anyOn dla całej grupy",
                 "zh-cn": "将所有内容迁移到Hue v3，增加了打开/关闭传感器的可能性，为所有组增加了anyOn状态"
-            },
-            "2.1.0": {
-                "en": "added ability to turn lights on with last settings and minimum polling interval changed to 2 seconds",
-                "de": "Es wurde die Möglichkeit hinzugefügt, die Lichter mit den letzten Einstellungen einzuschalten und das minimale Abfrageintervall auf 2 Sekunden geändert",
-                "ru": "добавлена возможность включения подсветки с последними настройками, а минимальный интервал опроса изменен на 2 секунды",
-                "pt": "capacidade adicional de acender as luzes com as últimas configurações e o intervalo mínimo de pesquisa alterado para 2 segundos",
-                "nl": "extra mogelijkheid om lichten aan te zetten met de laatste instellingen en minimale polling-interval gewijzigd in 2 seconden",
-                "fr": "possibilité supplémentaire d'allumer les lumières avec les derniers réglages et l'intervalle d'interrogation minimum modifiés à 2 secondes",
-                "it": "aggiunta la possibilità di accendere le luci con le ultime impostazioni e l'intervallo di polling minimo modificato a 2 secondi",
-                "es": "capacidad adicional para encender las luces con la última configuración y el intervalo mínimo de sondeo cambiado a 2 segundos",
-                "pl": "dodano możliwość włączania świateł przy ostatnich ustawieniach i minimalny interwał odpytywania zmieniono na 2 sekundy",
-                "zh-cn": "添加了使用最后设置打开灯的功能，最小轮询间隔更改为2秒"
             },
             "2.0.1": {
                 "en": "fixed bug, that prevented some sensor states getting updated during runtime",

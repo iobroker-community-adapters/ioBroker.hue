@@ -77,7 +77,7 @@ function startAdapter(options) {
                 if (dp === 'on') {
                     try {
                         const sensor = await api.sensors.get(channelObj.native.id);
-                        sensor['_rawData'].config = {on: state.val};
+                        sensor['_configAttributes'] = {on: state.val};
                         submitHueCmd('sensors.updateSensorConfig', {prio: 5, id: sensor}, e => {
                             if (!e) {
                                 adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
