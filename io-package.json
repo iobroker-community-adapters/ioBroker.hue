@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.2.4",
+        "version": "2.3.1",
         "news": {
-            "2.2.4": {
+            "2.3.1": {
                 "en": "implemented fix for controlling 'on' state of sensors",
                 "de": "Fehlerbehebung für die Kontrolle des Einschaltzustands von Sensoren implementiert",
                 "ru": "реализовано исправление для контроля состояния датчиков",
