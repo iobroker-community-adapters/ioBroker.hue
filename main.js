@@ -74,8 +74,8 @@ function startAdapter(options) {
 
             if (channelObj && channelObj.common && supportedSensors.includes(channelObj.common.role)) {
                 // its a sensor - we need node-hue-api v3 for this
-                if (dp === 'on') {
-                    try {
+                try {
+                    if (dp === 'on') {
                         const sensor = await api.sensors.get(channelObj.native.id);
                         sensor['_configAttributes'] = {on: state.val};
                         submitHueCmd('sensors.updateSensorConfig', {prio: 5, id: sensor}, e => {
@@ -83,12 +83,18 @@ function startAdapter(options) {
                                 adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                             } // endIf
                         });
-                    } catch (e) {
-                        adapter.log.warn(`Cannot update sensor ${channelObj.native.id}: ${e}`);
-                    } // endCatch
-                } else {
-                    adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
-                } // endElse
+                    } else if (dp === 'status') {
+                        const sensor = await api.sensors.get(channelObj.native.id);
+                        sensor.status = parseInt(state.val);
+                        submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, e => {
+                            adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                        });
+                    } else {
+                        adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
+                    } // endElse
+                } catch (e) {
+                    adapter.log.warn(`Cannot update sensor ${channelObj.native.id}: ${e}`);
+                } // endCatch
                 return;
             } // endIf
 
@@ -1663,6 +1669,10 @@ function poll() {
 async function main() {
     adapter.subscribeStates('*');
     adapter.config.port = adapter.config.port ? parseInt(adapter.config.port, 10) : 80;
+
+    if (adapter.config.syncSoftwareSensors) {
+        supportedSensors.push('CLIPGenericStatus');
+    } // endIf
 
     // polling interval has to be greater equal 1
     adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10) < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
