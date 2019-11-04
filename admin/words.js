@@ -287,5 +287,17 @@ systemDictionary = {
         'es': 'Comportamiento nativo de apagado / encendido',
         'pl': 'Natywne zachowanie wyłączania / włączania',
         'zh-cn': '本机关闭/打开行为'
+    },
+    'Sync software sensors': {
+        'en': 'Sync software sensors',
+        'de': 'Software-Sensoren synchronisieren',
+        'ru': 'Синхронизация программного обеспечения датчиков',
+        'pt': 'Sincronizar sensores de software',
+        'nl': 'Synchroniseer software sensoren',
+        'fr': 'Capteurs logiciels de synchronisation',
+        'it': 'Sincronizza i sensori del software',
+        'es': 'Sincronizar sensores de software',
+        'pl': 'Synchronizuj czujniki oprogramowania',
+        'zh-cn': '同步软件传感器'
     }
 };
