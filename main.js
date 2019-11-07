@@ -1692,7 +1692,7 @@ async function main() {
         adapter.log.error(`groupQueue error: ${err}`);
     });
     groupQueue.on('retry', (error, jobInfo) => {
-        adapter.log.warn(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
+        adapter.log.debug(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
     groupQueue.on('failed', async (error, jobInfo) => {
         const id = jobInfo.options.id;
