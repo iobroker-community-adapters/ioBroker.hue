@@ -19,6 +19,7 @@ const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
 const Bottleneck = require('bottleneck');
 const md5 = require('md5');
+const FORBIDDEN_CHARS = /[\][*,;'"`<>\\?]/g;
 
 let adapter;
 let pollingInterval;
@@ -841,7 +842,7 @@ async function connect(cb) {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
-            let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name}` : sensor.name;
+            let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name.replace(FORBIDDEN_CHARS, '')}` : sensor.name.replace(FORBIDDEN_CHARS, '');
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = `${channelName} ${sensor.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
