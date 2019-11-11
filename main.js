@@ -1375,7 +1375,7 @@ async function connect(cb) {
                     if (adapter.config.ignoreGroups) continue;
                     adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
                     objs.push({
-                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/\s/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
