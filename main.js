@@ -1402,7 +1402,7 @@ async function connect(cb) {
 
                     adapter.log.debug(`Create ${scene.name}`);
                     objs.push({
-                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').toLowerCase()}`,
+                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
