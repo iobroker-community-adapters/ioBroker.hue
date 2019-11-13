@@ -4,16 +4,16 @@
         "version": "2.4.0",
         "news": {
             "2.4.0": {
-                "en": "added possibility to control and read software sensors",
-                "de": "Möglichkeit hinzugefügt, Software-Sensoren zu steuern und zu lesen",
-                "ru": "добавлена возможность контролировать и считывать программные датчики",
-                "pt": "possibilidade adicional de controlar e ler sensores de software",
-                "nl": "mogelijkheid toegevoegd om softwaresensoren te besturen en te lezen",
-                "fr": "possibilité supplémentaire de contrôler et de lire les capteurs logiciels",
-                "it": "aggiunta possibilità di controllare e leggere i sensori del software",
-                "es": "Posibilidad adicional de controlar y leer sensores de software",
-                "pl": "dodano możliwość kontrolowania i odczytu czujników oprogramowania",
-                "zh-cn": "增加了控制和读取软件传感器的可能性"
+                "en": "added possibility to control and read software sensors and to control zones + entertainment areas",
+                "de": "Möglichkeit hinzugefügt, Software-Sensoren zu steuern und auszulesen und Zonen + Unterhaltungsbereiche zu steuern",
+                "ru": "добавлена возможность контролировать и считывать программные датчики и контролировать зоны + зоны развлечений",
+                "pt": "possibilidade adicional de controlar e ler sensores de software e controlar zonas + áreas de entretenimento",
+                "nl": "extra mogelijkheid om softwaresensoren te besturen en te lezen en om zones + entertainmentgebieden te besturen",
+                "fr": "possibilité supplémentaire de contrôler et de lire les capteurs logiciels et de contrôler les zones + les zones de divertissement",
+                "it": "aggiunta possibilità di controllare e leggere i sensori software e di controllare zone + aree di intrattenimento",
+                "es": "Posibilidad adicional de controlar y leer sensores de software y controlar zonas + áreas de entretenimiento",
+                "pl": "dodano możliwość kontroli i odczytu czujników oprogramowania oraz kontroli stref + obszarów rozrywki",
+                "zh-cn": "增加了控制和读取软件传感器以及控制区域和娱乐区域的可能性"
             },
             "2.3.1": {
                 "en": "implemented fix for controlling 'on' state of sensors",

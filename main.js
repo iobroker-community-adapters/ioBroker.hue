@@ -273,7 +273,7 @@ function startAdapter(options) {
                     }
 
                     // create lightState from ls and check values
-                    let lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+                    let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
                     let finalLS = {};
                     if (ls.bri > 0) {
                         lightState = lightState.on().bri(Math.min(254, ls.bri));
@@ -461,14 +461,14 @@ function startAdapter(options) {
                     // if dp is on and we use native turn off behaviour only set the lightState
                     if (dp === 'on' && adapter.config.nativeTurnOffBehaviour) {
                         // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
-                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+                        lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
                         if (state.val) {
                             lightState.on();
                         } else {
                             lightState.off();
                         } // endElse
                     } else if (dp === 'command' && adapter.config.nativeTurnOffBehaviour && Object.keys(JSON.parse(state.val)).length === 1 && JSON.parse(state.val).on !== undefined) {
-                        lightState = obj.common.role === 'LightGroup' || obj.common.role === 'Room' ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+                        lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
                         if (JSON.parse(state.val).on) {
                             lightState.on();
                         } else {
@@ -476,7 +476,7 @@ function startAdapter(options) {
                         } // endElse
                     } // endElseIf
 
-                    if (obj.common.role === 'LightGroup' || obj.common.role === 'Room') {
+                    if (/(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
                         if (!adapter.config.ignoreGroups) {
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
