@@ -1708,7 +1708,7 @@ async function main() {
                 if (obj) adapter.setForeignObject(`system.adapter.${adapter.namespace}`, obj);
             } // endIf
         } else {
-            adapter.log.warn(`groupQueue: job ${id} failed: ${error}`);
+            adapter.log.debug(`groupQueue: job ${id} failed: ${error}`);
             return 25; // retry in 25 ms
         }
     });
@@ -1728,7 +1728,7 @@ async function main() {
         adapter.log.error(`lightQueue error: ${err}`);
     });
     lightQueue.on('retry', (error, jobInfo) => {
-        adapter.log.warn(`lightQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
+        adapter.log.debug(`lightQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
     });
     lightQueue.on('failed', (error, jobInfo) => {
         const id = jobInfo.options.id;
@@ -1737,7 +1737,7 @@ async function main() {
         } else if (jobInfo.retryCount >= 10) {
             adapter.log.error(`lightQueue: job ${id} max retry reached: ${error}`);
         } else {
-            adapter.log.warn(`lightQueue: job ${id} failed: ${error}`);
+            adapter.log.debug(`lightQueue: job ${id} failed: ${error}`);
             return 25; // retry in 25 ms
         }
     });

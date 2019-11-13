@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.4.0",
+        "version": "2.4.1",
         "news": {
-            "2.4.0": {
+            "2.4.1": {
                 "en": "added possibility to control and read software sensors and to control zones + entertainment areas",
                 "de": "Möglichkeit hinzugefügt, Software-Sensoren zu steuern und auszulesen und Zonen + Unterhaltungsbereiche zu steuern",
                 "ru": "добавлена возможность контролировать и считывать программные датчики и контролировать зоны + зоны развлечений",
