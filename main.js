@@ -587,12 +587,28 @@ function startAdapter(options) {
     return adapter;
 }
 
-function browse(timeout, callback) {
+async function browse(timeout, callback) {
     timeout = parseInt(timeout);
     if (isNaN(timeout)) {
         timeout = 5000;
     }
-    v3.discovery.upnpSearch(timeout).then(callback);
+
+    const res1 = await v3.discovery.upnpSearch(timeout);
+    const res2 = await v3.discovery.nupnpSearch();
+    const bridges = res1.concat(res2);
+
+    const ips = [];
+
+    // rm duplicates
+    for (const i in bridges) {
+        if (bridges[i].ipaddress in ips) {
+            bridges.splice(i, 1);
+        } else {
+            ips.push(bridges[i].ipaddress);
+        } // endElse
+    } // endFor
+
+    callback(bridges);
 }
 
 async function createUser(ip, callback) {
