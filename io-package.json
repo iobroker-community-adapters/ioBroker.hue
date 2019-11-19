@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.4.2",
+        "version": "2.4.3",
         "news": {
+            "2.4.3": {
+                "en": "increased version of node-hue-api to fix authentication for old bridge",
+                "de": "Die Version von Node-Hue-API wurde erhöht, um die Authentifizierung für die alte Bridge zu korrigieren",
+                "ru": "расширенная версия node-hue-api для исправления аутентификации для старого моста",
+                "pt": "versão aumentada do node-hue-api para corrigir a autenticação da ponte antiga",
+                "nl": "verbeterde versie van node-hue-api om authenticatie voor oude bridge te repareren",
+                "fr": "Version améliorée de node-hue-api pour corriger l'authentification pour l'ancien pont",
+                "it": "versione aumentata di node-hue-api per correggere l'autenticazione per il vecchio bridge",
+                "es": "versión mejorada de node-hue-api para corregir la autenticación para el puente viejo",
+                "pl": "zwiększona wersja node-hue-api do naprawy uwierzytelnienia dla starego mostu",
+                "zh-cn": "增加了node-hue-api版本，以修复旧桥的身份验证"
+            },
             "2.4.2": {
                 "en": "we now use nupnp + upnp to discover bridges (previously only upnp)",
                 "de": "wir benutzen jetzt nupnp + upnp um Brücken zu entdecken (bisher nur upnp)",
