@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.4.3",
+        "version": "2.4.4",
         "news": {
+            "2.4.4": {
+                "en": "increased performance, improved error handling",
+                "de": "erhöhte Leistung, verbesserte Fehlerbehandlung",
+                "ru": "повышенная производительность, улучшенная обработка ошибок",
+                "pt": "desempenho aprimorado, manipulação aprimorada de erros",
+                "nl": "verbeterde prestaties, verbeterde foutafhandeling",
+                "fr": "performances accrues, gestion des erreurs améliorée",
+                "it": "aumento delle prestazioni, migliore gestione degli errori",
+                "es": "mayor rendimiento, mejor manejo de errores",
+                "pl": "zwiększona wydajność, poprawiona obsługa błędów",
+                "zh-cn": "提高性能，改善错误处理"
+            },
             "2.4.3": {
                 "en": "increased version of node-hue-api to fix authentication for old bridge",
                 "de": "Die Version von Node-Hue-API wurde erhöht, um die Authentifizierung für die alte Bridge zu korrigieren",
@@ -99,17 +111,6 @@
                 "pl": "Zgodność z js-kontrolerem 2.0, aktualizacje zależności",
                 "zh-cn": "js-controller 2.0兼容性，依赖性更新"
             },
-            "1.1.2": {
-                "en": "Added compact mode",
-                "de": "Kompaktmodus hinzugefügt",
-                "ru": "Добавлен компактный режим",
-                "pt": "Adicionado modo compacto",
-                "nl": "Compact-modus toegevoegd",
-                "fr": "Ajout du mode compact",
-                "it": "Aggiunta modalità compatta",
-                "es": "Modo compacto agregado",
-                "pl": "Dodano tryb kompaktowy"
-            },
             "0.6.9": {
                 "en": "Enable adapter by default",
                 "de": "Aktiviere Adapter nach der Installation",
@@ -175,7 +176,7 @@
         "port": 80,
         "user": "",
         "polling": true,
-        "pollingInterval": 15,
+        "pollingInterval": 10,
         "ignoreGroups": false,
         "ignoreScenes": false,
         "useLegacyStructure": false,

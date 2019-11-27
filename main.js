@@ -566,7 +566,7 @@ function startAdapter(options) {
         unload: callback => {
             try {
                 if (pollingInterval) {
-                    clearInterval(pollingInterval);
+                    clearTimeout(pollingInterval);
                     pollingInterval = null;
                 }
 
@@ -694,7 +694,9 @@ function submitHueCmd(cmd, args, callback) {
         } // endElse
     }, args, (err, result) => {
         if (err === null && result !== false) {
-            adapter.log.debug(`${id} result: ${JSON.stringify(result)}`);
+            // only stringify these huge JSONs if necessary
+            if (adapter.log.level === 'debug' || adapter.log.level === 'silly')
+                adapter.log.debug(`${id} result: ${JSON.stringify(result)}`);
             callback(err, result);
         }
     });
@@ -1508,178 +1510,181 @@ function syncStates(states, isChanged, callback) {
     }
 }
 
-let pollingState = false;
-
 function poll() {
-    if (pollingState)
-        return;
-
-    pollingState = true;
+    // clear polling interval
+    if (pollingInterval) {
+        clearTimeout(pollingInterval);
+        pollingInterval = null;
+    } // endIf
 
     adapter.log.debug('Poll all states');
 
     submitHueCmd('getFullState', {prio: 5, id: 'getFullState'}, (err, config) => {
-        const values = [];
-        const lights = config.lights;
-        const sensors = config.sensors;
-        const groups = config.groups;
+        if (config && !err) {
+            const values = [];
+            const lights = config.lights;
+            const sensors = config.sensors;
+            const groups = config.groups;
 
-        // update sensors
-        pollSensors.forEach(sensor => {
-            const sensorName = sensor.name;
-            sensor = sensors[sensor.id];
-            sensor.name = sensorName;
-            const states = {};
+            // update sensors
+            pollSensors.forEach(sensor => {
+                const sensorName = sensor.name;
+                sensor = sensors[sensor.id];
+                sensor.name = sensorName;
+                const states = {};
 
-            const sensorStates = {...sensor.config, ...sensor.state};
-            for (const stateA in sensorStates) {
-                if (!sensorStates.hasOwnProperty(stateA)) {
-                    continue;
-                }
-                states[stateA] = sensorStates[stateA];
-            }
-
-            if (states.temperature !== undefined) {
-                states.temperature = convertTemperature(states.temperature);
-            }
-            for (const stateB in states) {
-                if (!states.hasOwnProperty(stateB)) {
-                    continue;
-                }
-                values.push({
-                    id: `${adapter.namespace}.${sensor.name}.${stateB}`,
-                    val: states[stateB]
-                });
-            }
-        });
-
-        // LIGHTS
-        pollLights.forEach(light => {
-            const states = {};
-
-            const lightName = light.name;
-            light = lights[light.id];
-            light.name = lightName;
-
-            if (light.swupdate && light.swupdate.state) {
-                values.push({
-                    id: `${adapter.namespace}.${light.name}.updateable`,
-                    val: light.swupdate.state
-                });
-            } // endIf
-
-            for (const stateA in light.state) {
-                if (!light.state.hasOwnProperty(stateA)) {
-                    continue;
-                }
-                states[stateA] = light.state[stateA];
-            }
-
-            if (!adapter.config.ignoreOsram) {
-                if (states.reachable === false && states.bri !== undefined) {
-                    states.bri = 0;
-                    states.on = false;
-                }
-            }
-
-            if (states.on === false && states.bri !== undefined) {
-                states.bri = 0;
-            }
-            if (states.xy !== undefined) {
-                const xy = states.xy.toString().split(',');
-                states.xy = states.xy.toString();
-                const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-                states.r = Math.round(rgb.Red * 254);
-                states.g = Math.round(rgb.Green * 254);
-                states.b = Math.round(rgb.Blue * 254);
-            }
-            if (states.bri !== undefined) {
-                states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
-            }
-
-            if (states.hue !== undefined) {
-                states.hue = Math.round(states.hue / 65535 * 360);
-            }
-            if (states.ct !== undefined) {
-                // convert color temperature from mired to kelvin
-                states.ct = Math.round(1e6 / states.ct);
-            }
-            for (const stateB in states) {
-                if (!states.hasOwnProperty(stateB)) {
-                    continue;
-                }
-                values.push({
-                    id: `${adapter.namespace}.${light.name}.${stateB}`,
-                    val: states[stateB]
-                });
-            }
-        });
-
-        // Create/update groups
-        if (!adapter.config.ignoreGroups) {
-            pollGroups.forEach(group => {
-                // Group 0 needs extra polling
-                if (group.id !== '0') {
-                    const states = {};
-                    const groupName = group.name;
-                    group = groups[group.id];
-                    group.name = groupName;
-
-                    for (const stateA in group.action) {
-                        if (!group.action.hasOwnProperty(stateA)) {
-                            continue;
-                        }
-                        states[stateA] = group.action[stateA];
+                const sensorStates = {...sensor.config, ...sensor.state};
+                for (const stateA in sensorStates) {
+                    if (!sensorStates.hasOwnProperty(stateA)) {
+                        continue;
                     }
+                    states[stateA] = sensorStates[stateA];
+                }
+
+                if (states.temperature !== undefined) {
+                    states.temperature = convertTemperature(states.temperature);
+                }
+                for (const stateB in states) {
+                    if (!states.hasOwnProperty(stateB)) {
+                        continue;
+                    }
+                    values.push({
+                        id: `${adapter.namespace}.${sensor.name}.${stateB}`,
+                        val: states[stateB]
+                    });
+                }
+            });
+
+            // LIGHTS
+            pollLights.forEach(light => {
+                const states = {};
+
+                const lightName = light.name;
+                light = lights[light.id];
+                light.name = lightName;
+
+                if (light.swupdate && light.swupdate.state) {
+                    values.push({
+                        id: `${adapter.namespace}.${light.name}.updateable`,
+                        val: light.swupdate.state
+                    });
+                } // endIf
+
+                for (const stateA in light.state) {
+                    if (!light.state.hasOwnProperty(stateA)) {
+                        continue;
+                    }
+                    states[stateA] = light.state[stateA];
+                }
+
+                if (!adapter.config.ignoreOsram) {
                     if (states.reachable === false && states.bri !== undefined) {
                         states.bri = 0;
                         states.on = false;
                     }
-                    if (states.on === false && states.bri !== undefined) {
-                        states.bri = 0;
-                    }
-                    if (states.xy !== undefined) {
-                        const xy = states.xy.toString().split(',');
-                        states.xy = states.xy.toString();
-                        const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
-                        states.r = Math.round(rgb.Red * 254);
-                        states.g = Math.round(rgb.Green * 254);
-                        states.b = Math.round(rgb.Blue * 254);
-                    }
-                    if (states.bri !== undefined) {
-                        states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
-                    }
+                }
 
-                    if (states.hue !== undefined) {
-                        states.hue = Math.round(states.hue / 65535 * 360);
-                    }
-                    if (states.ct !== undefined) {
-                        // convert color temperature from mired to kelvin
-                        states.ct = Math.round(1e6 / states.ct);
-                    }
+                if (states.on === false && states.bri !== undefined) {
+                    states.bri = 0;
+                }
+                if (states.xy !== undefined) {
+                    const xy = states.xy.toString().split(',');
+                    states.xy = states.xy.toString();
+                    const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                    states.r = Math.round(rgb.Red * 254);
+                    states.g = Math.round(rgb.Green * 254);
+                    states.b = Math.round(rgb.Blue * 254);
+                }
+                if (states.bri !== undefined) {
+                    states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+                }
 
-                    for (const stateB in states) {
-                        if (!states.hasOwnProperty(stateB)) {
-                            continue;
-                        }
-                        values.push({
-                            id: `${adapter.namespace}.${group.name}.${stateB}`,
-                            val: states[stateB]
-                        });
-                    } // endFor
-                    // set anyOn state
+                if (states.hue !== undefined) {
+                    states.hue = Math.round(states.hue / 65535 * 360);
+                }
+                if (states.ct !== undefined) {
+                    // convert color temperature from mired to kelvin
+                    states.ct = Math.round(1e6 / states.ct);
+                }
+                for (const stateB in states) {
+                    if (!states.hasOwnProperty(stateB)) {
+                        continue;
+                    }
                     values.push({
-                        id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
-                        val: group.state['any_on']
+                        id: `${adapter.namespace}.${light.name}.${stateB}`,
+                        val: states[stateB]
                     });
-                } else {
-                    // poll the 0 - ALL group
-                    updateGroupState(group, 5);
                 }
             });
+
+            // Create/update groups
+            if (!adapter.config.ignoreGroups) {
+                pollGroups.forEach(group => {
+                    // Group 0 needs extra polling
+                    if (group.id !== '0') {
+                        const states = {};
+                        const groupName = group.name;
+                        group = groups[group.id];
+                        group.name = groupName;
+
+                        for (const stateA in group.action) {
+                            if (!group.action.hasOwnProperty(stateA)) {
+                                continue;
+                            }
+                            states[stateA] = group.action[stateA];
+                        }
+                        if (states.reachable === false && states.bri !== undefined) {
+                            states.bri = 0;
+                            states.on = false;
+                        }
+                        if (states.on === false && states.bri !== undefined) {
+                            states.bri = 0;
+                        }
+                        if (states.xy !== undefined) {
+                            const xy = states.xy.toString().split(',');
+                            states.xy = states.xy.toString();
+                            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                            states.r = Math.round(rgb.Red * 254);
+                            states.g = Math.round(rgb.Green * 254);
+                            states.b = Math.round(rgb.Blue * 254);
+                        }
+                        if (states.bri !== undefined) {
+                            states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
+                        }
+
+                        if (states.hue !== undefined) {
+                            states.hue = Math.round(states.hue / 65535 * 360);
+                        }
+                        if (states.ct !== undefined) {
+                            // convert color temperature from mired to kelvin
+                            states.ct = Math.round(1e6 / states.ct);
+                        }
+
+                        for (const stateB in states) {
+                            if (!states.hasOwnProperty(stateB)) {
+                                continue;
+                            }
+                            values.push({
+                                id: `${adapter.namespace}.${group.name}.${stateB}`,
+                                val: states[stateB]
+                            });
+                        } // endFor
+                        // set anyOn state
+                        values.push({
+                            id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                            val: group.state['any_on']
+                        });
+                    } else {
+                        // poll the 0 - ALL group
+                        updateGroupState(group, 5);
+                    }
+                });
+            } // endIf
+            syncStates(values, true);
         } // endIf
-        syncStates(values, true);
-        pollingState = false;
+
+        if (!pollingInterval)
+            pollingInterval = setTimeout(poll, adapter.config.pollingInterval * 1000);
     });
 } // endPoll
 
@@ -1767,7 +1772,6 @@ async function main() {
 
     connect(() => {
         if (adapter.config.polling) {
-            pollingInterval = setInterval(poll, adapter.config.pollingInterval * 1000);
             poll();
         }
     });
