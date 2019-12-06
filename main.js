@@ -1786,7 +1786,7 @@ function convertTemperature(value) {
     } else {
         value = '0';
     }
-    return value;
+    return parseFloat(value);
 }
 
 // If started as allInOne/compact mode => return function to create instance
@@ -1796,3 +1796,7 @@ if (module && module.parent) {
     // or start the instance directly
     startAdapter();
 }
+
+process.on('unhandledRejection', (reason, p) => {
+    adapter.log.error(`Uhandeld Rejection ${reason} at ${p}`);
+});
