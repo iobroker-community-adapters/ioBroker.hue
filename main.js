@@ -1780,9 +1780,11 @@ async function main() {
 function convertTemperature(value) {
     if (value !== null) {
         value = value.toString();
+        const sign = value.startsWith('-') ? '-' : '+';
+        value = value.startsWith('-') ? value.substring(1) : value;
         const last = value.substring(value.length - 2, value.length);
         const first = value.substring(0, value.length - 2);
-        value = `${first}.${last}`;
+        value = `${sign}${first}.${last}`;
     } else {
         value = '0';
     }

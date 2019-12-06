@@ -1,19 +1,19 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.4.5",
+        "version": "2.4.6",
         "news": {
-            "2.4.5": {
-                "en": "logging unhandeld rejections",
-                "de": "Protokollierung von nicht bearbeiteten Promise Rejections",
-                "ru": "регистрация беспорядочных отклонений",
-                "pt": "registrar rejeições não realizadas",
-                "nl": "afwijzing van handmatige logboekregistratie",
-                "fr": "enregistrement des rejets non gérés",
-                "it": "registrazione di rifiuti non gestiti",
-                "es": "registrando rechazos involuntarios",
-                "pl": "rejestrowanie odrzuconych odrzuceń",
-                "zh-cn": "记录不合格废品"
+            "2.4.6": {
+                "en": "fix potential issue for negative temperature values",
+                "de": "Behebung eines möglichen Problems bei negativen Temperaturwerten",
+                "ru": "исправить потенциальную проблему для отрицательных значений температуры",
+                "pt": "corrija o possível problema para valores negativos de temperatura",
+                "nl": "mogelijke probleem voor negatieve temperatuurwaarden oplossen",
+                "fr": "correction d'un problème potentiel pour des valeurs de température négatives",
+                "it": "risolve potenziali problemi per valori di temperatura negativi",
+                "es": "Solucionar problemas potenciales para valores de temperatura negativos",
+                "pl": "naprawić potencjalny problem z ujemnymi wartościami temperatury",
+                "zh-cn": "解决负温度值的潜在问题"
             },
             "2.4.4": {
                 "en": "increased performance, improved error handling",
