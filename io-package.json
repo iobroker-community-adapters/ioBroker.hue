@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.4.4",
+        "version": "2.4.5",
         "news": {
+            "2.4.5": {
+                "en": "logging unhandeld rejections",
+                "de": "Protokollierung von nicht bearbeiteten Promise Rejections",
+                "ru": "регистрация беспорядочных отклонений",
+                "pt": "registrar rejeições não realizadas",
+                "nl": "afwijzing van handmatige logboekregistratie",
+                "fr": "enregistrement des rejets non gérés",
+                "it": "registrazione di rifiuti non gestiti",
+                "es": "registrando rechazos involuntarios",
+                "pl": "rejestrowanie odrzuconych odrzuceń",
+                "zh-cn": "记录不合格废品"
+            },
             "2.4.4": {
                 "en": "increased performance, improved error handling",
                 "de": "erhöhte Leistung, verbesserte Fehlerbehandlung",
@@ -98,18 +110,6 @@
                 "es": "tono y ct fijos, sincronizar escenas, reducir el intervalo de sondeo, reorganizar la estructura del objeto, agregar un indicador de actualización de cada foco",
                 "pl": "naprawiono odcień i ct, synchronizuje sceny, skraca czas odpytywania, reorganizuje strukturę obiektu, dodaje wskaźnik aktualizacji każdej żarówki",
                 "zh-cn": "固定色调和ct，同步场景，减少轮询间隔，重组对象结构，添加每个灯泡的更新指示器"
-            },
-            "1.2.4": {
-                "en": "js-controller 2.0 compatibility, dependency updates",
-                "de": "Kompatibilität mit js-controller 2.0, Abhängigkeitsaktualisierungen",
-                "ru": "Совместимость с js-controller 2.0, обновления зависимостей",
-                "pt": "Compatibilidade com js-controller 2.0, atualizações de dependência",
-                "nl": "js-controller 2.0 compatibiliteit, afhankelijkheid updates",
-                "fr": "Compatibilité js-controller 2.0, mises à jour de dépendance",
-                "it": "Compatibilità js-controller 2.0, aggiornamenti delle dipendenze",
-                "es": "Compatibilidad con js-controller 2.0, actualizaciones de dependencia",
-                "pl": "Zgodność z js-kontrolerem 2.0, aktualizacje zależności",
-                "zh-cn": "js-controller 2.0兼容性，依赖性更新"
             },
             "0.6.9": {
                 "en": "Enable adapter by default",
