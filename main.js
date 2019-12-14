@@ -850,7 +850,6 @@ async function connect(cb) {
     const lights = config.lights;
     const sensors = config.sensors;
     const objs = [];
-    const states = [];
 
     for (const sid in sensors) {
         if (!sensors.hasOwnProperty(sid)) {
@@ -954,8 +953,8 @@ async function connect(cb) {
                         break;
                 }
 
+                lobj.common.def = value;
                 objs.push(lobj);
-                states.push({id: lobj._id, val: value});
             }
 
             objs.push({
@@ -1023,14 +1022,14 @@ async function connect(cb) {
                     read: true,
                     write: false,
                     type: 'string',
-                    role: 'indicator.update'
+                    role: 'indicator.update',
+                    def: light.swupdate.state
                 },
                 native: {
                     id: lid
                 }
             };
             objs.push(lobj);
-            states.push({id: lobj._id, val: light.swupdate.state});
         } // endIf
 
         for (const state in light.state) {
@@ -1150,8 +1149,8 @@ async function connect(cb) {
                     break;
             }
 
+            lobj.common.def = value;
             objs.push(lobj);
-            states.push({id: lobj._id, val: value});
         }
 
         let role = 'light.color';
@@ -1331,8 +1330,8 @@ async function connect(cb) {
                         adapter.log.info(`skip group: ${gobjId}`);
                         continue;
                 }
+                gobj.common.def = group.action[action];
                 objs.push(gobj);
-                states.push({id: gobj._id, val: group.action[action]});
             } // endFor
 
             // Create anyOn state
@@ -1343,16 +1342,12 @@ async function connect(cb) {
                     name: `${groupName}.anyOn`,
                     role: 'indicator.switch',
                     read: true,
-                    write: false
+                    write: false,
+                    def: gid !== '0' ? group.state['any_on'] : false
                 },
                 native: {}
             });
-            if (gid !== '0') {
-                states.push({
-                    id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
-                    val: group.state['any_on']
-                });
-            } // endIf
+
             objs.push({
                 _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
                 type: 'channel',
@@ -1369,8 +1364,7 @@ async function connect(cb) {
             });
         } // endFor
         adapter.log.info(`created/updated ${pollGroups.length} groups channels`);
-
-    }
+    } // endIf
 
     // create scene states
     if (!adapter.config.ignoreScenes) {
@@ -1451,7 +1445,7 @@ async function connect(cb) {
         native: config.config
     });
 
-    syncObjects(objs, () => syncStates(states, false, cb));
+    syncObjects(objs, cb);
 } // endConnect
 
 function syncObjects(objs, callback) {
@@ -1466,30 +1460,26 @@ function syncObjects(objs, callback) {
             adapter.getForeignObject('enum.functions.color', (err, _enum) => {
                 if (_enum && _enum.common && _enum.common.members && _enum.common.members.indexOf(task._id) === -1) {
                     _enum.common.members.push(task._id);
-                    adapter.setForeignObject(_enum._id, _enum, err => {
+                    adapter.setForeignObjectNotExists(_enum._id, _enum, err => {
                         if (!obj) {
                             adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
                         } else {
                             obj.native = task.native;
-                            adapter.setForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
+                            adapter.extendForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
                         }
                     });
+                } else if (!obj) {
+                    adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
                 } else {
-                    if (!obj) {
-                        adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
-                    } else {
-                        obj.native = task.native;
-                        adapter.setForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
-                    }
+                    obj.native = task.native;
+                    adapter.extendForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
                 }
             });
+        } else if (!obj) {
+            adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
         } else {
-            if (!obj) {
-                adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
-            } else {
-                obj.native = task.native;
-                adapter.setForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
-            }
+            obj.native = task.native;
+            adapter.extendForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
         }
     });
 }

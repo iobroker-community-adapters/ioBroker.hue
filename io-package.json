@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.4.6",
+        "version": "2.4.7",
         "news": {
+            "2.4.7": {
+                "en": "we do not set default values on every adapter start anymore",
+                "de": "Wir setzen nicht mehr bei jedem Adapterstart Standardwerte",
+                "ru": "мы больше не устанавливаем значения по умолчанию при каждом запуске адаптера",
+                "pt": "não configuramos mais os valores padrão em cada inicialização do adaptador",
+                "nl": "we stellen niet meer standaardwaarden in bij elke start van de adapter",
+                "fr": "nous ne définissons plus de valeurs par défaut à chaque démarrage de l'adaptateur",
+                "it": "non impostiamo più valori predefiniti su ogni avvio dell'adattatore",
+                "es": "ya no establecemos valores predeterminados en cada inicio de adaptador",
+                "pl": "nie ustawiamy już wartości domyślnych przy każdym uruchomieniu adaptera",
+                "zh-cn": "我们不再为每个适配器启动设置默认值"
+            },
             "2.4.6": {
                 "en": "fix potential issue for negative temperature values",
                 "de": "Behebung eines möglichen Problems bei negativen Temperaturwerten",
@@ -98,18 +110,6 @@
                 "es": "error corregido, que impedía que algunos estados del sensor se actualizaran durante el tiempo de ejecución",
                 "pl": "naprawiony błąd, który uniemożliwiał aktualizację niektórych stanów czujników podczas działania",
                 "zh-cn": "修复了错误，该错误阻止了某些传感器状态在运行时更新"
-            },
-            "2.0.0": {
-                "en": "fixed hue and ct, sync scenes, reduce poll interval, reorganize object structure, add update indicator of every bulb",
-                "de": "Farbton und CT korrigiert, Szenen synchronisiert, Abfrageintervall verkürzt, Objektstruktur neu organisiert, Aktualisierungsanzeige für jede Lampe hinzugefügt",
-                "ru": "фиксированный оттенок и ct, синхронизация сцен, уменьшение интервала опроса, реорганизация структуры объекта, добавление индикатора обновления каждой лампы",
-                "pt": "tonalidade e tom fixos, sincronize cenas, reduza o intervalo de pesquisa, reorganize a estrutura do objeto, adicione o indicador de atualização de cada bulbo",
-                "nl": "vaste tint en ct, scènes synchroniseren, pollinterval verminderen, objectstructuur reorganiseren, update-indicator van elke lamp toevoegen",
-                "fr": "teinte et ct fixes, synchroniser les scènes, réduire l'intervalle d'interrogation, réorganiser la structure de l'objet, ajouter un indicateur de mise à jour de chaque ampoule",
-                "it": "tonalità e ct fissi, sincronizzazione delle scene, riduzione dell'intervallo di polling, riorganizzazione della struttura degli oggetti, aggiunta dell'indicatore di aggiornamento di ogni lampadina",
-                "es": "tono y ct fijos, sincronizar escenas, reducir el intervalo de sondeo, reorganizar la estructura del objeto, agregar un indicador de actualización de cada foco",
-                "pl": "naprawiono odcień i ct, synchronizuje sceny, skraca czas odpytywania, reorganizuje strukturę obiektu, dodaje wskaźnik aktualizacji każdej żarówki",
-                "zh-cn": "固定色调和ct，同步场景，减少轮询间隔，重组对象结构，添加每个灯泡的更新指示器"
             },
             "0.6.9": {
                 "en": "Enable adapter by default",
