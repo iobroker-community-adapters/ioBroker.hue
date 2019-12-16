@@ -2,9 +2,9 @@
 # ioBroker Philips Hue Bridge Adapter
 ==============
 
+![Build Status](https://github.com/iobroker-community-adapters/ioBroker.hue/workflows/Test%20and%20Release/badge.svg)
 ![Number of Installations](http://iobroker.live/badges/hue-installed.svg) ![Number of Installations](http://iobroker.live/badges/hue-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.hue.svg)](https://www.npmjs.com/package/iobroker.hue)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.hue.svg)](https://www.npmjs.com/package/iobroker.hue)
-
 [![NPM](https://nodei.co/npm/iobroker.hue.png?downloads=true)](https://nodei.co/npm/iobroker.hue/)
 
 ## English :gb:
