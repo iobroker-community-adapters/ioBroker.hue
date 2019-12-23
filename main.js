@@ -20,6 +20,7 @@ const hueHelper = require('./lib/hueHelper');
 const Bottleneck = require('bottleneck');
 const md5 = require('md5');
 const FORBIDDEN_CHARS = /[\][*,;'"`<>\\?]/g;
+const blockedIds = [];
 
 let adapter;
 let pollingInterval;
@@ -476,6 +477,8 @@ function startAdapter(options) {
                         } // endElse
                     } // endElseIf
 
+                    blockedIds[id] = true;
+
                     if (/(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
                         if (!adapter.config.ignoreGroups) {
                             // log final changes / states
@@ -754,6 +757,12 @@ function updateGroupState(group, prio, callback) {
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
 
+        // poll guard to prevent too fast polling of recently changed id
+        const blockableId = group.name.replace(/\s/g, '_');
+        if (blockedIds[blockableId] === true) {
+            adapter.log.debug(`Unblock ${blockableId}`);
+            blockedIds[blockableId] = false;
+        } // endIf
         syncStates(values, callback);
     });
 }
@@ -814,6 +823,12 @@ function updateLightState(light, prio, callback) {
             values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
         }
 
+        // poll guard to prevent too fast polling of recently changed id
+        const blockableId = light.name.replace(/\s/g, '_');
+        if (blockedIds[blockableId] === true) {
+            adapter.log.debug(`Unblock ${blockableId}`);
+            blockedIds[blockableId] = false;
+        } // endIf
         syncStates(values, callback);
     });
 }
@@ -1493,7 +1508,15 @@ function syncStates(states, callback) {
     if (typeof task.val === 'object' && task.val !== null && task.val !== undefined) {
         task.val = task.val.toString();
     }
-    adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, callback));
+
+    // poll guard to prevent too fast polling of recently changed id
+    const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
+    if (blockedIds[nameId] !== true) {
+        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, callback));
+    } else {
+        adapter.log.debug(`Syncing state of ${nameId} blocked`);
+        syncStates(states, callback);
+    }
 } // endSyncStates
 
 function poll() {
