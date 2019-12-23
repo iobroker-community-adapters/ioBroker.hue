@@ -754,7 +754,7 @@ function updateGroupState(group, prio, callback) {
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
 
-        syncStates(values, true, callback);
+        syncStates(values, callback);
     });
 }
 
@@ -814,7 +814,7 @@ function updateLightState(light, prio, callback) {
             values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
         }
 
-        syncStates(values, true, callback);
+        syncStates(values, callback);
     });
 }
 
@@ -1484,7 +1484,7 @@ function syncObjects(objs, callback) {
     });
 }
 
-function syncStates(states, isChanged, callback) {
+function syncStates(states, callback) {
     if (!states || !states.length) {
         return callback && callback();
     }
@@ -1493,12 +1493,8 @@ function syncStates(states, isChanged, callback) {
     if (typeof task.val === 'object' && task.val !== null && task.val !== undefined) {
         task.val = task.val.toString();
     }
-    if (isChanged) {
-        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, isChanged, callback));
-    } else {
-        adapter.setForeignState(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, isChanged, callback));
-    }
-}
+    adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, callback));
+} // endSyncStates
 
 function poll() {
     // clear polling interval
@@ -1670,7 +1666,7 @@ function poll() {
                     }
                 });
             } // endIf
-            syncStates(values, true);
+            syncStates(values);
         } // endIf
 
         if (!pollingInterval)
