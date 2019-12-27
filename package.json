@@ -30,14 +30,14 @@
         "bottleneck": "^2.19.5",
         "node-hue-api": "^3.4.3",
         "md5": "^2.2.1",
-        "@iobroker/adapter-core": "^1.0.3"
+        "@iobroker/adapter-core": "^2.0.0"
     },
     "devDependencies": {
         "gulp": "^4.0.2",
         "mocha": "^6.2.0",
         "chai": "^4.2.0",
         "eslint": "^6.4.0",
-        "@iobroker/testing": "^1.2.5"
+        "@iobroker/testing": "^2.0.0"
     },
     "scripts": {
         "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
