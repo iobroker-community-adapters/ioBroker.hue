@@ -613,7 +613,8 @@ async function updateGroupState(group, callback) {
     try {
         let result = await api.groups.get(group.id);
         const states = {};
-        result = result['_rawData'];
+
+        result = result['_data'];
 
         for (const stateA in result.action) {
             if (!result.action.hasOwnProperty(stateA)) {
@@ -659,7 +660,7 @@ async function updateGroupState(group, callback) {
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
     } catch (e) {
-        adapter.log.error(`Cannot update group state of ${group.name} (${group.id}: ${e}`);
+        adapter.log.error(`Cannot update group state of ${group.name} (${group.id}): ${e}`);
     }
 
     // poll guard to prevent too fast polling of recently changed id
@@ -679,7 +680,7 @@ async function updateLightState(light, callback) {
         let result = await api.lights.getLightById(parseInt(light.id));
         const states = {};
 
-        result = result['_rawData'];
+        result = result['_data'];
 
         if (result.swupdate && result.swupdate.state) {
             values.push({id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state});
