@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "2.5.0",
+        "version": "3.0.0",
         "news": {
+            "3.0.0" : {
+                "en": "removed queue, because handled by dependency now, better error handling, requires NodeJS 10",
+                "de": "Warteschlange entfernt, da jetzt durch Abhängigkeit gehandhabt, bessere Fehlerbehandlung, erfordert NodeJS 10",
+                "ru": "удаленная очередь, потому что теперь обрабатывается зависимостью, для лучшей обработки ошибок требуется NodeJS 10",
+                "pt": "A fila removida, porque manipulada pela dependência agora, melhor manipulação de erros, requer o NodeJS 10",
+                "nl": "wachtrij verwijderd, omdat nu afgehandeld door afhankelijkheid, betere foutafhandeling, NodeJS 10 vereist",
+                "fr": "file d'attente supprimée, car gérée par la dépendance maintenant, meilleure gestion des erreurs, nécessite NodeJS 10",
+                "it": "coda rimossa, perché gestita dalla dipendenza ora, una migliore gestione degli errori, richiede NodeJS 10",
+                "es": "cola eliminada, porque ahora se maneja por dependencia, un mejor manejo de errores, requiere NodeJS 10",
+                "pl": "usunięta kolejka, ponieważ teraz obsługiwana przez zależność, lepsza obsługa błędów, wymaga NodeJS 10",
+                "zh-cn": "删除队列，因为现在由依赖项处理，更好的错误处理，需要NodeJS 10"
+            },
             "2.5.0": {
                 "en": "implemented a mechanic to prevent regular polling of recently changed state",
                 "de": "Es wurde eine Mechanik implementiert, um ein regelmäßiges Abfragen des zuletzt geänderten Zustands zu verhindern",
@@ -62,18 +74,6 @@
                 "es": "versión mejorada de node-hue-api para corregir la autenticación para el puente viejo",
                 "pl": "zwiększona wersja node-hue-api do naprawy uwierzytelnienia dla starego mostu",
                 "zh-cn": "增加了node-hue-api版本，以修复旧桥的身份验证"
-            },
-            "2.4.2": {
-                "en": "we now use nupnp + upnp to discover bridges (previously only upnp)",
-                "de": "wir benutzen jetzt nupnp + upnp um Brücken zu entdecken (bisher nur upnp)",
-                "ru": "теперь мы используем nupnp + upnp для обнаружения мостов (ранее только upnp)",
-                "pt": "agora usamos o nupnp + upnp para descobrir pontes (anteriormente apenas upnp)",
-                "nl": "we gebruiken nu nupnp + upnp om bruggen te ontdekken (voorheen alleen upnp)",
-                "fr": "nous utilisons maintenant nupnp + upnp pour découvrir des ponts (auparavant uniquement upnp)",
-                "it": "ora usiamo nupnp + upnp per scoprire i ponti (in precedenza solo upnp)",
-                "es": "ahora usamos nupnp + upnp para descubrir puentes (anteriormente solo upnp)",
-                "pl": "teraz używamy nupnp + upnp do odkrywania mostów (wcześniej tylko upnp)",
-                "zh-cn": "我们现在使用nupnp + upnp来发现网桥（以前仅使用upnp）"
             },
             "2.4.1": {
                 "en": "added possibility to control and read software sensors and to control zones + entertainment areas",

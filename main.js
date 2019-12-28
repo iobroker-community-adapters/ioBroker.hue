@@ -17,8 +17,6 @@ const hue = require('node-hue-api');
 const v3 = hue.v3;
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
-const Bottleneck = require('bottleneck');
-const md5 = require('md5');
 const FORBIDDEN_CHARS = /[\][*,;'"`<>\\?]/g;
 const blockedIds = [];
 
@@ -53,19 +51,10 @@ function startAdapter(options) {
                     const groupState = new v3.lightStates.GroupLightState();
                     groupState.scene(obj.native.id);
 
-                    submitHueCmd('groups.setGroupState', {
-                        id: 0,
-                        data: groupState,
-                        prio: 1
-                    }, (err) => {
-                        if (!err) {
-                            adapter.log.info(`Started scene: ${obj.common.name}`);
-                        } else {
-                            adapter.log.warn(`Could not start scene: ${err}`);
-                        } // endElse
-                    });
+                    await api.groups.setGroupState(0, groupState);
+                    adapter.log.info(`Started scene: ${obj.common.name}`);
                 } catch (e) {
-                    adapter.log.warn(`Could not start scene: ${e}`);
+                    adapter.log.error(`Could not start scene: ${e}`);
                 } // endCatch
                 return;
             } // endIf
@@ -80,22 +69,18 @@ function startAdapter(options) {
                     if (dp === 'on') {
                         const sensor = await api.sensors.get(channelObj.native.id);
                         sensor['_configAttributes'] = {on: state.val};
-                        submitHueCmd('sensors.updateSensorConfig', {prio: 5, id: sensor}, e => {
-                            if (!e) {
-                                adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
-                            } // endIf
-                        });
+                        await api.sensors.updateSensorConfig(sensor);
+                        adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                     } else if (dp === 'status') {
                         const sensor = await api.sensors.get(channelObj.native.id);
                         sensor.status = parseInt(state.val);
-                        submitHueCmd('sensors.updateSensorState', {prio: 5, id: sensor}, e => {
-                            adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
-                        });
+                        await api.sensors.updateSensorState(sensor);
+                        adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                     } else {
                         adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
                     } // endElse
                 } catch (e) {
-                    adapter.log.warn(`Cannot update sensor ${channelObj.native.id}: ${e}`);
+                    adapter.log.error(`Cannot update sensor ${channelObj.native.id}: ${e}`);
                 } // endCatch
                 return;
             } // endIf
@@ -250,7 +235,7 @@ function startAdapter(options) {
                 }
 
                 // get lightState
-                adapter.getObject(id, (err, obj) => {
+                adapter.getObject(id, async (err, obj) => {
                     if (err || !obj) {
                         if (!err) err = new Error(`obj "${id}" in callback getObject is null or undefined`);
                         adapter.log.error(err);
@@ -483,18 +468,12 @@ function startAdapter(options) {
                         if (!adapter.config.ignoreGroups) {
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
-
-                            submitHueCmd('groups.setGroupState', {
+                            await api.groups.setGroupState(groupIds[id], lightState);
+                            setTimeout(updateGroupState, 150, {
                                 id: groupIds[id],
-                                data: lightState,
-                                prio: 1
-                            }, (err, result) => {
-                                setTimeout(updateGroupState, 150, {
-                                    id: groupIds[id],
-                                    name: obj.common.name
-                                }, 3, (err, result) => {
-                                    adapter.log.debug(`updated group state(${groupIds[id]}) after change`);
-                                });
+                                name: obj.common.name
+                            }, () => {
+                                adapter.log.debug(`updated group state(${groupIds[id]}) after change`);
                             });
                         }
                     } else if (obj.common.role === 'switch') {
@@ -503,20 +482,15 @@ function startAdapter(options) {
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                            lightState = new v3.lightStates.LightState();
+                            lightState = new api.lightStates.LightState();
                             lightState.on(finalLS.on);
 
-                            submitHueCmd('lights.setLightState', {
+                            await api.lights.setLightState(channelIds[id], lightState);
+                            setTimeout(updateLightState, 150, {
                                 id: channelIds[id],
-                                data: lightState,
-                                prio: 1
-                            }, (err, result) => {
-                                setTimeout(updateLightState, 150, {
-                                    id: channelIds[id],
-                                    name: obj.common.name
-                                }, 3, (err, result) => {
-                                    adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
-                                });
+                                name: obj.common.name
+                            }, () => {
+                                adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                             });
                         } else {
                             adapter.log.warn('invalid switch operation');
@@ -525,19 +499,14 @@ function startAdapter(options) {
                         // log final changes / states
                         adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                        submitHueCmd('lights.setLightState', {
+                        await api.lights.setLightState(channelIds[id], lightState);
+                        setTimeout(updateLightState, 150, {
                             id: channelIds[id],
-                            data: lightState,
-                            prio: 1
-                        }, (err, result) => {
-                            setTimeout(updateLightState, 150, {
-                                id: channelIds[id],
-                                name: obj.common.name
-                            }, 3, (err, result) => {
-                                adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
-                            });
+                            name: obj.common.name
+                        }, () => {
+                            adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                         });
-                    }
+                    } // endElse
                 });
             });
         },
@@ -631,85 +600,18 @@ async function createUser(ip, callback) {
 
 let api;
 
-let groupQueue;
-let lightQueue;
-
 const channelIds = {};
 const groupIds = {};
 const pollLights = [];
 const pollSensors = [];
 const pollGroups = [];
 
-function submitHueCmd(cmd, args, callback) {
-    // select the bottleneck queue to be used
-    let queue = lightQueue;
-    if (cmd === 'groups.get' || cmd === 'groups.setGroupState') {
-        queue = groupQueue;
-    }
+async function updateGroupState(group, callback) {
+    adapter.log.debug(`polling group ${group.name} (${group.id})`);
+    const values = [];
 
-    // construct a unique id based on the command name
-    // and serialized arguments
-    const id = `${cmd}:${args.id}:${md5(JSON.stringify(args))}`;
-
-    // skip any job submit if a job with the same id already exists in the
-    // queue
-    if (queue.jobStatus(id) !== null) {
-        adapter.log.debug(`job ${id} already in queue, skipping..`);
-        return;
-    }
-
-    // submit the job to the bottleneck
-    // queue
-    queue.submit({priority: args.prio, expiration: 5000, id: id}, async (arg, cb) => {
-        if (cmd === 'getFullState') {
-            try {
-                const res = await api.configuration.getAll();
-                cb(null, res);
-            } catch (e) {
-                cb(e);
-            } // endCatch
-        } else if (arg.data !== undefined) {
-            try {
-                if (cmd.split('.').length === 2) {
-                    const cmdArr = cmd.split('.');
-                    const res = await api[cmdArr[0]][cmdArr[1]](arg.id, arg.data);
-                    cb(null, res);
-                } else {
-                    const res = await api[cmd](arg.id, arg.data);
-                    cb(null, res);
-                } // endElse
-            } catch (e) {
-                cb(e);
-            } // endCatch
-        } else {
-            try {
-                if (cmd.split('.').length === 2) {
-                    const cmdArr = cmd.split('.');
-                    const res = await api[cmdArr[0]][cmdArr[1]](arg.id);
-                    cb(null, res);
-                } else {
-                    const res = await api[cmd](arg.id);
-                    cb(null, res);
-                } // endElse
-            } catch (e) {
-                cb(e);
-            } // endCatch
-        } // endElse
-    }, args, (err, result) => {
-        if (err === null && result !== false) {
-            // only stringify these huge JSONs if necessary
-            if (adapter.log.level === 'debug' || adapter.log.level === 'silly')
-                adapter.log.debug(`${id} result: ${JSON.stringify(result)}`);
-            callback(err, result);
-        }
-    });
-}
-
-function updateGroupState(group, prio, callback) {
-    adapter.log.debug(`polling group ${group.name} (${group.id}) with prio ${prio}`);
-
-    submitHueCmd('groups.get', {id: group.id, prio: prio}, (err, result) => {
-        const values = [];
+    try {
+        let result = await api.groups.get(group.id);
         const states = {};
         result = result['_rawData'];
 
@@ -756,22 +658,25 @@ function updateGroupState(group, prio, callback) {
             }
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
+    } catch (e) {
+        adapter.log.error(`Cannot update group state of ${group.name} (${group.id}: ${e}`);
+    }
 
-        // poll guard to prevent too fast polling of recently changed id
-        const blockableId = group.name.replace(/\s/g, '_');
-        if (blockedIds[blockableId] === true) {
-            adapter.log.debug(`Unblock ${blockableId}`);
-            blockedIds[blockableId] = false;
-        } // endIf
-        syncStates(values, callback);
-    });
+    // poll guard to prevent too fast polling of recently changed id
+    const blockableId = group.name.replace(/\s/g, '_');
+    if (blockedIds[blockableId] === true) {
+        adapter.log.debug(`Unblock ${blockableId}`);
+        blockedIds[blockableId] = false;
+    } // endIf
+    syncStates(values, callback);
 }
 
-function updateLightState(light, prio, callback) {
-    adapter.log.debug(`polling light ${light.name} (${light.id}) with prio ${prio}`);
+async function updateLightState(light, callback) {
+    adapter.log.debug(`polling light ${light.name} (${light.id})`);
+    const values = [];
 
-    submitHueCmd('lights.getLightById', {id: parseInt(light.id), prio: prio}, (err, result) => {
-        const values = [];
+    try {
+        let result = await api.lights.getLightById(parseInt(light.id));
         const states = {};
 
         result = result['_rawData'];
@@ -822,16 +727,18 @@ function updateLightState(light, prio, callback) {
             }
             values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
         }
+    } catch (e) {
+        adapter.log.error(`Cannot update light state ${light.name} (${light.id}): ${e}`);
+    }
 
-        // poll guard to prevent too fast polling of recently changed id
-        const blockableId = light.name.replace(/\s/g, '_');
-        if (blockedIds[blockableId] === true) {
-            adapter.log.debug(`Unblock ${blockableId}`);
-            blockedIds[blockableId] = false;
-        } // endIf
-        syncStates(values, callback);
-    });
-}
+    // poll guard to prevent too fast polling of recently changed id
+    const blockableId = light.name.replace(/\s/g, '_');
+    if (blockedIds[blockableId] === true) {
+        adapter.log.debug(`Unblock ${blockableId}`);
+        blockedIds[blockableId] = false;
+    } // endIf
+    syncStates(values, callback);
+} // endUpdateLightState
 
 async function connect(cb) {
     let config;
@@ -1444,7 +1351,7 @@ async function connect(cb) {
             } // endFor
             adapter.log.info(`created/updated ${sceneCounter} scenes`);
         } catch (e) {
-            adapter.log.warn(`Error syncing scenes: ${e}`);
+            adapter.log.error(`Error syncing scenes: ${e}`);
         } // endCatch
 
     } // endIf
@@ -1475,7 +1382,7 @@ function syncObjects(objs, callback) {
             adapter.getForeignObject('enum.functions.color', (err, _enum) => {
                 if (_enum && _enum.common && _enum.common.members && _enum.common.members.indexOf(task._id) === -1) {
                     _enum.common.members.push(task._id);
-                    adapter.setForeignObjectNotExists(_enum._id, _enum, err => {
+                    adapter.setForeignObjectNotExists(_enum._id, _enum, () => {
                         if (!obj) {
                             adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
                         } else {
@@ -1519,7 +1426,7 @@ function syncStates(states, callback) {
     }
 } // endSyncStates
 
-function poll() {
+async function poll() {
     // clear polling interval
     if (pollingInterval) {
         clearTimeout(pollingInterval);
@@ -1528,8 +1435,10 @@ function poll() {
 
     adapter.log.debug('Poll all states');
 
-    submitHueCmd('getFullState', {prio: 5, id: 'getFullState'}, (err, config) => {
-        if (config && !err) {
+    try {
+        const config = await api.configuration.getAll();
+
+        if (config) {
             const values = [];
             const lights = config.lights;
             const sensors = config.sensors;
@@ -1685,16 +1594,18 @@ function poll() {
                         });
                     } else {
                         // poll the 0 - ALL group
-                        updateGroupState(group, 5);
+                        updateGroupState(group);
                     }
                 });
             } // endIf
             syncStates(values);
         } // endIf
+    } catch (e) {
+        adapter.log.error(`Could not poll all: ${e}`);
+    }
 
-        if (!pollingInterval)
-            pollingInterval = setTimeout(poll, adapter.config.pollingInterval * 1000);
-    });
+    if (!pollingInterval)
+        pollingInterval = setTimeout(poll, adapter.config.pollingInterval * 1000);
 } // endPoll
 
 async function main() {
@@ -1708,69 +1619,6 @@ async function main() {
     // polling interval has to be greater equal 1
     adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10) < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
 
-    // create a bottleneck limiter to max 1 cmd per 1 sec
-    groupQueue = new Bottleneck({
-        reservoir: 1, // initial value
-        reservoirRefreshAmount: 1,
-        reservoirRefreshInterval: 250 * 4, // must be divisible by 250
-        minTime: 25, // wait a minimum of 25 ms between command executions
-        highWater: 100 // start to drop older commands if > 100 commands in the queue
-    });
-    groupQueue.on('depleted', () => {
-        adapter.log.debug('groupQueue full. Throttling down...');
-    });
-    groupQueue.on('error', err => {
-        adapter.log.error(`groupQueue error: ${err}`);
-    });
-    groupQueue.on('retry', (error, jobInfo) => {
-        adapter.log.debug(`groupQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
-    });
-    groupQueue.on('failed', async (error, jobInfo) => {
-        const id = jobInfo.options.id;
-        if (error instanceof hue.ApiError) {
-            adapter.log.error(`groupQueue: job ${id} failed: ${error}`);
-        } else if (jobInfo.retryCount >= 10) {
-            adapter.log.error(`groupQueue: job ${id} max retry reached: ${error}`);
-            if (/Api Error: resource, \/groups\/.+, not available,/.test(error)) {
-                // seems like a room has been deleted -> resync by restarting adapter
-                adapter.log.warn('Room deleted -> restarting adapter to resync');
-                const obj = await adapter.getForeignObjectAsync(`system.adapter.${adapter.namespace}`);
-                if (obj) adapter.setForeignObject(`system.adapter.${adapter.namespace}`, obj);
-            } // endIf
-        } else {
-            adapter.log.debug(`groupQueue: job ${id} failed: ${error}`);
-            return 25; // retry in 25 ms
-        }
-    });
-
-    // create a bottleneck limiter to max 10 cmd per 1 sec
-    lightQueue = new Bottleneck({
-        reservoir: 10, // initial value
-        reservoirRefreshAmount: 10,
-        reservoirRefreshInterval: 1000, // must be divisible by 250
-        minTime: 25, // wait a minimum of 25 ms between command executions
-        highWater: 1000 // start to drop older commands if > 1000 commands in the queue
-    });
-    lightQueue.on('depleted', () => {
-        adapter.log.debug('lightQueue full. Throttling down...');
-    });
-    lightQueue.on('error', (err) => {
-        adapter.log.error(`lightQueue error: ${err}`);
-    });
-    lightQueue.on('retry', (error, jobInfo) => {
-        adapter.log.debug(`lightQueue: retry [${jobInfo.retryCount + 1}/10] job ${jobInfo.options.id}`);
-    });
-    lightQueue.on('failed', (error, jobInfo) => {
-        const id = jobInfo.options.id;
-        if (error instanceof hue.ApiError) {
-            adapter.log.error(`lightQueue: job ${id} failed: ${error}`);
-        } else if (jobInfo.retryCount >= 10) {
-            adapter.log.error(`lightQueue: job ${id} max retry reached: ${error}`);
-        } else {
-            adapter.log.debug(`lightQueue: job ${id} failed: ${error}`);
-            return 25; // retry in 25 ms
-        }
-    });
     if (adapter.config.ssl) {
         adapter.log.debug(`Using https to connect to ${adapter.config.bridge}:${adapter.config.port}`);
         api = await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
