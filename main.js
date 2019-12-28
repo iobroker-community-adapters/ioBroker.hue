@@ -68,7 +68,7 @@ function startAdapter(options) {
                 try {
                     if (dp === 'on') {
                         const sensor = await api.sensors.get(channelObj.native.id);
-                        sensor['_configAttributes'] = {on: state.val};
+                        sensor._data.config = {on: state.val};
                         await api.sensors.updateSensorConfig(sensor);
                         adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                     } else if (dp === 'status') {
