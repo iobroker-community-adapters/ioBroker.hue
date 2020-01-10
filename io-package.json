@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.0.0",
+        "version": "3.0.1",
         "news": {
-            "3.0.0" : {
+            "3.0.1" : {
                 "en": "removed queue, because handled by dependency now, better error handling, requires NodeJS 10",
                 "de": "Warteschlange entfernt, da jetzt durch Abhängigkeit gehandhabt, bessere Fehlerbehandlung, erfordert NodeJS 10",
                 "ru": "удаленная очередь, потому что теперь обрабатывается зависимостью, для лучшей обработки ошибок требуется NodeJS 10",
