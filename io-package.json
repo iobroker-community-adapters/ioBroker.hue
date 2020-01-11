@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.0.1",
+        "version": "3.0.2",
         "news": {
-            "3.0.1" : {
+            "3.0.2": {
+                "en": "fixed problem turning on/off switchs like Osram Plug",
+                "de": "Problem beim Ein- und Ausschalten von Schaltern wie Osram Plug behoben",
+                "ru": "исправлена проблема включения / выключения выключателей, таких как Osram Plug",
+                "pt": "problema corrigido ao ligar / desligar interruptores como o Osram Plug",
+                "nl": "probleem opgelost met het in- en uitschakelen van schakelaars zoals Osram Plug",
+                "fr": "correction d'un problème d'activation / désactivation des interrupteurs comme la prise Osram",
+                "it": "risolto il problema di accensione / spegnimento di interruttori come Osram Plug",
+                "es": "problema solucionado al encender / apagar interruptores como Osram Plug",
+                "pl": "naprawiono problem z włączaniem / wyłączaniem przełączników takich jak Osram Plug",
+                "zh-cn": "解决了打开/关闭Osram Plug等开关的问题"
+            },
+            "3.0.1": {
                 "en": "removed queue, because handled by dependency now, better error handling, requires NodeJS 10",
                 "de": "Warteschlange entfernt, da jetzt durch Abhängigkeit gehandhabt, bessere Fehlerbehandlung, erfordert NodeJS 10",
                 "ru": "удаленная очередь, потому что теперь обрабатывается зависимостью, для лучшей обработки ошибок требуется NodeJS 10",
@@ -110,11 +122,6 @@
                 "es": "error corregido, que impedía que algunos estados del sensor se actualizaran durante el tiempo de ejecución",
                 "pl": "naprawiony błąd, który uniemożliwiał aktualizację niektórych stanów czujników podczas działania",
                 "zh-cn": "修复了错误，该错误阻止了某些传感器状态在运行时更新"
-            },
-            "0.6.9": {
-                "en": "Enable adapter by default",
-                "de": "Aktiviere Adapter nach der Installation",
-                "ru": "Запускать драйвер после установки"
             }
         },
         "title": "Philips Hue Bridge",

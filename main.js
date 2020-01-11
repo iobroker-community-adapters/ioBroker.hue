@@ -482,7 +482,7 @@ function startAdapter(options) {
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                            lightState = new api.lightStates.LightState();
+                            lightState = new v3.lightStates.LightState();
                             lightState.on(finalLS.on);
 
                             await api.lights.setLightState(channelIds[id], lightState);
@@ -677,7 +677,7 @@ async function updateLightState(light, callback) {
     const values = [];
 
     try {
-        let result = await api.lights.getLightById(parseInt(light.id));
+        let result = await api.lights.getLight(parseInt(light.id));
         const states = {};
 
         result = result['_data'];
