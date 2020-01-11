@@ -43,6 +43,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 ### 3.0.1 (2020-01-10)
 * (foxriver76) removed queue, because handled by dependency now
 * (foxriver76) improved error handling
+__Nodejs >= 10 required__
 
 ### 2.5.0 (2019-12-23)
 * (foxriver76) implemented a mechanic to prevent regular polling of recently changed state
