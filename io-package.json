@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.0.2",
+        "version": "3.0.3",
         "news": {
-            "3.0.2": {
+            "3.0.3": {
                 "en": "fixed problem turning on/off switchs like Osram Plug",
                 "de": "Problem beim Ein- und Ausschalten von Schaltern wie Osram Plug behoben",
                 "ru": "исправлена проблема включения / выключения выключателей, таких как Osram Plug",

@@ -1439,6 +1439,9 @@ async function poll() {
     try {
         const config = await api.configuration.getAll();
 
+        if (adapter.log.level === 'debug' || adapter.log.level === 'silly')
+            adapter.log.debug(`Polled config: ${JSON.stringify(config)}`);
+
         if (config) {
             const values = [];
             const lights = config.lights;
