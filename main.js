@@ -85,8 +85,20 @@ function startAdapter(options) {
                 return;
             } // endIf
 
-
             id = tmp.slice(2).join('.');
+
+            // Enable/Disable streaming of Entertainment
+            if (dp === 'activeStream') {
+                if (state.val) {
+                    // turn streaming on
+                    adapter.log.debug(`Enable streaming of ${id} (${groupIds[id]})`);
+                    api.groups.enableStreaming(groupIds[id]);
+                } else {
+                    //turn streaming off
+                    adapter.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
+                    api.groups.disableStreaming(groupIds[id]);
+                } // endElse
+            } // endIf
 
             const fullIdBase = `${tmp.join('.')}.`;
             let ls = {};
@@ -652,6 +664,15 @@ async function updateGroupState(group, callback) {
             // convert color temperature from mired to kelvin
             states.ct = Math.round(1e6 / states.ct);
         }
+
+        // Next two are entertainment states
+        if (result.class) {
+            states.class = result.class;
+        } // endIf
+
+        if (result.stream && result.stream.active !== undefined) {
+            states.activeStream = result.stream.active;
+        } // endIf
 
         for (const stateB in states) {
             if (!states.hasOwnProperty(stateB)) {
@@ -1271,6 +1292,37 @@ async function connect(cb) {
                 native: {}
             });
 
+            // Create entertainment states
+            if (group.class) {
+                objs.push({
+                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.class`,
+                    type: 'state',
+                    common: {
+                        name: `${groupName}.class`,
+                        role: 'indicator',
+                        read: true,
+                        write: false,
+                        def: group.class
+                    },
+                    native: {}
+                });
+            } // endIf
+
+            if (group.stream && group.stream.active !== undefined) {
+                objs.push({
+                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.activeStream`,
+                    type: 'state',
+                    common: {
+                        name: `${groupName}.activeStream`,
+                        role: 'indicator',
+                        read: true,
+                        write: true,
+                        def: group.stream.active
+                    },
+                    native: {}
+                });
+            } // endIf
+
             objs.push({
                 _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
                 type: 'channel',
@@ -1582,6 +1634,15 @@ async function poll() {
                             states.ct = Math.round(1e6 / states.ct);
                         }
 
+                        // Next two are entertainment states
+                        if (group.class) {
+                            states.class = group.class;
+                        } // endIf
+
+                        if (group.stream && group.stream.active !== undefined) {
+                            states.activeStream = group.stream.active;
+                        } // endIf
+
                         for (const stateB in states) {
                             if (!states.hasOwnProperty(stateB)) {
                                 continue;
@@ -1660,6 +1721,6 @@ if (module && module.parent) {
     startAdapter();
 }
 
-process.on('unhandledRejection', (reason, p) => {
-    adapter.log.error(`Uhandeld Rejection ${reason} at ${p}`);
+process.on('unhandledRejection', reason => {
+    adapter.log.error(`Uhandeld Rejection ${reason} at ${reason.stack}`);
 });

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.0.3",
+        "version": "3.1.0",
         "news": {
+            "3.1.0": {
+                "en": "added new indicators of entertainment groups and added possiblity to start and stop streaming ",
+                "de": "Es wurden neue Anzeigen für Unterhaltungsgruppen und die Möglichkeit hinzugefügt, das Streaming zu starten und zu stoppen",
+                "ru": "добавлены новые индикаторы развлекательных групп и добавлена возможность запуска и остановки потокового вещания",
+                "pt": "novos indicadores de grupos de entretenimento e possibilidade de iniciar e interromper a transmissão",
+                "nl": "nieuwe indicatoren van entertainmentgroepen toegevoegd en mogelijkheid om streaming te starten en stoppen",
+                "fr": "ajout de nouveaux indicateurs de groupes de divertissement et possibilité de démarrer et d'arrêter le streaming",
+                "it": "aggiunti nuovi indicatori di gruppi di intrattenimento e aggiunta possibilità di avviare e interrompere lo streaming",
+                "es": "Se agregaron nuevos indicadores de grupos de entretenimiento y se agregó la posibilidad de iniciar y detener la transmisión",
+                "pl": "dodano nowe wskaźniki grup rozrywkowych oraz dodano możliwość rozpoczęcia i zakończenia transmisji",
+                "zh-cn": "添加了娱乐团体的新指标，并增加了开始和停止流媒体播放的可能性"
+            },
             "3.0.3": {
                 "en": "fixed problem turning on/off switchs like Osram Plug",
                 "de": "Problem beim Ein- und Ausschalten von Schaltern wie Osram Plug behoben",
@@ -110,18 +122,6 @@
                 "es": "Corrección implementada para controlar el estado 'activado' de los sensores",
                 "pl": "zaimplementowano poprawkę do kontrolowania stanu włączenia czujników",
                 "zh-cn": "已实现用于控制传感器“打开”状态的修复程序"
-            },
-            "2.0.1": {
-                "en": "fixed bug, that prevented some sensor states getting updated during runtime",
-                "de": "Fehler behoben, der verhinderte, dass einige Sensorzustände zur Laufzeit aktualisiert wurden",
-                "ru": "исправлена ошибка, препятствовавшая обновлению некоторых состояний датчиков во время выполнения",
-                "pt": "bug corrigido, que impedia a atualização de alguns estados do sensor durante o tempo de execução",
-                "nl": "opgeloste bug, die verhinderde dat sommige sensorstatussen tijdens runtime worden bijgewerkt",
-                "fr": "bug corrigé, qui empêchait la mise à jour de certains états du capteur pendant l'exécution",
-                "it": "corretto bug, che impediva ad alcuni stati del sensore di essere aggiornati durante il runtime",
-                "es": "error corregido, que impedía que algunos estados del sensor se actualizaran durante el tiempo de ejecución",
-                "pl": "naprawiony błąd, który uniemożliwiał aktualizację niektórych stanów czujników podczas działania",
-                "zh-cn": "修复了错误，该错误阻止了某些传感器状态在运行时更新"
             }
         },
         "title": "Philips Hue Bridge",
