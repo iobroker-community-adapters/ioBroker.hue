@@ -1477,10 +1477,10 @@ function syncStates(states, callback) {
     // poll guard to prevent too fast polling of recently changed id
     const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
     if (blockedIds[nameId] !== true) {
-        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, callback));
+        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
     } else {
         adapter.log.debug(`Syncing state of ${nameId} blocked`);
-        syncStates(states, callback);
+        setImmediate(syncStates, states, callback);
     }
 } // endSyncStates
 
