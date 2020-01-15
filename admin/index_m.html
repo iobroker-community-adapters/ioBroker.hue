@@ -163,6 +163,13 @@
                    $('#port').val(80);
                }
             });
+
+            $('#pollingInterval').change(function() {
+               if (parseInt($(this).val()) < 2) {
+                   showToast(null, _('Minimal polling interval is 2 seconds'));
+                   $(this).val(2);
+               } // endIf
+            });
         } // endLoad
 
         function save(callback) {
@@ -265,7 +272,7 @@
                 <label class="translate" for="polling">Polling</label>
             </div>
             <div class="input-field col s10 m4">
-                <input type="number" id="pollingInterval" class="value"/>
+                <input type="number" id="pollingInterval" class="value" min="2"/>
                 <label class="translate" for="pollingInterval">Polling interval (sec)</label>
                 <span class="translate">polling_warning</span>
             </div>
