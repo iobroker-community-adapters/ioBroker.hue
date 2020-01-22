@@ -176,7 +176,8 @@
         "materialize": true,
         "icon": "hue.jpeg",
         "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
-        "type": "lighting"
+        "type": "lighting",
+        "connectionType": "local polling"
     },
     "native": {
         "bridge": "",
