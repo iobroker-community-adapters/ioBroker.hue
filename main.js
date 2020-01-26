@@ -476,10 +476,10 @@ function startAdapter(options) {
 
                     blockedIds[id] = true;
 
-                    if (/(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
-                        if (!adapter.config.ignoreGroups) {
-                            // log final changes / states
-                            adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+                    if (!adapter.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
+                        // log final changes / states
+                        adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+                        try {
                             await api.groups.setGroupState(groupIds[id], lightState);
                             setTimeout(updateGroupState, 150, {
                                 id: groupIds[id],
@@ -487,7 +487,9 @@ function startAdapter(options) {
                             }, () => {
                                 adapter.log.debug(`updated group state(${groupIds[id]}) after change`);
                             });
-                        }
+                        } catch (e) {
+                            adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
+                        } // endTryCatch
                     } else if (obj.common.role === 'switch') {
                         if (finalLS.hasOwnProperty('on')) {
                             finalLS = {on: finalLS.on};
@@ -496,14 +498,17 @@ function startAdapter(options) {
 
                             lightState = new v3.lightStates.LightState();
                             lightState.on(finalLS.on);
-
-                            await api.lights.setLightState(channelIds[id], lightState);
-                            setTimeout(updateLightState, 150, {
-                                id: channelIds[id],
-                                name: obj.common.name
-                            }, () => {
-                                adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
-                            });
+                            try {
+                                await api.lights.setLightState(channelIds[id], lightState);
+                                setTimeout(updateLightState, 150, {
+                                    id: channelIds[id],
+                                    name: obj.common.name
+                                }, () => {
+                                    adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
+                                });
+                            } catch (e) {
+                                adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
+                            }
                         } else {
                             adapter.log.warn('invalid switch operation');
                         }

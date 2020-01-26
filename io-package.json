@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.0",
+        "version": "3.2.1",
         "news": {
-            "3.2.0": {
+            "3.2.1": {
                 "en": "no longer require restart when device is deleted, auto delete if recursive deletion feature is supported",
                 "de": "Neustart nicht mehr erforderlich, wenn das Gerät gelöscht wird, automatische Löschung, wenn die Funktion zum rekursiven Löschen unterstützt wird",
                 "ru": "больше не требуется перезагрузка при удалении устройства, автоматическое удаление, если поддерживается функция рекурсивного удаления",
