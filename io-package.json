@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.1.0",
+        "version": "3.1.1",
         "news": {
+            "3.1.1": {
+                "en": "added additional frontend validation of polling interval and improved error handling",
+                "de": "Zusätzliche Frontend-Validierung des Abfrageintervalls und verbesserte Fehlerbehandlung hinzugefügt",
+                "ru": "добавлена дополнительная проверка внешнего интерфейса интервала опроса и улучшена обработка ошибок",
+                "pt": "adição adicional de validação front-end do intervalo de pesquisa e melhor tratamento de erros",
+                "nl": "extra frontend-validatie van polling-interval en verbeterde foutafhandeling toegevoegd",
+                "fr": "ajouté une validation frontale supplémentaire de l'intervalle d'interrogation et une meilleure gestion des erreurs",
+                "it": "aggiunta ulteriore validazione frontend dell'intervallo di polling e migliorata gestione degli errori",
+                "es": "Se agregó validación frontend adicional del intervalo de sondeo y mejor manejo de errores",
+                "pl": "dodano dodatkową weryfikację interfejsu interwału sondowania i ulepszoną obsługę błędów",
+                "zh-cn": "添加了额外的轮询间隔前端验证并改进了错误处理"
+            },
             "3.1.0": {
                 "en": "added new indicators of entertainment groups and added possiblity to start and stop streaming ",
                 "de": "Es wurden neue Anzeigen für Unterhaltungsgruppen und die Möglichkeit hinzugefügt, das Streaming zu starten und zu stoppen",
@@ -62,18 +74,6 @@
                 "es": "ya no establecemos valores predeterminados en cada inicio de adaptador",
                 "pl": "nie ustawiamy już wartości domyślnych przy każdym uruchomieniu adaptera",
                 "zh-cn": "我们不再为每个适配器启动设置默认值"
-            },
-            "2.4.6": {
-                "en": "fix potential issue for negative temperature values",
-                "de": "Behebung eines möglichen Problems bei negativen Temperaturwerten",
-                "ru": "исправить потенциальную проблему для отрицательных значений температуры",
-                "pt": "corrija o possível problema para valores negativos de temperatura",
-                "nl": "mogelijke probleem voor negatieve temperatuurwaarden oplossen",
-                "fr": "correction d'un problème potentiel pour des valeurs de température négatives",
-                "it": "risolve potenziali problemi per valori di temperatura negativi",
-                "es": "Solucionar problemas potenciales para valores de temperatura negativos",
-                "pl": "naprawić potencjalny problem z ujemnymi wartościami temperatury",
-                "zh-cn": "解决负温度值的潜在问题"
             },
             "2.4.4": {
                 "en": "increased performance, improved error handling",
@@ -176,7 +176,8 @@
         "materialize": true,
         "icon": "hue.jpeg",
         "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
-        "type": "lighting"
+        "type": "lighting",
+        "connectionType": "local polling"
     },
     "native": {
         "bridge": "",

@@ -299,5 +299,17 @@ systemDictionary = {
         'es': 'Sincronizar sensores de software',
         'pl': 'Synchronizuj czujniki oprogramowania',
         'zh-cn': '同步软件传感器'
+    },
+    'Minimal polling interval is 2 seconds': {
+        'en': 'Minimal polling interval is 2 seconds',
+        'de': 'Das minimale Abfrageintervall beträgt 2 Sekunden',
+        'ru': 'Минимальный интервал опроса составляет 2 секунды',
+        'pt': 'O intervalo mínimo de pesquisa é de 2 segundos',
+        'nl': 'Minimaal polling-interval is 2 seconden',
+        'fr': "L'intervalle d'interrogation minimal est de 2 secondes",
+        'it': "L'intervallo di polling minimo è di 2 secondi",
+        'es': 'El intervalo mínimo de sondeo es de 2 segundos.',
+        'pl': 'Minimalny interwał odpytywania wynosi 2 sekundy',
+        'zh-cn': '最小轮询间隔为2秒'
     }
 };

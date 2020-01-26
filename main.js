@@ -54,7 +54,7 @@ function startAdapter(options) {
                     await api.groups.setGroupState(0, groupState);
                     adapter.log.info(`Started scene: ${obj.common.name}`);
                 } catch (e) {
-                    adapter.log.error(`Could not start scene: ${e}`);
+                    adapter.log.error(`Could not start scene: ${e.message || e}`);
                 } // endCatch
                 return;
             } // endIf
@@ -544,9 +544,7 @@ function startAdapter(options) {
             }
             return true;
         },
-        ready: () => {
-            main();
-        },
+        ready: main,
         unload: callback => {
             try {
                 if (pollingInterval) {
@@ -681,7 +679,7 @@ async function updateGroupState(group, callback) {
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
     } catch (e) {
-        adapter.log.error(`Cannot update group state of ${group.name} (${group.id}): ${e}`);
+        adapter.log.error(`Cannot update group state of ${group.name} (${group.id}): ${e.message || e}`);
     }
 
     // poll guard to prevent too fast polling of recently changed id
@@ -765,10 +763,17 @@ async function updateLightState(light, callback) {
 async function connect(cb) {
     let config;
     try {
+        if (adapter.config.ssl) {
+            adapter.log.debug(`Using https to connect to ${adapter.config.bridge}:${adapter.config.port}`);
+            api = await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+        } else {
+            adapter.log.debug(`Using insecure http to connect to ${adapter.config.bridge}:${adapter.config.port}`);
+            api = await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+        } // endElse
         config = await api.configuration.getAll();
     } catch (e) {
         adapter.log.warn(`could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
-        adapter.log.error(e);
+        adapter.log.error(e.message || e);
         reconnectTimeout = setTimeout(connect, 5000, cb);
         return;
     } // endCatch
@@ -1472,10 +1477,10 @@ function syncStates(states, callback) {
     // poll guard to prevent too fast polling of recently changed id
     const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
     if (blockedIds[nameId] !== true) {
-        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setTimeout(syncStates, 0, states, callback));
+        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
     } else {
         adapter.log.debug(`Syncing state of ${nameId} blocked`);
-        syncStates(states, callback);
+        setImmediate(syncStates, states, callback);
     }
 } // endSyncStates
 
@@ -1694,7 +1699,7 @@ async function poll() {
             syncStates(values);
         } // endIf
     } catch (e) {
-        adapter.log.error(`Could not poll all: ${e}`);
+        adapter.log.error(`Could not poll all: ${e.message || e}`);
     }
 
     if (!pollingInterval)
@@ -1712,13 +1717,10 @@ async function main() {
     // polling interval has to be greater equal 1
     adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10) < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
 
-    if (adapter.config.ssl) {
-        adapter.log.debug(`Using https to connect to ${adapter.config.bridge}:${adapter.config.port}`);
-        api = await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
-    } else {
-        adapter.log.debug(`Using insecure http to connect to ${adapter.config.bridge}:${adapter.config.port}`);
-        api = await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
-    } // endElse
+    if (!adapter.config.bridge) {
+        adapter.log.warn(`No bridge configured yet - please configure the adapter first`);
+        return;
+    } // endIf
 
     connect(() => {
         if (adapter.config.polling) {
