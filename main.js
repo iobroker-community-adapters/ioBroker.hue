@@ -1503,6 +1503,16 @@ async function poll() {
             // update sensors
             pollSensors.forEach(sensor => {
                 const sensorName = sensor.name;
+
+                if (pollSensors[sensor.id] !== undefined) {
+                    sensor = sensors[sensor.id];
+                } else {
+                    // detect removed groups
+                    adapter.log.info(`Sensor ${sensorName} has been removed from bridge`);
+                    pollSensors.splice(pollSensors.findIndex(item => item.id === sensor.id), 1);
+                    return;
+                } // endElse
+
                 sensor = sensors[sensor.id];
                 sensor.name = sensorName;
                 const states = {};
@@ -1534,7 +1544,16 @@ async function poll() {
                 const states = {};
 
                 const lightName = light.name;
-                light = lights[light.id];
+
+                if (pollLights[light.id] !== undefined) {
+                    light = lights[light.id];
+                } else {
+                    // detect removed groups
+                    adapter.log.info(`Light ${lightName} has been removed from bridge`);
+                    pollLights.splice(pollLights.findIndex(item => item.id === light.id), 1);
+                    return;
+                } // endElse
+
                 light.name = lightName;
 
                 if (light.swupdate && light.swupdate.state) {
@@ -1598,7 +1617,16 @@ async function poll() {
                     if (group.id !== '0') {
                         const states = {};
                         const groupName = group.name;
-                        group = groups[group.id];
+
+                        if (groups[group.id] !== undefined) {
+                            group = groups[group.id];
+                        } else {
+                            // detect removed groups
+                            adapter.log.info(`Group ${groupName} has been removed from bridge`);
+                            pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
+                            return;
+                        } // endElse
+
                         group.name = groupName;
 
                         for (const stateA in group.action) {
