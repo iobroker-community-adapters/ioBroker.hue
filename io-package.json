@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.1.1",
+        "version": "3.2.0",
         "news": {
+            "3.2.0": {
+                "en": "no longer require restart when device is deleted, auto delete if recursive deletion feature is supported",
+                "de": "Neustart nicht mehr erforderlich, wenn das Gerät gelöscht wird, automatische Löschung, wenn die Funktion zum rekursiven Löschen unterstützt wird",
+                "ru": "больше не требуется перезагрузка при удалении устройства, автоматическое удаление, если поддерживается функция рекурсивного удаления",
+                "pt": "não é mais necessário reiniciar quando o dispositivo é excluído, exclusão automática se o recurso de exclusão recursiva for suportado",
+                "nl": "niet langer opnieuw opstarten nodig wanneer apparaat wordt verwijderd, automatisch verwijderen als functie voor recursieve verwijdering wordt ondersteund",
+                "fr": "ne nécessite plus de redémarrage lorsque l'appareil est supprimé, suppression automatique si la fonction de suppression récursive est prise en charge",
+                "it": "non è più necessario riavviare quando il dispositivo viene eliminato, eliminazione automatica se è supportata la funzione di eliminazione ricorsiva",
+                "es": "ya no requiere reiniciar cuando se elimina el dispositivo, eliminar automáticamente si se admite la función de eliminación recursiva",
+                "pl": "nie wymaga już restartu po usunięciu urządzenia, automatyczne usuwanie, jeśli obsługiwana jest funkcja usuwania rekurencyjnego",
+                "zh-cn": "删除设备后不再需要重新启动，如果支持递归删除功能，则自动删除"
+            },
             "3.1.1": {
                 "en": "added additional frontend validation of polling interval and improved error handling",
                 "de": "Zusätzliche Frontend-Validierung des Abfrageintervalls und verbesserte Fehlerbehandlung hinzugefügt",
@@ -110,18 +122,6 @@
                 "es": "Posibilidad adicional de controlar y leer sensores de software y controlar zonas + áreas de entretenimiento",
                 "pl": "dodano możliwość kontroli i odczytu czujników oprogramowania oraz kontroli stref + obszarów rozrywki",
                 "zh-cn": "增加了控制和读取软件传感器以及控制区域和娱乐区域的可能性"
-            },
-            "2.3.1": {
-                "en": "implemented fix for controlling 'on' state of sensors",
-                "de": "Fehlerbehebung für die Kontrolle des Einschaltzustands von Sensoren implementiert",
-                "ru": "реализовано исправление для контроля состояния датчиков",
-                "pt": "correção implementada para controlar o estado 'on' dos sensores",
-                "nl": "geïmplementeerde fix voor het regelen van de 'aan'-status van sensoren",
-                "fr": "correctif implémenté pour contrôler l'état d'activation des capteurs",
-                "it": "correzione implementata per il controllo dello stato dei sensori \"on\"",
-                "es": "Corrección implementada para controlar el estado 'activado' de los sensores",
-                "pl": "zaimplementowano poprawkę do kontrolowania stanu włączenia czujników",
-                "zh-cn": "已实现用于控制传感器“打开”状态的修复程序"
             }
         },
         "title": "Philips Hue Bridge",

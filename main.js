@@ -1507,20 +1507,27 @@ async function poll() {
 
             // update sensors
             pollSensors.forEach(sensor => {
+                const states = {};
                 const sensorName = sensor.name;
 
-                if (pollSensors[sensor.id] !== undefined) {
+                if (sensors[sensor.id] !== undefined) {
                     sensor = sensors[sensor.id];
                 } else {
-                    // detect removed groups
+                    // detect removed sensors
                     adapter.log.info(`Sensor ${sensorName} has been removed from bridge`);
                     pollSensors.splice(pollSensors.findIndex(item => item.id === sensor.id), 1);
+                    // if recursive deletion is supported we delete the object
+                    if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
+                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${sensorName}` : sensorName}`);
+                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${sensorName}` : sensorName}`, {recursive: true});
+                    } else {
+                        adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
+                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${sensorName}` : sensorName} manually`);
+                    } // endElse
                     return;
                 } // endElse
 
-                sensor = sensors[sensor.id];
                 sensor.name = sensorName;
-                const states = {};
 
                 const sensorStates = {...sensor.config, ...sensor.state};
                 for (const stateA in sensorStates) {
@@ -1547,15 +1554,22 @@ async function poll() {
             // LIGHTS
             pollLights.forEach(light => {
                 const states = {};
-
                 const lightName = light.name;
 
-                if (pollLights[light.id] !== undefined) {
+                if (lights[light.id] !== undefined) {
                     light = lights[light.id];
                 } else {
-                    // detect removed groups
+                    // detect removed lights
                     adapter.log.info(`Light ${lightName} has been removed from bridge`);
                     pollLights.splice(pollLights.findIndex(item => item.id === light.id), 1);
+                    // if recursive deletion is supported we delete the object
+                    if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
+                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${lightName}` : lightName}`);
+                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${lightName}` : lightName}`, {recursive: true});
+                    } else {
+                        adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
+                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${lightName}` : lightName} manually`);
+                    } // endElse
                     return;
                 } // endElse
 
@@ -1629,6 +1643,14 @@ async function poll() {
                             // detect removed groups
                             adapter.log.info(`Group ${groupName} has been removed from bridge`);
                             pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
+                            // if recursive deletion is supported we delete the object
+                            if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
+                                adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${groupName}` : groupName}`);
+                                adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${groupName}` : groupName}`, {recursive: true});
+                            } else {
+                                adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
+                                ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${groupName}` : groupName} manually`);
+                            } // endElse
                             return;
                         } // endElse
 
