@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.1",
+        "version": "3.2.2",
         "news": {
+            "3.2.2": {
+                "en": "fixed potential issues when error type is not HueError",
+                "de": "Mögliche Probleme behoben, wenn der Fehlertyp nicht HueError ist",
+                "ru": "исправлены потенциальные проблемы, когда тип ошибки не HueError",
+                "pt": "possíveis problemas corrigidos quando o tipo de erro não é HueError",
+                "nl": "mogelijke problemen opgelost wanneer het fouttype niet HueError is",
+                "fr": "correction de problèmes potentiels lorsque le type d'erreur n'est pas HueError",
+                "it": "risolti potenziali problemi quando il tipo di errore non è HueError",
+                "es": "problemas potenciales corregidos cuando el tipo de error no es HueError",
+                "pl": "naprawiono potencjalne problemy, gdy typ błędu nie jest HueError",
+                "zh-cn": "修复了错误类型不是HueError时的潜在问题"
+            },
             "3.2.1": {
                 "en": "no longer require restart when device is deleted, auto delete if recursive deletion feature is supported",
                 "de": "Neustart nicht mehr erforderlich, wenn das Gerät gelöscht wird, automatische Löschung, wenn die Funktion zum rekursiven Löschen unterstützt wird",
@@ -110,18 +122,6 @@
                 "es": "versión mejorada de node-hue-api para corregir la autenticación para el puente viejo",
                 "pl": "zwiększona wersja node-hue-api do naprawy uwierzytelnienia dla starego mostu",
                 "zh-cn": "增加了node-hue-api版本，以修复旧桥的身份验证"
-            },
-            "2.4.1": {
-                "en": "added possibility to control and read software sensors and to control zones + entertainment areas",
-                "de": "Möglichkeit hinzugefügt, Software-Sensoren zu steuern und auszulesen und Zonen + Unterhaltungsbereiche zu steuern",
-                "ru": "добавлена возможность контролировать и считывать программные датчики и контролировать зоны + зоны развлечений",
-                "pt": "possibilidade adicional de controlar e ler sensores de software e controlar zonas + áreas de entretenimento",
-                "nl": "extra mogelijkheid om softwaresensoren te besturen en te lezen en om zones + entertainmentgebieden te besturen",
-                "fr": "possibilité supplémentaire de contrôler et de lire les capteurs logiciels et de contrôler les zones + les zones de divertissement",
-                "it": "aggiunta possibilità di controllare e leggere i sensori software e di controllare zone + aree di intrattenimento",
-                "es": "Posibilidad adicional de controlar y leer sensores de software y controlar zonas + áreas de entretenimiento",
-                "pl": "dodano możliwość kontroli i odczytu czujników oprogramowania oraz kontroli stref + obszarów rozrywki",
-                "zh-cn": "增加了控制和读取软件传感器以及控制区域和娱乐区域的可能性"
             }
         },
         "title": "Philips Hue Bridge",

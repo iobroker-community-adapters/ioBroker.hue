@@ -608,8 +608,8 @@ async function createUser(ip, callback) {
         callback({error: 0, message: newUser.username});
     } catch (e) {
         // 101 is bridge button not pressed
-        if (e.getHueErrorType() !== 101) adapter.log.error(e);
-        callback({error: e.getHueErrorType(), message: JSON.stringify(e)});
+        if (!e.getHueErrorType || e.getHueErrorType() !== 101) adapter.log.error(e);
+        callback({error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)});
     }
 } // endCreateUser
 
