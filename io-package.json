@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.2",
+        "version": "3.2.3",
         "news": {
+            "3.2.3": {
+                "en": "minor fix",
+                "de": "kleinere Korrektur",
+                "ru": "незначительное исправление",
+                "pt": "correção menor",
+                "nl": "kleine oplossing",
+                "fr": "correction mineure",
+                "it": "correzione minore",
+                "es": "corrección menor",
+                "pl": "drobna poprawka",
+                "zh-cn": "小修"
+            },
             "3.2.2": {
                 "en": "fixed potential issues when error type is not HueError",
                 "de": "Mögliche Probleme behoben, wenn der Fehlertyp nicht HueError ist",

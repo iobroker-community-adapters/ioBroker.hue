@@ -128,7 +128,7 @@ function startAdapter(options) {
                 let commandSupported = false;
 
                 function handleParam(idState, prefill) {
-                    if (idStates[idState] === undefined) return;
+                    if (!idStates[idState]) return;
                     if (prefill && !idStates[idState].ack) return;
 
                     const idtmp = idState.split('.');
