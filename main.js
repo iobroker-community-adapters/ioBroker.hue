@@ -129,6 +129,7 @@ function startAdapter(options) {
 
                 function handleParam(idState, prefill) {
                     if (idStates[idState] === undefined) return;
+                    if (idStates[idState] === null) return;
                     if (prefill && !idStates[idState].ack) return;
 
                     const idtmp = idState.split('.');
