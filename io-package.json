@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.3",
+        "version": "3.2.4",
         "news": {
+            "3.2.4": {
+                "en": "changed role of battery states to `value.battery` and made unit `%`",
+                "de": "Die Rolle der Batteriezustände wurde in \"value.battery\" geändert und die Einheit in \"%\" geändert",
+                "ru": "изменил роль состояний батареи на `value.battery` и сделал единицу`% `",
+                "pt": "função alterada dos estados da bateria para `value.battery` e criou a unidade`% `",
+                "nl": "veranderde de rol van batterijstatus in `waarde.batterij` en maakte eenheid`% `",
+                "fr": "changement du rôle des états de la batterie en «value.battery» et fabrication de l'unité «%»",
+                "it": "ha cambiato il ruolo degli stati della batteria in `value.battery` e ha reso l'unità`% `",
+                "es": "Se cambió la función de los estados de la batería a `value.battery` y se convirtió en la unidad`% `",
+                "pl": "zmieniono rolę stanów baterii na „wartość. akumulator” i zmieniono jednostkę na „%”",
+                "zh-cn": "将电池状态的角色更改为“ value.battery”，并使单位“％”"
+            },
             "3.2.3": {
                 "en": "minor fix",
                 "de": "kleinere Korrektur",
@@ -122,18 +134,6 @@
                 "es": "mayor rendimiento, mejor manejo de errores",
                 "pl": "zwiększona wydajność, poprawiona obsługa błędów",
                 "zh-cn": "提高性能，改善错误处理"
-            },
-            "2.4.3": {
-                "en": "increased version of node-hue-api to fix authentication for old bridge",
-                "de": "Die Version von Node-Hue-API wurde erhöht, um die Authentifizierung für die alte Bridge zu korrigieren",
-                "ru": "расширенная версия node-hue-api для исправления аутентификации для старого моста",
-                "pt": "versão aumentada do node-hue-api para corrigir a autenticação da ponte antiga",
-                "nl": "verbeterde versie van node-hue-api om authenticatie voor oude bridge te repareren",
-                "fr": "Version améliorée de node-hue-api pour corriger l'authentification pour l'ancien pont",
-                "it": "versione aumentata di node-hue-api per correggere l'autenticazione per il vecchio bridge",
-                "es": "versión mejorada de node-hue-api para corregir la autenticación para el puente viejo",
-                "pl": "zwiększona wersja node-hue-api do naprawy uwierzytelnienia dla starego mostu",
-                "zh-cn": "增加了node-hue-api版本，以修复旧桥的身份验证"
             }
         },
         "title": "Philips Hue Bridge",

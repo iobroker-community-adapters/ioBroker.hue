@@ -874,7 +874,7 @@ async function connect(cb) {
                     case 'battery':
                         lobj.common.type = 'number';
                         lobj.common.role = 'value.battery';
-			lobj.common.unit = '%';
+                        lobj.common.unit = '%';
                         break;
                     case 'pending':
                         lobj.common.type = 'number';
