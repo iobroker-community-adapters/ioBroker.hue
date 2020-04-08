@@ -873,7 +873,8 @@ async function connect(cb) {
                         break;
                     case 'battery':
                         lobj.common.type = 'number';
-                        lobj.common.role = 'config';
+                        lobj.common.role = 'value.battery';
+						lobj.common.unit = '%';
                         break;
                     case 'pending':
                         lobj.common.type = 'number';
