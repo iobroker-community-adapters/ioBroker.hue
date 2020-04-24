@@ -128,8 +128,12 @@ function startAdapter(options) {
                 let commandSupported = false;
 
                 function handleParam(idState, prefill) {
-                    if (!idStates[idState]) return;
-                    if (prefill && !idStates[idState].ack) return;
+                    if (!idStates[idState]) {
+                        return;
+                    }
+                    if (prefill && !idStates[idState].ack) {
+                        return;
+                    }
 
                     const idtmp = idState.split('.');
                     const iddp = idtmp.pop();
@@ -137,20 +141,28 @@ function startAdapter(options) {
                         case 'on':
                             alls['bri'] = idStates[idState].val ? 254 : 0;
                             ls['bri'] = idStates[idState].val ? 254 : 0;
-                            if (idStates[idState].ack && ls['bri'] > 0) lampOn = true;
+                            if (idStates[idState].ack && ls['bri'] > 0) {
+                                lampOn = true;
+                            }
                             break;
                         case 'bri':
                             alls[iddp] = idStates[idState].val;
                             ls[iddp] = idStates[idState].val;
-                            if (idStates[idState].ack && idStates[idState].val > 0) lampOn = true;
+                            if (idStates[idState].ack && idStates[idState].val > 0) {
+                                lampOn = true;
+                            }
                             break;
                         case 'alert':
                             alls[iddp] = idStates[idState].val;
-                            if (dp === 'alert') ls[iddp] = idStates[idState].val;
+                            if (dp === 'alert') {
+                                ls[iddp] = idStates[idState].val;
+                            }
                             break;
                         case 'effect':
                             alls[iddp] = idStates[idState].val;
-                            if (dp === 'effect') ls[iddp] = idStates[idState].val;
+                            if (dp === 'effect') {
+                                ls[iddp] = idStates[idState].val;
+                            }
                             break;
                         case 'r':
                         case 'g':
@@ -219,19 +231,19 @@ function startAdapter(options) {
                     try {
                         const commands = JSON.parse(state.val);
                         for (const command in commands) {
-                            if (!commands.hasOwnProperty(command)) {
+                            if (!Object.prototype.hasOwnProperty.call(commands, command)) {
                                 continue;
                             }
                             if (command === 'on') {
                                 //convert on to bri
-                                if (commands[command] && !commands.hasOwnProperty('bri')) {
+                                if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
                                     ls.bri = 254;
                                 } else {
                                     ls.bri = 0;
                                 }
                             } else if (command === 'level') {
                                 //convert level to bri
-                                if (!commands.hasOwnProperty('bri')) {
+                                if (!Object.prototype.hasOwnProperty.call(commands, 'bri')) {
                                     ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
                                 } else {
                                     ls.bri = 254;
@@ -249,7 +261,9 @@ function startAdapter(options) {
                 // get lightState
                 adapter.getObject(id, async (err, obj) => {
                     if (err || !obj) {
-                        if (!err) err = new Error(`obj "${id}" in callback getObject is null or undefined`);
+                        if (!err) {
+                            err = new Error(`obj "${id}" in callback getObject is null or undefined`);
+                        }
                         adapter.log.error(err);
                         return;
                     }
@@ -265,7 +279,7 @@ function startAdapter(options) {
                         if (!('b' in ls)) {
                             ls.b = 0;
                         }
-                        const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
+                        const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
                         ls.bri = xyb.b;
                         ls.xy = `${xyb.x},${xyb.y}`;
                     }
@@ -294,7 +308,7 @@ function startAdapter(options) {
 
                         let xy = ls.xy.toString().split(',');
                         xy = {'x': xy[0], 'y': xy[1]};
-                        xy = hueHelper.GamutXYforModel(xy.x, xy.y, (obj.native.hasOwnProperty('modelid') ? obj.native.modelid.trim() : 'default'));
+                        xy = hueHelper.GamutXYforModel(xy.x, xy.y, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
                         finalLS.xy = `${xy.x},${xy.y}`;
 
                         lightState = lightState.xy(parseFloat(xy.x), parseFloat(xy.y));
@@ -491,7 +505,7 @@ function startAdapter(options) {
                             adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
                         } // endTryCatch
                     } else if (obj.common.role === 'switch') {
-                        if (finalLS.hasOwnProperty('on')) {
+                        if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
                             finalLS = {on: finalLS.on};
                             // log final changes / states
                             adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
@@ -608,7 +622,9 @@ async function createUser(ip, callback) {
         callback({error: 0, message: newUser.username});
     } catch (e) {
         // 101 is bridge button not pressed
-        if (!e.getHueErrorType || e.getHueErrorType() !== 101) adapter.log.error(e);
+        if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
+            adapter.log.error(e);
+        }
         callback({error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)});
     }
 } // endCreateUser
@@ -632,7 +648,7 @@ async function updateGroupState(group, callback) {
         result = result['_data'];
 
         for (const stateA in result.action) {
-            if (!result.action.hasOwnProperty(stateA)) {
+            if (!Object.prototype.hasOwnProperty.call(result.action, stateA)) {
                 continue;
             }
             states[stateA] = result.action[stateA];
@@ -678,7 +694,7 @@ async function updateGroupState(group, callback) {
         } // endIf
 
         for (const stateB in states) {
-            if (!states.hasOwnProperty(stateB)) {
+            if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
                 continue;
             }
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
@@ -711,7 +727,7 @@ async function updateLightState(light, callback) {
         } // endIf
 
         for (const stateA in result.state) {
-            if (!result.state.hasOwnProperty(stateA)) {
+            if (!Object.prototype.hasOwnProperty.call(result.state, stateA)) {
                 continue;
             }
             states[stateA] = result.state[stateA];
@@ -747,7 +763,7 @@ async function updateLightState(light, callback) {
             states.ct = Math.round(1e6 / states.ct);
         }
         for (const stateB in states) {
-            if (!states.hasOwnProperty(stateB)) {
+            if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
                 continue;
             }
             values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
@@ -806,7 +822,7 @@ async function connect(cb) {
     const objs = [];
 
     for (const sid in sensors) {
-        if (!sensors.hasOwnProperty(sid)) {
+        if (!Object.prototype.hasOwnProperty.call(sensors, sid)) {
             continue;
         }
 
@@ -833,7 +849,7 @@ async function connect(cb) {
 
             const sensorCopy = {...sensor.state, ...sensor.config};
             for (const state in sensorCopy) {
-                if (!sensorCopy.hasOwnProperty(state)) {
+                if (!Object.prototype.hasOwnProperty.call(sensorCopy, state)) {
                     continue;
                 }
                 const objId = `${channelName}.${state}`;
@@ -924,7 +940,7 @@ async function connect(cb) {
                     type: sensor.type,
                     name: sensor.name,
                     modelid: sensor.modelid,
-                    swversion: sensor.swversion,
+                    swversion: sensor.swversion
                 }
             });
         }
@@ -933,7 +949,7 @@ async function connect(cb) {
     adapter.log.info(`created/updated ${pollSensors.length} sensor channels`);
 
     for (const lid in lights) {
-        if (!lights.hasOwnProperty(lid)) {
+        if (!Object.prototype.hasOwnProperty.call(lights, lid)) {
             continue;
         }
         const light = lights[lid];
@@ -988,7 +1004,7 @@ async function connect(cb) {
         } // endIf
 
         for (const state in light.state) {
-            if (!light.state.hasOwnProperty(state)) {
+            if (!Object.prototype.hasOwnProperty.call(light.state, state)) {
                 continue;
             }
             let value = light.state[state];
@@ -1155,7 +1171,7 @@ async function connect(cb) {
             }
         };
         for (const gid in groups) {
-            if (!groups.hasOwnProperty(gid)) {
+            if (!Object.prototype.hasOwnProperty.call(groups, gid)) {
                 continue;
             }
             const group = groups[gid];
@@ -1183,7 +1199,7 @@ async function connect(cb) {
             group.action.level = 0;
 
             for (const action in group.action) {
-                if (!group.action.hasOwnProperty(action)) {
+                if (!Object.prototype.hasOwnProperty.call(group.action, action)) {
                     continue;
                 }
 
@@ -1370,7 +1386,9 @@ async function connect(cb) {
             for (const sceneId in scenes) {
                 const scene = scenes[sceneId];
                 if (scene.type === 'GroupScene') {
-                    if (adapter.config.ignoreGroups) continue;
+                    if (adapter.config.ignoreGroups) {
+                        continue;
+                    }
                     adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
                     objs.push({
                         _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/[\s.]/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
@@ -1502,8 +1520,9 @@ async function poll() {
     try {
         const config = await api.configuration.getAll();
 
-        if (adapter.log.level === 'debug' || adapter.log.level === 'silly')
+        if (adapter.log.level === 'debug' || adapter.log.level === 'silly') {
             adapter.log.debug(`Polled config: ${JSON.stringify(config)}`);
+        }
 
         if (config) {
             const values = [];
@@ -1537,7 +1556,7 @@ async function poll() {
 
                 const sensorStates = {...sensor.config, ...sensor.state};
                 for (const stateA in sensorStates) {
-                    if (!sensorStates.hasOwnProperty(stateA)) {
+                    if (!Object.prototype.hasOwnProperty.call(sensorStates, stateA)) {
                         continue;
                     }
                     states[stateA] = sensorStates[stateA];
@@ -1547,7 +1566,7 @@ async function poll() {
                     states.temperature = convertTemperature(states.temperature);
                 }
                 for (const stateB in states) {
-                    if (!states.hasOwnProperty(stateB)) {
+                    if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
                         continue;
                     }
                     values.push({
@@ -1589,7 +1608,7 @@ async function poll() {
                 } // endIf
 
                 for (const stateA in light.state) {
-                    if (!light.state.hasOwnProperty(stateA)) {
+                    if (!Object.prototype.hasOwnProperty.call(light.state, stateA)) {
                         continue;
                     }
                     states[stateA] = light.state[stateA];
@@ -1625,7 +1644,7 @@ async function poll() {
                     states.ct = Math.round(1e6 / states.ct);
                 }
                 for (const stateB in states) {
-                    if (!states.hasOwnProperty(stateB)) {
+                    if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
                         continue;
                     }
                     values.push({
@@ -1663,7 +1682,7 @@ async function poll() {
                         group.name = groupName;
 
                         for (const stateA in group.action) {
-                            if (!group.action.hasOwnProperty(stateA)) {
+                            if (!Object.prototype.hasOwnProperty.call(group.action, stateA)) {
                                 continue;
                             }
                             states[stateA] = group.action[stateA];
@@ -1705,7 +1724,7 @@ async function poll() {
                         } // endIf
 
                         for (const stateB in states) {
-                            if (!states.hasOwnProperty(stateB)) {
+                            if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
                                 continue;
                             }
                             values.push({
@@ -1730,8 +1749,9 @@ async function poll() {
         adapter.log.error(`Could not poll all: ${e.message || e}`);
     }
 
-    if (!pollingInterval)
+    if (!pollingInterval) {
         pollingInterval = setTimeout(poll, adapter.config.pollingInterval * 1000);
+    }
 } // endPoll
 
 async function main() {
