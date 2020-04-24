@@ -688,7 +688,7 @@ async function updateGroupState(group, callback) {
     }
 
     // poll guard to prevent too fast polling of recently changed id
-    const blockableId = group.name.replace(/\s/g, '_');
+    const blockableId = group.name.replace(/[\s.]/g, '_');
     if (blockedIds[blockableId] === true) {
         adapter.log.debug(`Unblock ${blockableId}`);
         blockedIds[blockableId] = false;
@@ -757,7 +757,7 @@ async function updateLightState(light, callback) {
     }
 
     // poll guard to prevent too fast polling of recently changed id
-    const blockableId = light.name.replace(/\s/g, '_');
+    const blockableId = light.name.replace(/[\s.]/g, '_');
     if (blockedIds[blockableId] === true) {
         adapter.log.debug(`Unblock ${blockableId}`);
         blockedIds[blockableId] = false;
@@ -791,7 +791,7 @@ async function connect(cb) {
 
     // even if useLegacyStructure is false, we check if the structure exists to not create chaos
     if (!adapter.config.useLegacyStructure) {
-        const legacyObj = await adapter.getObjectAsync(`${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}`);
+        const legacyObj = await adapter.getObjectAsync(`${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`);
         if (legacyObj) {
             adapter.config.useLegacyStructure = true;
             adapter.log.info('Use legacy structure, because existing');
@@ -817,19 +817,19 @@ async function connect(cb) {
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = `${channelName} ${sensor.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
-                    adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
+                    adapter.log.error(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, could not use "${newChannelName.replace(/[\s.]/g, '_')}" as well, skipping sensor ${sid}`);
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
+                    adapter.log.warn(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, using "${newChannelName.replace(/[\s.]/g, '_')}" for sensor ${sid}`);
                     channelName = newChannelName;
                 }
             } else {
                 channelNames.push(channelName);
             }
 
-            const sensorName = sensor.name.replace(/\s/g, '');
+            const sensorName = sensor.name.replace(/[\s.]/g, '');
 
-            pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
+            pollSensors.push({id: sid, name: channelName.replace(/[\s.]/g, '_'), sname: sensorName});
 
             const sensorCopy = {...sensor.state, ...sensor.config};
             for (const state in sensorCopy) {
@@ -839,7 +839,7 @@ async function connect(cb) {
                 const objId = `${channelName}.${state}`;
 
                 const lobj = {
-                    _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
+                    _id: `${adapter.namespace}.${objId.replace(/[\s.]/g, '_')}`,
                     type: 'state',
                     common: {
                         name: objId,
@@ -913,7 +913,7 @@ async function connect(cb) {
             }
 
             objs.push({
-                _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
+                _id: `${adapter.namespace}.${channelName.replace(/[\s.]/g, '_')}`,
                 type: 'channel',
                 common: {
                     name: channelName,
@@ -942,17 +942,17 @@ async function connect(cb) {
         if (channelNames.indexOf(channelName) !== -1) {
             const newChannelName = `${channelName} ${light.type}`;
             if (channelNames.indexOf(newChannelName) !== -1) {
-                adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
+                adapter.log.error(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, could not use "${newChannelName.replace(/[\s.]/g, '_')}" as well, skipping light ${lid}`);
                 continue;
             } else {
-                adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
+                adapter.log.warn(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, using "${newChannelName.replace(/[\s.]/g, '_')}" for light ${lid}`);
                 channelName = newChannelName;
             }
         } else {
             channelNames.push(channelName);
         }
-        channelIds[channelName.replace(/\s/g, '_')] = lid;
-        pollLights.push({id: lid, name: channelName.replace(/\s/g, '_')});
+        channelIds[channelName.replace(/[\s.]/g, '_')] = lid;
+        pollLights.push({id: lid, name: channelName.replace(/[\s.]/g, '_')});
 
         if (light.type === 'Extended color light' || light.type === 'Color light') {
             light.state.r = 0;
@@ -970,7 +970,7 @@ async function connect(cb) {
             const objId = `${channelName}.updateable`;
 
             const lobj = {
-                _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
+                _id: `${adapter.namespace}.${objId.replace(/[\s.]/g, '_')}`,
                 type: 'state',
                 common: {
                     name: objId,
@@ -995,7 +995,7 @@ async function connect(cb) {
             const objId = `${channelName}.${state}`;
 
             const lobj = {
-                _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
+                _id: `${adapter.namespace}.${objId.replace(/[\s.]/g, '_')}`,
                 type: 'state',
                 common: {
                     name: objId,
@@ -1116,7 +1116,7 @@ async function connect(cb) {
         }
 
         objs.push({
-            _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
+            _id: `${adapter.namespace}.${channelName.replace(/[\s.]/g, '_')}`,
             type: 'channel',
             common: {
                 name: channelName,
@@ -1164,17 +1164,17 @@ async function connect(cb) {
             if (channelNames.indexOf(groupName) !== -1) {
                 const newGroupName = `${groupName} ${group.type}`;
                 if (channelNames.indexOf(newGroupName) !== -1) {
-                    adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
+                    adapter.log.error(`channel "${groupName.replace(/[\s.]/g, '_')}" already exists, could not use "${newGroupName.replace(/[\s.]/g, '_')}" as well, skipping group ${gid}`);
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
+                    adapter.log.warn(`channel "${groupName.replace(/[\s.]/g, '_')}" already exists, using "${newGroupName.replace(/[\s.]/g, '_')}" for group ${gid}`);
                     groupName = newGroupName;
                 }
             } else {
                 channelNames.push(groupName);
             }
-            groupIds[groupName.replace(/\s/g, '_')] = gid;
-            pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
+            groupIds[groupName.replace(/[\s.]/g, '_')] = gid;
+            pollGroups.push({id: gid, name: groupName.replace(/[\s.]/g, '_')});
 
             group.action.r = 0;
             group.action.g = 0;
@@ -1190,7 +1190,7 @@ async function connect(cb) {
                 const gobjId = `${groupName}.${action}`;
 
                 const gobj = {
-                    _id: `${adapter.namespace}.${gobjId.replace(/\s/g, '_')}`,
+                    _id: `${adapter.namespace}.${gobjId.replace(/[\s.]/g, '_')}`,
                     type: 'state',
                     common: {
                         name: gobjId,
@@ -1291,7 +1291,7 @@ async function connect(cb) {
 
             // Create anyOn state
             objs.push({
-                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.anyOn`,
                 type: 'state',
                 common: {
                     name: `${groupName}.anyOn`,
@@ -1306,7 +1306,7 @@ async function connect(cb) {
             // Create entertainment states
             if (group.class) {
                 objs.push({
-                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.class`,
+                    _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.class`,
                     type: 'state',
                     common: {
                         name: `${groupName}.class`,
@@ -1321,7 +1321,7 @@ async function connect(cb) {
 
             if (group.stream && group.stream.active !== undefined) {
                 objs.push({
-                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.activeStream`,
+                    _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.activeStream`,
                     type: 'state',
                     common: {
                         name: `${groupName}.activeStream`,
@@ -1335,7 +1335,7 @@ async function connect(cb) {
             } // endIf
 
             objs.push({
-                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
+                _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}`,
                 type: 'channel',
                 common: {
                     name: groupName,
@@ -1366,14 +1366,14 @@ async function connect(cb) {
             let sceneChannelCreated = false;
 
             let sceneCounter = 0;
-            const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : `${adapter.namespace}`;
+            const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}` : `${adapter.namespace}`;
             for (const sceneId in scenes) {
                 const scene = scenes[sceneId];
                 if (scene.type === 'GroupScene') {
                     if (adapter.config.ignoreGroups) continue;
                     adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
                     objs.push({
-                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/\s/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
+                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/[\s.]/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
@@ -1400,7 +1400,7 @@ async function connect(cb) {
 
                     adapter.log.debug(`Create ${scene.name}`);
                     objs.push({
-                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/\s/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
+                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/[\s.]/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
@@ -1423,7 +1423,7 @@ async function connect(cb) {
     // Create/update device
     adapter.log.info('creating/updating bridge device');
     objs.push({
-        _id: adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/\s/g, '_')}` : adapter.namespace,
+        _id: adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}` : adapter.namespace,
         type: 'device',
         common: {
             name: config.config.name
@@ -1483,7 +1483,7 @@ function syncStates(states, callback) {
     // poll guard to prevent too fast polling of recently changed id
     const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
     if (blockedIds[nameId] !== true) {
-        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
+        adapter.setForeignStateChanged(task.id.replace(/[\s.]/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
     } else {
         adapter.log.debug(`Syncing state of ${nameId} blocked`);
         setImmediate(syncStates, states, callback);
@@ -1524,11 +1524,11 @@ async function poll() {
                     pollSensors.splice(pollSensors.findIndex(item => item.id === sensor.id), 1);
                     // if recursive deletion is supported we delete the object
                     if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${sensorName}` : sensorName}`);
-                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${sensorName}` : sensorName}`, {recursive: true});
+                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName}`);
+                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName}`, {recursive: true});
                     } else {
                         adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${sensorName}` : sensorName} manually`);
+                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName} manually`);
                     } // endElse
                     return;
                 } // endElse
@@ -1570,11 +1570,11 @@ async function poll() {
                     pollLights.splice(pollLights.findIndex(item => item.id === light.id), 1);
                     // if recursive deletion is supported we delete the object
                     if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${lightName}` : lightName}`);
-                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${lightName}` : lightName}`, {recursive: true});
+                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName}`);
+                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName}`, {recursive: true});
                     } else {
                         adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${lightName}` : lightName} manually`);
+                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName} manually`);
                     } // endElse
                     return;
                 } // endElse
@@ -1651,11 +1651,11 @@ async function poll() {
                             pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
                             // if recursive deletion is supported we delete the object
                             if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                                adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${groupName}` : groupName}`);
-                                adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${groupName}` : groupName}`, {recursive: true});
+                                adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName}`);
+                                adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName}`, {recursive: true});
                             } else {
                                 adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                                ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/\s/g, '_')}.${groupName}` : groupName} manually`);
+                                ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName} manually`);
                             } // endElse
                             return;
                         } // endElse
@@ -1715,7 +1715,7 @@ async function poll() {
                         } // endFor
                         // set anyOn state
                         values.push({
-                            id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
+                            id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.anyOn`,
                             val: group.state['any_on']
                         });
                     } else {

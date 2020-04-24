@@ -1,8 +1,19 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.4",
+        "version": "3.2.5",
         "news": {
+            "3.2.5": {
+                "en": "we replace dots in light/group/sensor/.. names by underscores",
+                "de": "Wir ersetzen Punkte in Licht- / Gruppen- / Sensor- / .. -Namen durch Unterstriche",
+                "ru": "мы заменяем точки в названиях light / group / sensor / .. подчеркиваниями",
+                "pt": "substituímos pontos nos nomes luz / grupo / sensor / .. por sublinhados",
+                "nl": "we vervangen punten in namen van licht / groep / sensor / .. door onderstrepingstekens",
+                "fr": "nous remplaçons les points dans les noms light / group / sensor / .. par des traits de soulignement",
+                "it": "sostituiamo i punti nei nomi luce / gruppo / sensore / .. con caratteri di sottolineatura",
+                "es": "reemplazamos los puntos en los nombres light / group / sensor / .. por guiones bajos",
+                "pl": "kropki w nazwach light / group / sensor / .. zastępujemy podkreślnikami",
+                "zh-cn": "我们用下划线替换光/组/传感器/ ..名称中的点"            },
             "3.2.4": {
                 "en": "changed role of battery states to `value.battery` and made unit `%`",
                 "de": "Die Rolle der Batteriezustände wurde in \"value.battery\" geändert und die Einheit in \"%\" geändert",
