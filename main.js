@@ -497,9 +497,9 @@ function startAdapter(options) {
                             await api.groups.setGroupState(groupIds[id], lightState);
                             setTimeout(updateGroupState, 150, {
                                 id: groupIds[id],
-                                name: obj.common.name
+                                name: obj._id.substr(adapter.namespace.length + 1)
                             }, () => {
-                                adapter.log.debug(`updated group state(${groupIds[id]}) after change`);
+                                adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
                             });
                         } catch (e) {
                             adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
@@ -855,7 +855,7 @@ async function connect(cb) {
                 const objId = `${channelName}.${state}`;
 
                 const lobj = {
-                    _id: `${adapter.namespace}.${objId.replace(/[\s.]/g, '_')}`,
+                    _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
                         name: objId,
@@ -986,7 +986,7 @@ async function connect(cb) {
             const objId = `${channelName}.updateable`;
 
             const lobj = {
-                _id: `${adapter.namespace}.${objId.replace(/[\s.]/g, '_')}`,
+                _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
                 type: 'state',
                 common: {
                     name: objId,
@@ -1011,7 +1011,7 @@ async function connect(cb) {
             const objId = `${channelName}.${state}`;
 
             const lobj = {
-                _id: `${adapter.namespace}.${objId.replace(/[\s.]/g, '_')}`,
+                _id: `${adapter.namespace}.${objId.replace(/\s/g, '_')}`,
                 type: 'state',
                 common: {
                     name: objId,
@@ -1206,7 +1206,7 @@ async function connect(cb) {
                 const gobjId = `${groupName}.${action}`;
 
                 const gobj = {
-                    _id: `${adapter.namespace}.${gobjId.replace(/[\s.]/g, '_')}`,
+                    _id: `${adapter.namespace}.${gobjId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
                         name: gobjId,
@@ -1501,7 +1501,7 @@ function syncStates(states, callback) {
     // poll guard to prevent too fast polling of recently changed id
     const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
     if (blockedIds[nameId] !== true) {
-        adapter.setForeignStateChanged(task.id.replace(/[\s.]/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
+        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
     } else {
         adapter.log.debug(`Syncing state of ${nameId} blocked`);
         setImmediate(syncStates, states, callback);
