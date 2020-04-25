@@ -516,7 +516,7 @@ function startAdapter(options) {
                                 await api.lights.setLightState(channelIds[id], lightState);
                                 setTimeout(updateLightState, 150, {
                                     id: channelIds[id],
-                                    name: obj.common.name
+                                    name: obj._id.substr(adapter.namespace.length + 1)
                                 }, () => {
                                     adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                                 });
@@ -533,7 +533,7 @@ function startAdapter(options) {
                         await api.lights.setLightState(channelIds[id], lightState);
                         setTimeout(updateLightState, 150, {
                             id: channelIds[id],
-                            name: obj.common.name
+                            name: obj._id.substr(adapter.namespace.length + 1)
                         }, () => {
                             adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                         });
