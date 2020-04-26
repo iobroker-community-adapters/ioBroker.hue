@@ -829,14 +829,14 @@ async function connect(cb) {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
-            let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${sensor.name.replace(FORBIDDEN_CHARS, '')}` : sensor.name.replace(FORBIDDEN_CHARS, '');
+            let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(FORBIDDEN_CHARS, '')}` : sensor.name.replace(FORBIDDEN_CHARS, '');
             if (channelNames.indexOf(channelName) !== -1) {
                 const newChannelName = `${channelName} ${sensor.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
-                    adapter.log.error(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, could not use "${newChannelName.replace(/[\s.]/g, '_')}" as well, skipping sensor ${sid}`);
+                    adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, using "${newChannelName.replace(/[\s.]/g, '_')}" for sensor ${sid}`);
+                    adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
                     channelName = newChannelName;
                 }
             } else {
@@ -845,7 +845,7 @@ async function connect(cb) {
 
             const sensorName = sensor.name.replace(/[\s.]/g, '');
 
-            pollSensors.push({id: sid, name: channelName.replace(/[\s.]/g, '_'), sname: sensorName});
+            pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
 
             const sensorCopy = {...sensor.state, ...sensor.config};
             for (const state in sensorCopy) {
@@ -929,7 +929,7 @@ async function connect(cb) {
             }
 
             objs.push({
-                _id: `${adapter.namespace}.${channelName.replace(/[\s.]/g, '_')}`,
+                _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
                 type: 'channel',
                 common: {
                     name: channelName,
@@ -954,21 +954,21 @@ async function connect(cb) {
         }
         const light = lights[lid];
 
-        let channelName = adapter.config.useLegacyStructure ? `${config.config.name}.${light.name}` : light.name;
+        let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}` : light.name.replace(/\./g, '_');
         if (channelNames.indexOf(channelName) !== -1) {
             const newChannelName = `${channelName} ${light.type}`;
             if (channelNames.indexOf(newChannelName) !== -1) {
-                adapter.log.error(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, could not use "${newChannelName.replace(/[\s.]/g, '_')}" as well, skipping light ${lid}`);
+                adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
                 continue;
             } else {
-                adapter.log.warn(`channel "${channelName.replace(/[\s.]/g, '_')}" already exists, using "${newChannelName.replace(/[\s.]/g, '_')}" for light ${lid}`);
+                adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
                 channelName = newChannelName;
             }
         } else {
             channelNames.push(channelName);
         }
-        channelIds[channelName.replace(/[\s.]/g, '_')] = lid;
-        pollLights.push({id: lid, name: channelName.replace(/[\s.]/g, '_')});
+        channelIds[channelName.replace(/\s/g, '_')] = lid;
+        pollLights.push({id: lid, name: channelName.replace(/\s/g, '_')});
 
         if (light.type === 'Extended color light' || light.type === 'Color light') {
             light.state.r = 0;
@@ -1132,7 +1132,7 @@ async function connect(cb) {
         }
 
         objs.push({
-            _id: `${adapter.namespace}.${channelName.replace(/[\s.]/g, '_')}`,
+            _id: `${adapter.namespace}.${channelName.replace(/\s/g, '_')}`,
             type: 'channel',
             common: {
                 name: channelName,
@@ -1176,21 +1176,21 @@ async function connect(cb) {
             }
             const group = groups[gid];
 
-            let groupName = adapter.config.useLegacyStructure ? `${config.config.name}.${group.name}` : group.name;
+            let groupName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}` : group.name.replace(/\./g, '_');
             if (channelNames.indexOf(groupName) !== -1) {
                 const newGroupName = `${groupName} ${group.type}`;
                 if (channelNames.indexOf(newGroupName) !== -1) {
-                    adapter.log.error(`channel "${groupName.replace(/[\s.]/g, '_')}" already exists, could not use "${newGroupName.replace(/[\s.]/g, '_')}" as well, skipping group ${gid}`);
+                    adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${groupName.replace(/[\s.]/g, '_')}" already exists, using "${newGroupName.replace(/[\s.]/g, '_')}" for group ${gid}`);
+                    adapter.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
                     groupName = newGroupName;
                 }
             } else {
                 channelNames.push(groupName);
             }
-            groupIds[groupName.replace(/[\s.]/g, '_')] = gid;
-            pollGroups.push({id: gid, name: groupName.replace(/[\s.]/g, '_')});
+            groupIds[groupName.replace(/\s/g, '_')] = gid;
+            pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
 
             group.action.r = 0;
             group.action.g = 0;
@@ -1307,7 +1307,7 @@ async function connect(cb) {
 
             // Create anyOn state
             objs.push({
-                _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.anyOn`,
+                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
                 type: 'state',
                 common: {
                     name: `${groupName}.anyOn`,
@@ -1322,7 +1322,7 @@ async function connect(cb) {
             // Create entertainment states
             if (group.class) {
                 objs.push({
-                    _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.class`,
+                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.class`,
                     type: 'state',
                     common: {
                         name: `${groupName}.class`,
@@ -1337,7 +1337,7 @@ async function connect(cb) {
 
             if (group.stream && group.stream.active !== undefined) {
                 objs.push({
-                    _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.activeStream`,
+                    _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.activeStream`,
                     type: 'state',
                     common: {
                         name: `${groupName}.activeStream`,
@@ -1351,7 +1351,7 @@ async function connect(cb) {
             } // endIf
 
             objs.push({
-                _id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}`,
+                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}`,
                 type: 'channel',
                 common: {
                     name: groupName,

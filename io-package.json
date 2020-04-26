@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.7",
+        "version": "3.2.8",
         "news": {
-            "3.2.7": {
+            "3.2.8": {
                 "en": "we replace dots in light/group/sensor/.. names by underscores",
                 "de": "Wir ersetzen Punkte in Licht- / Gruppen- / Sensor- / .. -Namen durch Unterstriche",
                 "ru": "мы заменяем точки в названиях light / group / sensor / .. подчеркиваниями",
