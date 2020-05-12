@@ -35,7 +35,7 @@
         "mocha": "^6.2.0",
         "chai": "^4.2.0",
         "eslint": "^6.4.0",
-        "@iobroker/testing": "^2.0.0"
+        "@iobroker/testing": "^2.2.0"
     },
     "scripts": {
         "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
