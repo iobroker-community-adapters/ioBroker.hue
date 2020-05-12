@@ -119,7 +119,7 @@
                         } else {
                             popup = _('Select a bridge:') + ' <br />';
                             arr.forEach(function (element, index, array) {
-                                popup = popup + '<a href="#" onclick="$(\'#bridge.value\').val(\'' + element.ipaddress + '\').trigger(\'change\');$(\'#dialog-bridges\').modal(\'close\')">' + element.ipaddress + '</a><br />';
+                                popup = popup + '<a href="#" onclick="$(\'#bridge.value\').val(\'' + element.ipaddress + '\').trigger(\'change\');$(\'#dialog-bridges\').modal(\'close\') && M.updateTextFields()">' + element.ipaddress + '</a><br />';
                             });
                         }
                         $('#dialog-bridges .modal-content').html(popup);

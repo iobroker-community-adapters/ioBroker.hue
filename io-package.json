@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.8",
+        "version": "3.2.9",
         "news": {
+            "3.2.9": {
+                "en": "fixed issues on user creation",
+                "de": "Probleme bei der Benutzererstellung behoben",
+                "ru": "исправлены ошибки при создании пользователя",
+                "pt": "problemas corrigidos na criação do usuário",
+                "nl": "opgeloste problemen bij het maken van gebruikers",
+                "fr": "correction de problèmes lors de la création d'utilisateurs",
+                "it": "risolti i problemi relativi alla creazione dell'utente",
+                "es": "problemas resueltos en la creación de usuarios",
+                "pl": "naprawiono problemy z tworzeniem użytkowników",
+                "zh-cn": "解决了用户创建方面的问题"
+            },
             "3.2.8": {
                 "en": "we replace dots in light/group/sensor/.. names by underscores",
                 "de": "Wir ersetzen Punkte in Licht- / Gruppen- / Sensor- / .. -Namen durch Unterstriche",

@@ -612,11 +612,17 @@ async function browse(timeout, callback) {
     callback(bridges);
 }
 
+/**
+ * Create user on the bridge by given Ip
+ *
+ * @param {string} ip - ip address of the bridge
+ * @param {function(object)} callback - callback to be called after function finished
+ */
 async function createUser(ip, callback) {
     const newUserName = null;
     const userDescription = 'ioBroker.hue';
     try {
-        const api = adapter.config.ssl ? await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect() : await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect();
+        const api = adapter.config.ssl ? await v3.api.createLocal(ip, adapter.config.port).connect() : await v3.api.createInsecureLocal(ip, adapter.config.port).connect();
         const newUser = await api.users.createUser(ip, newUserName, userDescription);
         adapter.log.info(`created new User: ${newUser.username}`);
         callback({error: 0, message: newUser.username});
