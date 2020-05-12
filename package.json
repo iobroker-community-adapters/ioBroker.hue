@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "node-hue-api": "^4.0.2",
-        "@iobroker/adapter-core": "^2.1.0"
+        "@iobroker/adapter-core": "^2.4.0"
     },
     "devDependencies": {
         "gulp": "^4.0.2",
