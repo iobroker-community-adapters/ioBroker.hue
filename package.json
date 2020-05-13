@@ -27,15 +27,15 @@
         "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
     },
     "dependencies": {
-        "node-hue-api": "^4.0.2",
-        "@iobroker/adapter-core": "^2.1.0"
+        "node-hue-api": "^4.0.6",
+        "@iobroker/adapter-core": "^2.4.0"
     },
     "devDependencies": {
         "gulp": "^4.0.2",
-        "mocha": "^6.2.0",
+        "mocha": "^7.1.2",
         "chai": "^4.2.0",
-        "eslint": "^6.4.0",
-        "@iobroker/testing": "^2.0.0"
+        "eslint": "^7.0.0",
+        "@iobroker/testing": "^2.2.0"
     },
     "scripts": {
         "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
