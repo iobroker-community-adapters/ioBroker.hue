@@ -216,7 +216,7 @@
     },
     "native": {
         "bridge": "",
-        "port": 80,
+        "port": 443,
         "user": "",
         "polling": true,
         "pollingInterval": 10,
@@ -224,7 +224,7 @@
         "ignoreScenes": false,
         "useLegacyStructure": false,
         "nativeTurnOffBehaviour": false,
-        "ssl": false,
+        "ssl": true,
         "syncSoftwareSensors": false
     },
     "objects": [
