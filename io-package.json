@@ -1,8 +1,32 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.2.9",
+        "version": "3.3.0",
         "news": {
+            "3.3.0": {
+                "en": " introduce `allOn` state for groups, `anyOn` and `allOn` are now controllable and act like the `on` state, when native turn on/off behaviour is used, the brightness change of partially turned on groups will not turn",
+                "de": " Einführung des Status \"allOn\" für Gruppen, \"anyOn\" und \"allOn\" sind jetzt steuerbar und verhalten sich wie der Status \"on\". Wenn das native Ein- / Ausschaltverhalten verwendet wird, wird die Helligkeitsänderung von teilweise eingeschalteten Gruppen nicht aktiviert",
+                "ru": " введите для групп состояние «allOn», теперь «anyOn» и «allOn» являются управляемыми и действуют как состояние «вкл», при использовании встроенного режима включения / выключения изменение яркости частично включенных групп не будет",
+                "pt": " introduzir o estado `allOn` para grupos,` anyOn` e `allOn` agora são controláveis e agem como o estado` on`, quando o comportamento nativo de ligar / desligar é usado, a mudança de brilho de grupos parcialmente ativados não será ativada.",
+                "nl": " introduceren `allOn` status voor groepen,` anyOn` en `allOn` zijn nu bestuurbaar en werken als de` aan` status, wanneer native aan / uit gedrag wordt gebruikt, zal de helderheidsverandering van gedeeltelijk ingeschakelde groepen niet draaien",
+                "fr": " introduire l'état `allOn` pour les groupes,` anyOn` et `allOn` sont désormais contrôlables et agissent comme l'état` on`, lorsque le comportement d'activation / désactivation natif est utilisé, le changement de luminosité des groupes partiellement activés ne tourne pas",
+                "it": " introdurre lo stato `allOn` per i gruppi,` anyOn` e `allOn` sono ora controllabili e si comportano come lo stato` on`, quando viene utilizzato il comportamento di accensione / spegnimento nativo, il cambiamento di luminosità dei gruppi parzialmente attivati non gira",
+                "es": " introduzca el estado `allOn` para grupos,` anyOn` y `allOn` ahora son controlables y actúan como el estado` on`, cuando se usa el comportamiento nativo de encendido / apagado, el cambio de brillo de los grupos parcialmente activados no se activa",
+                "pl": " wprowadzamy stan „allOn” dla grup, „anyOn” i „allOn” są teraz sterowane i działają jak stan „on”, gdy stosowane jest natywne zachowanie włączania / wyłączania, zmiana jasności częściowo włączonych grup nie zmieni się",
+                "zh-cn": " 为组引入“ allOn”状态，“ anyOn”和“ allOn”现在是可控的，就像“ on”状态一样，当使用本机打开/关闭行为时，部分打开的组的亮度变化不会打开"
+            },
+            "the whole group on, like the hue app does instead it will only change the brightness of the currently turned on lamps": {
+                "en": "the whole group on, like the hue app does instead it will only change the brightness of the currently turned on lamps",
+                "de": "Wenn die gesamte Gruppe eingeschaltet ist, ändert sich wie bei der Farbton-App nur die Helligkeit der aktuell eingeschalteten Lampen",
+                "ru": "вся группа включена, как приложение hue, вместо этого оно будет изменять только яркость включенных в данный момент ламп",
+                "pt": "todo o grupo, como o aplicativo matiz, em vez disso, mudará apenas o brilho das lâmpadas atualmente ativadas",
+                "nl": "de hele groep aan, zoals de hue-app doet, zal het alleen de helderheid van de momenteel ingeschakelde lampen veranderen",
+                "fr": "l'ensemble du groupe, comme l'application hue, à la place, cela ne changera que la luminosité des lampes actuellement allumées",
+                "it": "l'intero gruppo è acceso, come invece fa l'app hue, cambierà solo la luminosità delle lampade attualmente accese",
+                "es": "todo el grupo encendido, como lo hace la aplicación hue en su lugar, solo cambiará el brillo de las lámparas actualmente encendidas",
+                "pl": "cała grupa włączona, podobnie jak aplikacja hue, zmieni tylko jasność aktualnie włączonych lamp",
+                "zh-cn": "像色相应用一样，整个组都将打开，它只会更改当前打开的灯的亮度"
+            },
             "3.2.9": {
                 "en": "fixed issues on user creation",
                 "de": "Probleme bei der Benutzererstellung behoben",

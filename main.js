@@ -42,7 +42,7 @@ function startAdapter(options) {
 
             adapter.log.debug(`stateChange ${id} ${JSON.stringify(state)}`);
             const tmp = id.split('.');
-            const dp = tmp.pop();
+            let dp = tmp.pop();
 
             if (dp.startsWith('scene_')) {
                 try {
@@ -64,7 +64,7 @@ function startAdapter(options) {
             const channelObj = await adapter.getForeignObjectAsync(channelId);
 
             if (channelObj && channelObj.common && supportedSensors.includes(channelObj.common.role)) {
-                // its a sensor - we need node-hue-api v3 for this
+                // its a sensor - we support turning it on and off
                 try {
                     if (dp === 'on') {
                         const sensor = await api.sensors.get(channelObj.native.id);
@@ -98,7 +98,13 @@ function startAdapter(options) {
                     adapter.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
                     api.groups.disableStreaming(groupIds[id]);
                 } // endElse
+                return;
             } // endIf
+
+            // anyOn and allOn will just act like on dp
+            if (dp === 'anyOn' || dp === 'allOn') {
+                dp = 'on';
+            }
 
             const fullIdBase = `${tmp.join('.')}.`;
             let ls = {};
@@ -116,420 +122,409 @@ function startAdapter(options) {
                 return;
             }
             // get lamp states
-            adapter.getStates(`${id}.*`, (err, idStates) => {
-                if (err) {
-                    adapter.log.error(err);
+            let idStates;
+            try {
+                idStates = await adapter.getStatesAsync(`${id}.*`);
+            } catch (e) {
+                adapter.log.error(e);
+                return;
+            }
+
+            // gather states that need to be changed
+            ls = {};
+            const alls = {};
+            let lampOn = false;
+            let commandSupported = false;
+
+            function handleParam(idState, prefill) {
+                if (!idStates[idState]) {
                     return;
                 }
-                // gather states that need to be changed
-                ls = {};
-                const alls = {};
-                let lampOn = false;
-                let commandSupported = false;
+                if (prefill && !idStates[idState].ack) {
+                    return;
+                }
 
-                function handleParam(idState, prefill) {
-                    if (!idStates[idState]) {
-                        return;
-                    }
-                    if (prefill && !idStates[idState].ack) {
-                        return;
-                    }
-
-                    const idtmp = idState.split('.');
-                    const iddp = idtmp.pop();
-                    switch (iddp) {
-                        case 'on':
-                            alls['bri'] = idStates[idState].val ? 254 : 0;
-                            ls['bri'] = idStates[idState].val ? 254 : 0;
-                            if (idStates[idState].ack && ls['bri'] > 0) {
-                                lampOn = true;
-                            }
-                            break;
-                        case 'bri':
-                            alls[iddp] = idStates[idState].val;
+                const idtmp = idState.split('.');
+                const iddp = idtmp.pop();
+                switch (iddp) {
+                    case 'on':
+                        alls['bri'] = idStates[idState].val ? 254 : 0;
+                        ls['bri'] = idStates[idState].val ? 254 : 0;
+                        if (idStates[idState].ack && ls['bri'] > 0) {
+                            lampOn = true;
+                        }
+                        break;
+                    case 'bri':
+                        alls[iddp] = idStates[idState].val;
+                        ls[iddp] = idStates[idState].val;
+                        if (idStates[idState].ack && idStates[idState].val > 0) {
+                            lampOn = true;
+                        }
+                        break;
+                    case 'alert':
+                        alls[iddp] = idStates[idState].val;
+                        if (dp === 'alert') {
                             ls[iddp] = idStates[idState].val;
-                            if (idStates[idState].ack && idStates[idState].val > 0) {
-                                lampOn = true;
-                            }
-                            break;
-                        case 'alert':
-                            alls[iddp] = idStates[idState].val;
-                            if (dp === 'alert') {
-                                ls[iddp] = idStates[idState].val;
-                            }
-                            break;
-                        case 'effect':
-                            alls[iddp] = idStates[idState].val;
-                            if (dp === 'effect') {
-                                ls[iddp] = idStates[idState].val;
-                            }
-                            break;
-                        case 'r':
-                        case 'g':
-                        case 'b':
-                            alls[iddp] = idStates[idState].val;
-                            if (dp === 'r' || dp === 'g' || dp === 'b') {
-                                ls[iddp] = idStates[idState].val;
-                            }
-                            break;
-                        case 'ct':
-                            alls[iddp] = idStates[idState].val;
-                            if (dp === 'ct') {
-                                ls[iddp] = idStates[idState].val;
-                            }
-                            break;
-                        case 'hue':
-                        case 'sat':
-                            alls[iddp] = idStates[idState].val;
-                            if (dp === 'hue' || dp === 'sat') {
-                                ls[iddp] = idStates[idState].val;
-                            }
-                            break;
-                        case 'xy':
-                            alls[iddp] = idStates[idState].val;
-                            if (dp === 'xy') {
-                                ls[iddp] = idStates[idState].val;
-                            }
-                            break;
-                        case 'command':
-                            commandSupported = true;
-                            alls[iddp] = idStates[idState].val;
-                            break;
-                        default:
-                            alls[iddp] = idStates[idState].val;
-                            break;
-                    }
-                    idStates[idState].handled = true;
+                        }
+                        break;
+                    case 'effect':
+                        alls[iddp] = idStates[idState].val;
+                        if (dp === 'effect') {
+                            ls[iddp] = idStates[idState].val;
+                        }
+                        break;
+                    case 'r':
+                    case 'g':
+                    case 'b':
+                        alls[iddp] = idStates[idState].val;
+                        if (dp === 'r' || dp === 'g' || dp === 'b') {
+                            ls[iddp] = idStates[idState].val;
+                        }
+                        break;
+                    case 'ct':
+                        alls[iddp] = idStates[idState].val;
+                        if (dp === 'ct') {
+                            ls[iddp] = idStates[idState].val;
+                        }
+                        break;
+                    case 'hue':
+                    case 'sat':
+                        alls[iddp] = idStates[idState].val;
+                        if (dp === 'hue' || dp === 'sat') {
+                            ls[iddp] = idStates[idState].val;
+                        }
+                        break;
+                    case 'xy':
+                        alls[iddp] = idStates[idState].val;
+                        if (dp === 'xy') {
+                            ls[iddp] = idStates[idState].val;
+                        }
+                        break;
+                    case 'command':
+                        commandSupported = true;
+                        alls[iddp] = idStates[idState].val;
+                        break;
+                    default:
+                        alls[iddp] = idStates[idState].val;
+                        break;
                 }
+                idStates[idState].handled = true;
+            }
 
-                // work through the relevant states in the correct order for the logic to work
-                // but only if ack=true - so real values from device
-                handleParam(`${fullIdBase}on`, true);
-                handleParam(`${fullIdBase}bri`, true);
-                handleParam(`${fullIdBase}ct`, true);
-                handleParam(`${fullIdBase}alert`, true);
-                handleParam(`${fullIdBase}effect`, true);
-                handleParam(`${fullIdBase}colormode`, true);
-                handleParam(`${fullIdBase}r`, true);
-                handleParam(`${fullIdBase}g`, true);
-                handleParam(`${fullIdBase}b`, true);
-                handleParam(`${fullIdBase}hue`, true);
-                handleParam(`${fullIdBase}sat`, true);
-                handleParam(`${fullIdBase}xy`, true);
-                handleParam(`${fullIdBase}command`, true);
-                handleParam(`${fullIdBase}level`, true);
+            // work through the relevant states in the correct order for the logic to work
+            // but only if ack=true - so real values from device
+            handleParam(`${fullIdBase}on`, true);
+            handleParam(`${fullIdBase}bri`, true);
+            handleParam(`${fullIdBase}ct`, true);
+            handleParam(`${fullIdBase}alert`, true);
+            handleParam(`${fullIdBase}effect`, true);
+            handleParam(`${fullIdBase}colormode`, true);
+            handleParam(`${fullIdBase}r`, true);
+            handleParam(`${fullIdBase}g`, true);
+            handleParam(`${fullIdBase}b`, true);
+            handleParam(`${fullIdBase}hue`, true);
+            handleParam(`${fullIdBase}sat`, true);
+            handleParam(`${fullIdBase}xy`, true);
+            handleParam(`${fullIdBase}command`, true);
+            handleParam(`${fullIdBase}level`, true);
 
-                // Walk through the rest or ack=false (=to be changed) values
-                for (const idState in idStates) {
-                    if (!idStates[idState] || idStates[idState].val === null || idStates[idState].handled) {
-                        continue;
-                    }
-                    handleParam(idState, false);
+            // Walk through the rest or ack=false (=to be changed) values
+            for (const idState in idStates) {
+                if (!idStates[idState] || idStates[idState].val === null || idStates[idState].handled) {
+                    continue;
                 }
-                // Handle commands at the end because they overwrite also anything
-                if (commandSupported && dp === 'command') {
-                    try {
-                        const commands = JSON.parse(state.val);
-                        for (const command in commands) {
-                            if (!Object.prototype.hasOwnProperty.call(commands, command)) {
-                                continue;
-                            }
-                            if (command === 'on') {
-                                //convert on to bri
-                                if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
-                                    ls.bri = 254;
-                                } else {
-                                    ls.bri = 0;
-                                }
-                            } else if (command === 'level') {
-                                //convert level to bri
-                                if (!Object.prototype.hasOwnProperty.call(commands, 'bri')) {
-                                    ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
-                                } else {
-                                    ls.bri = 254;
-                                }
+                handleParam(idState, false);
+            }
+            // Handle commands at the end because they overwrite also anything
+            if (commandSupported && dp === 'command') {
+                try {
+                    const commands = JSON.parse(state.val);
+                    for (const command in commands) {
+                        if (!Object.prototype.hasOwnProperty.call(commands, command)) {
+                            continue;
+                        }
+                        if (command === 'on') {
+                            //convert on to bri
+                            if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
+                                ls.bri = 254;
                             } else {
-                                ls[command] = commands[command];
+                                ls.bri = 0;
                             }
+                        } else if (command === 'level') {
+                            //convert level to bri
+                            if (!Object.prototype.hasOwnProperty.call(commands, 'bri')) {
+                                ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
+                            } else {
+                                ls.bri = 254;
+                            }
+                        } else {
+                            ls[command] = commands[command];
                         }
-                    } catch (e) {
-                        adapter.log.error(e);
-                        return;
+                    }
+                } catch (e) {
+                    adapter.log.error(e);
+                    return;
+                }
+            }
+
+            // get lightState
+            let obj;
+            try {
+                obj = await adapter.getObjectAsync(id);
+            } catch (e) {
+                adapter.log.error(`obj "${id}" in callback getObject is null or undefined`);
+                return;
+            }
+
+            // apply rgb to xy with modelId
+            if ('r' in ls || 'g' in ls || 'b' in ls) {
+                if (!('r' in ls)) {
+                    ls.r = 0;
+                }
+                if (!('g' in ls)) {
+                    ls.g = 0;
+                }
+                if (!('b' in ls)) {
+                    ls.b = 0;
+                }
+                const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
+                ls.bri = xyb.b;
+                ls.xy = `${xyb.x},${xyb.y}`;
+            }
+
+            // create lightState from ls and check values
+            let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+            let finalLS = {};
+            if (ls.bri > 0) {
+                lightState = lightState.bri(Math.min(254, ls.bri));
+                finalLS.bri = Math.min(254, ls.bri);
+                // if nativeTurnOnOffBehaviour -> only turn group on if no lamp is on yet on brightness change
+                if (!adapter.config.nativeTurnOffBehaviour || alls['anyOn'] === false) {
+                    finalLS.on = true;
+                    lightState = lightState.on();
+                }
+            } else {
+                lightState = lightState.off();
+                finalLS.bri = 0;
+                finalLS.on = false;
+            }
+            if ('xy' in ls) {
+                if (typeof ls.xy !== 'string') {
+                    if (ls.xy) {
+                        ls.xy = ls.xy.toString();
+                    } else {
+                        adapter.log.warn(`Invalid xy value: "${ls.xy}"`);
+                        ls.xy = '0,0';
                     }
                 }
 
-                // get lightState
-                adapter.getObject(id, async (err, obj) => {
-                    if (err || !obj) {
-                        if (!err) {
-                            err = new Error(`obj "${id}" in callback getObject is null or undefined`);
-                        }
-                        adapter.log.error(err);
-                        return;
-                    }
+                let xy = ls.xy.toString().split(',');
+                xy = {'x': xy[0], 'y': xy[1]};
+                xy = hueHelper.GamutXYforModel(xy.x, xy.y, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
+                finalLS.xy = `${xy.x},${xy.y}`;
 
-                    // apply rgb to xy with modelId
-                    if ('r' in ls || 'g' in ls || 'b' in ls) {
-                        if (!('r' in ls)) {
-                            ls.r = 0;
-                        }
-                        if (!('g' in ls)) {
-                            ls.g = 0;
-                        }
-                        if (!('b' in ls)) {
-                            ls.b = 0;
-                        }
-                        const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
-                        ls.bri = xyb.b;
-                        ls.xy = `${xyb.x},${xyb.y}`;
-                    }
+                lightState = lightState.xy(parseFloat(xy.x), parseFloat(xy.y));
 
-                    // create lightState from ls and check values
-                    let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
-                    let finalLS = {};
-                    if (ls.bri > 0) {
-                        lightState = lightState.on().bri(Math.min(254, ls.bri));
-                        finalLS.bri = Math.min(254, ls.bri);
-                        finalLS.on = true;
-                    } else {
-                        lightState = lightState.off();
-                        finalLS.bri = 0;
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+                const rgb = hueHelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
+                finalLS.r = Math.round(rgb.Red * 254);
+                finalLS.g = Math.round(rgb.Green * 254);
+                finalLS.b = Math.round(rgb.Blue * 254);
+            }
+            if ('ct' in ls) {
+                finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
+                // convert kelvin to mired
+                finalLS.ct = Math.round(1e6 / finalLS.ct);
+
+                lightState = lightState.ct(finalLS.ct);
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+            }
+            if ('hue' in ls) {
+                finalLS.hue = Math.min(ls.hue, 360);
+                if (finalLS.hue < 0) {
+                    finalLS.hue = 360;
+                }
+                // Convert 360° into 0-65535 value
+                finalLS.hue = Math.round(finalLS.hue / 360 * 65535);
+
+                if (finalLS.hue > 65535) { // may be round error
+                    finalLS.hue = 65535;
+                }
+
+                lightState = lightState.hue(finalLS.hue);
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+            }
+            if ('sat' in ls) {
+                finalLS.sat = Math.max(0, Math.min(254, ls.sat));
+                lightState = lightState.sat(finalLS.sat);
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+            }
+            if ('alert' in ls) {
+                if (['select', 'lselect'].indexOf(ls.alert) === -1) {
+                    finalLS.alert = 'none';
+                } else {
+                    finalLS.alert = ls.alert;
+                }
+                lightState = lightState.alert(finalLS.alert);
+            }
+            if ('effect' in ls) {
+                finalLS.effect = ls.effect ? 'colorloop' : 'none';
+
+                lightState = lightState.effect(finalLS.effect);
+                if (!lampOn && (finalLS.effect !== 'none' && !('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+            }
+
+            // only available in command state
+            if ('transitiontime' in ls) {
+                const transitiontime = parseInt(ls.transitiontime);
+                if (!isNaN(transitiontime)) {
+                    finalLS.transitiontime = transitiontime;
+                    lightState = lightState.transitiontime(transitiontime);
+                }
+            }
+            if ('sat_inc' in ls && !('sat' in finalLS) && 'sat' in alls) {
+                finalLS.sat = (((ls.sat_inc + alls.sat) % 255) + 255) % 255;
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+                lightState = lightState.sat(finalLS.sat);
+            }
+            if ('hue_inc' in ls && !('hue' in finalLS) && 'hue' in alls) {
+                alls.hue = alls.hue % 360;
+                if (alls.hue < 0) {
+                    alls.hue += 360;
+                }
+                // Convert 360° into 0-65535 value
+                alls.hue = alls.hue / 360 * 65535;
+
+                if (alls.hue > 65535) { // may be round error
+                    alls.hue = 65535;
+                }
+
+                finalLS.hue = (((ls.hue_inc + alls.hue) % 65536) + 65536) % 65536;
+
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+                lightState = lightState.hue(finalLS.hue);
+            }
+            if ('ct_inc' in ls && !('ct' in finalLS) && 'ct' in alls) {
+                alls.ct = (500 - 153) - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
+
+                finalLS.ct = (((((alls.ct - 153) + ls.ct_inc) % 348) + 348) % 348) + 153;
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                    lightState = lightState.on();
+                    lightState = lightState.bri(254);
+                    finalLS.bri = 254;
+                    finalLS.on = true;
+                }
+                lightState = lightState.ct(finalLS.ct);
+            }
+            if ('bri_inc' in ls) {
+                finalLS.bri = (((parseInt(alls.bri, 10) + parseInt(ls.bri_inc, 10)) % 255) + 255) % 255;
+                if (finalLS.bri === 0) {
+                    if (lampOn) {
+                        lightState = lightState.on(false);
                         finalLS.on = false;
-                    }
-                    if ('xy' in ls) {
-                        if (typeof ls.xy !== 'string') {
-                            if (ls.xy) {
-                                ls.xy = ls.xy.toString();
-                            } else {
-                                adapter.log.warn(`Invalid xy value: "${ls.xy}"`);
-                                ls.xy = '0,0';
-                            }
-                        }
-
-                        let xy = ls.xy.toString().split(',');
-                        xy = {'x': xy[0], 'y': xy[1]};
-                        xy = hueHelper.GamutXYforModel(xy.x, xy.y, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
-                        finalLS.xy = `${xy.x},${xy.y}`;
-
-                        lightState = lightState.xy(parseFloat(xy.x), parseFloat(xy.y));
-
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                        const rgb = hueHelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
-                        finalLS.r = Math.round(rgb.Red * 254);
-                        finalLS.g = Math.round(rgb.Green * 254);
-                        finalLS.b = Math.round(rgb.Blue * 254);
-                    }
-                    if ('ct' in ls) {
-                        finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
-                        // convert kelvin to mired
-                        finalLS.ct = Math.round(1e6 / finalLS.ct);
-
-                        lightState = lightState.ct(finalLS.ct);
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                    }
-                    if ('hue' in ls) {
-                        finalLS.hue = Math.min(ls.hue, 360);
-                        if (finalLS.hue < 0) {
-                            finalLS.hue = 360;
-                        }
-                        // Convert 360° into 0-65535 value
-                        finalLS.hue = Math.round(finalLS.hue / 360 * 65535);
-
-                        if (finalLS.hue > 65535) { // may be round error
-                            finalLS.hue = 65535;
-                        }
-
-                        lightState = lightState.hue(finalLS.hue);
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                    }
-                    if ('sat' in ls) {
-                        finalLS.sat = Math.max(0, Math.min(254, ls.sat));
-                        lightState = lightState.sat(finalLS.sat);
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                    }
-                    if ('alert' in ls) {
-                        if (['select', 'lselect'].indexOf(ls.alert) === -1) {
-                            finalLS.alert = 'none';
-                        } else {
-                            finalLS.alert = ls.alert;
-                        }
-                        lightState = lightState.alert(finalLS.alert);
-                    }
-                    if ('effect' in ls) {
-                        finalLS.effect = ls.effect ? 'colorloop' : 'none';
-
-                        lightState = lightState.effect(finalLS.effect);
-                        if (!lampOn && (finalLS.effect !== 'none' && !('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                    }
-
-                    // only available in command state
-                    if ('transitiontime' in ls) {
-                        const transitiontime = parseInt(ls.transitiontime);
-                        if (!isNaN(transitiontime)) {
-                            finalLS.transitiontime = transitiontime;
-                            lightState = lightState.transitiontime(transitiontime);
-                        }
-                    }
-                    if ('sat_inc' in ls && !('sat' in finalLS) && 'sat' in alls) {
-                        finalLS.sat = (((ls.sat_inc + alls.sat) % 255) + 255) % 255;
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                        lightState = lightState.sat(finalLS.sat);
-                    }
-                    if ('hue_inc' in ls && !('hue' in finalLS) && 'hue' in alls) {
-                        alls.hue = alls.hue % 360;
-                        if (alls.hue < 0) {
-                            alls.hue += 360;
-                        }
-                        // Convert 360° into 0-65535 value
-                        alls.hue = alls.hue / 360 * 65535;
-
-                        if (alls.hue > 65535) { // may be round error
-                            alls.hue = 65535;
-                        }
-
-                        finalLS.hue = (((ls.hue_inc + alls.hue) % 65536) + 65536) % 65536;
-
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                        lightState = lightState.hue(finalLS.hue);
-                    }
-                    if ('ct_inc' in ls && !('ct' in finalLS) && 'ct' in alls) {
-                        alls.ct = (500 - 153) - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
-
-                        finalLS.ct = (((((alls.ct - 153) + ls.ct_inc) % 348) + 348) % 348) + 153;
-                        if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
-                            lightState = lightState.on();
-                            lightState = lightState.bri(254);
-                            finalLS.bri = 254;
-                            finalLS.on = true;
-                        }
-                        lightState = lightState.ct(finalLS.ct);
-                    }
-                    if ('bri_inc' in ls) {
-                        finalLS.bri = (((parseInt(alls.bri, 10) + parseInt(ls.bri_inc, 10)) % 255) + 255) % 255;
-                        if (finalLS.bri === 0) {
-                            if (lampOn) {
-                                lightState = lightState.on(false);
-                                finalLS.on = false;
-                            } else {
-                                adapter.setState([id, 'bri'].join('.'), {val: 0, ack: false});
-                                return;
-                            }
-                        } else {
-                            finalLS.on = true;
-                            lightState = lightState.on();
-                        }
-                        lightState = lightState.bri(finalLS.bri);
-                    }
-
-                    // change colormode
-                    if ('xy' in finalLS) {
-                        finalLS.colormode = 'xy';
-                    } else if ('ct' in finalLS) {
-                        finalLS.colormode = 'ct';
-                    } else if ('hue' in finalLS || 'sat' in finalLS) {
-                        finalLS.colormode = 'hs';
-                    }
-
-                    // set level to final bri / 2.54
-                    if ('bri' in finalLS) {
-                        finalLS.level = Math.max(Math.min(Math.round(finalLS.bri / 2.54), 100), 0);
-                    }
-
-                    // if dp is on and we use native turn off behaviour only set the lightState
-                    if (dp === 'on' && adapter.config.nativeTurnOffBehaviour) {
-                        // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
-                        lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
-                        if (state.val) {
-                            lightState.on();
-                        } else {
-                            lightState.off();
-                        } // endElse
-                    } else if (dp === 'command' && adapter.config.nativeTurnOffBehaviour && Object.keys(JSON.parse(state.val)).length === 1 && JSON.parse(state.val).on !== undefined) {
-                        lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
-                        if (JSON.parse(state.val).on) {
-                            lightState.on();
-                        } else {
-                            lightState.off();
-                        } // endElse
-                    } // endElseIf
-
-                    blockedIds[id] = true;
-
-                    if (!adapter.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
-                        // log final changes / states
-                        adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
-                        try {
-                            await api.groups.setGroupState(groupIds[id], lightState);
-                            setTimeout(updateGroupState, 150, {
-                                id: groupIds[id],
-                                name: obj._id.substr(adapter.namespace.length + 1)
-                            }, () => {
-                                adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
-                            });
-                        } catch (e) {
-                            adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
-                        } // endTryCatch
-                    } else if (obj.common.role === 'switch') {
-                        if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
-                            finalLS = {on: finalLS.on};
-                            // log final changes / states
-                            adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
-
-                            lightState = new v3.lightStates.LightState();
-                            lightState.on(finalLS.on);
-                            try {
-                                await api.lights.setLightState(channelIds[id], lightState);
-                                setTimeout(updateLightState, 150, {
-                                    id: channelIds[id],
-                                    name: obj._id.substr(adapter.namespace.length + 1)
-                                }, () => {
-                                    adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
-                                });
-                            } catch (e) {
-                                adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
-                            }
-                        } else {
-                            adapter.log.warn('invalid switch operation');
-                        }
                     } else {
-                        // log final changes / states
-                        adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+                        adapter.setState([id, 'bri'].join('.'), {val: 0, ack: false});
+                        return;
+                    }
+                } else {
+                    finalLS.on = true;
+                    lightState = lightState.on();
+                }
+                lightState = lightState.bri(finalLS.bri);
+            }
 
+            // change colormode
+            if ('xy' in finalLS) {
+                finalLS.colormode = 'xy';
+            } else if ('ct' in finalLS) {
+                finalLS.colormode = 'ct';
+            } else if ('hue' in finalLS || 'sat' in finalLS) {
+                finalLS.colormode = 'hs';
+            }
+
+            // set level to final bri / 2.54
+            if ('bri' in finalLS) {
+                finalLS.level = Math.max(Math.min(Math.round(finalLS.bri / 2.54), 100), 0);
+            }
+
+            // if dp is on and we use native turn off behaviour only set the lightState
+            if (dp === 'on' && adapter.config.nativeTurnOffBehaviour) {
+                // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
+                lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+                if (state.val) {
+                    lightState.on();
+                } else {
+                    lightState.off();
+                } // endElse
+            } else if (dp === 'command' && adapter.config.nativeTurnOffBehaviour && Object.keys(JSON.parse(state.val)).length === 1 && JSON.parse(state.val).on !== undefined) {
+                lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+                if (JSON.parse(state.val).on) {
+                    lightState.on();
+                } else {
+                    lightState.off();
+                } // endElse
+            } // endElseIf
+
+            blockedIds[id] = true;
+
+            if (!adapter.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
+                // log final changes / states
+                adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+                try {
+                    await api.groups.setGroupState(groupIds[id], lightState);
+                    setTimeout(updateGroupState, 150, {
+                        id: groupIds[id],
+                        name: obj._id.substr(adapter.namespace.length + 1)
+                    }, () => {
+                        adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
+                    });
+                } catch (e) {
+                    adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
+                } // endTryCatch
+            } else if (obj.common.role === 'switch') {
+                if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
+                    finalLS = {on: finalLS.on};
+                    // log final changes / states
+                    adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+
+                    lightState = new v3.lightStates.LightState();
+                    lightState.on(finalLS.on);
+                    try {
                         await api.lights.setLightState(channelIds[id], lightState);
                         setTimeout(updateLightState, 150, {
                             id: channelIds[id],
@@ -537,31 +532,50 @@ function startAdapter(options) {
                         }, () => {
                             adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                         });
-                    } // endElse
+                    } catch (e) {
+                        adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
+                    }
+                } else {
+                    adapter.log.warn('invalid switch operation');
+                }
+            } else {
+                // log final changes / states
+                adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+
+                await api.lights.setLightState(channelIds[id], lightState);
+                setTimeout(updateLightState, 150, {
+                    id: channelIds[id],
+                    name: obj._id.substr(adapter.namespace.length + 1)
+                }, () => {
+                    adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                 });
-            });
+            } // endElse
         },
-        message: obj => {
-            let wait = false;
+        message: async obj => {
             if (obj) {
                 switch (obj.command) {
-                    case 'browse':
-                        browse(obj.message, res => obj.callback && adapter.sendTo(obj.from, obj.command, JSON.stringify(res), obj.callback));
-                        wait = true;
+                    case 'browse': {
+                        const res = await browse(obj.message);
+                        if (obj.callback) {
+                            adapter.sendTo(obj.from, obj.command, JSON.stringify(res), obj.callback);
+                        }
                         break;
-                    case 'createUser':
-                        createUser(obj.message, res => obj.callback && adapter.sendTo(obj.from, obj.command, JSON.stringify(res), obj.callback));
-                        wait = true;
+                    }
+                    case 'createUser': {
+                        const res = await createUser(obj.message);
+                        if (obj.callback) {
+                            adapter.sendTo(obj.from, obj.command, JSON.stringify(res), obj.callback);
+                        }
                         break;
+                    }
                     default:
                         adapter.log.warn(`Unknown command: ${obj.command}`);
+                        if (obj.callback) {
+                            adapter.sendTo(obj.from, obj.command, obj.message, obj.callback);
+                        }
                         break;
                 }
             }
-            if (!wait && obj.callback) {
-                adapter.sendTo(obj.from, obj.command, obj.message, obj.callback);
-            }
-            return true;
         },
         ready: main,
         unload: callback => {
@@ -588,7 +602,13 @@ function startAdapter(options) {
     return adapter;
 }
 
-async function browse(timeout, callback) {
+/**
+ * Search for bridges via upnp and nupnp
+ *
+ * @param {number} timeout - timeout to abort the search
+ * @returns {Promise<object[]>}
+ */
+async function browse(timeout) {
     timeout = parseInt(timeout);
     if (isNaN(timeout)) {
         timeout = 5000;
@@ -601,7 +621,7 @@ async function browse(timeout, callback) {
     const ips = [];
 
     // rm duplicates
-    for (const i in bridges) {
+    for (let i = 0; i < bridges.length; i++) {
         if (bridges[i].ipaddress in ips) {
             bridges.splice(i, 1);
         } else {
@@ -609,29 +629,29 @@ async function browse(timeout, callback) {
         } // endElse
     } // endFor
 
-    callback(bridges);
+    return Promise.resolve(bridges);
 }
 
 /**
  * Create user on the bridge by given Ip
  *
  * @param {string} ip - ip address of the bridge
- * @param {function(object)} callback - callback to be called after function finished
+ * @returns {Promise<object>}
  */
-async function createUser(ip, callback) {
+async function createUser(ip) {
     const newUserName = null;
     const userDescription = 'ioBroker.hue';
     try {
         const api = adapter.config.ssl ? await v3.api.createLocal(ip, adapter.config.port).connect() : await v3.api.createInsecureLocal(ip, adapter.config.port).connect();
         const newUser = await api.users.createUser(ip, newUserName, userDescription);
         adapter.log.info(`created new User: ${newUser.username}`);
-        callback({error: 0, message: newUser.username});
+        return Promise.resolve({error: 0, message: newUser.username});
     } catch (e) {
         // 101 is bridge button not pressed
         if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
             adapter.log.error(e);
         }
-        callback({error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)});
+        return Promise.resolve({error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)});
     }
 } // endCreateUser
 
@@ -662,6 +682,7 @@ async function updateGroupState(group, callback) {
 
         // add the anyOn State
         states.anyOn = result.state['any_on'];
+        states.allOn = result.state['all_on'];
 
         if (states.reachable === false && states.bri !== undefined) {
             states.bri = 0;
@@ -1319,8 +1340,22 @@ async function connect(cb) {
                     name: `${groupName}.anyOn`,
                     role: 'indicator.switch',
                     read: true,
-                    write: false,
+                    write: true,
                     def: gid !== '0' ? group.state['any_on'] : false
+                },
+                native: {}
+            });
+
+            // Create allOn state
+            objs.push({
+                _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.allOn`,
+                type: 'state',
+                common: {
+                    name: `${groupName}.allOn`,
+                    role: 'indicator.switch',
+                    read: true,
+                    write: true,
+                    def: gid !== '0' ? group.state['all_on'] : false
                 },
                 native: {}
             });
@@ -1458,40 +1493,48 @@ async function connect(cb) {
     syncObjects(objs, cb);
 } // endConnect
 
-function syncObjects(objs, callback) {
+/**
+ * Create/Extend given objects
+ *
+ * @param {string[]} objs objects which will be created
+ * @param {function} callback cb to be executed afterwards
+ */
+async function syncObjects(objs, callback) {
     if (!objs || !objs.length) {
         return callback && callback();
     }
     const task = objs.shift();
 
-    adapter.getForeignObject(task._id, (err, obj) => {
+    try {
+        const obj = await adapter.getForeignObjectAsync(task._id);
         // add saturation into enum.functions.color
         if (task.common.role === 'level.color.saturation') {
-            adapter.getForeignObject('enum.functions.color', (err, _enum) => {
-                if (_enum && _enum.common && _enum.common.members && _enum.common.members.indexOf(task._id) === -1) {
-                    _enum.common.members.push(task._id);
-                    adapter.setForeignObjectNotExists(_enum._id, _enum, () => {
-                        if (!obj) {
-                            adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
-                        } else {
-                            obj.native = task.native;
-                            adapter.extendForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
-                        }
-                    });
-                } else if (!obj) {
-                    adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
+            const _enum = await adapter.getForeignObjectAsync('enum.functions.color');
+            if (_enum && _enum.common && _enum.common.members && _enum.common.members.indexOf(task._id) === -1) {
+                _enum.common.members.push(task._id);
+                await adapter.setForeignObjectNotExists(_enum._id, _enum);
+                if (!obj) {
+                    adapter.setForeignObject(task._id, task, () => setImmediate(syncObjects, objs, callback));
                 } else {
                     obj.native = task.native;
-                    adapter.extendForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
+                    adapter.extendForeignObject(obj._id, obj, () => setImmediate(syncObjects, objs, callback));
                 }
-            });
+            } else if (!obj) {
+                adapter.setForeignObject(task._id, task, () => setImmediate(syncObjects, objs, callback));
+            } else {
+                obj.native = task.native;
+                adapter.extendForeignObject(obj._id, obj, () => setImmediate(syncObjects, objs, callback));
+            }
         } else if (!obj) {
-            adapter.setForeignObject(task._id, task, () => setTimeout(syncObjects, 0, objs, callback));
+            adapter.setForeignObject(task._id, task, () => setImmediate(syncObjects, objs, callback));
         } else {
             obj.native = task.native;
-            adapter.extendForeignObject(obj._id, obj, () => setTimeout(syncObjects, 0, objs, callback));
+            adapter.extendForeignObject(obj._id, obj, () => setImmediate(syncObjects,  objs, callback));
         }
-    });
+    } catch (e) {
+        adapter.log.error(`Could not sync object ${task._id}: ${e}`);
+        setImmediate(syncObjects, objs, callback);
+    }
 }
 
 function syncStates(states, callback) {
@@ -1742,6 +1785,12 @@ async function poll() {
                         values.push({
                             id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.anyOn`,
                             val: group.state['any_on']
+                        });
+
+                        // set allOn state
+                        values.push({
+                            id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.allOn`,
+                            val: group.state['all_on']
                         });
                     } else {
                         // poll the 0 - ALL group
