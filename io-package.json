@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.0",
+        "version": "3.3.1",
         "news": {
+            "3.3.1": {
+                "en": "internal optimizations - polling after change timeout removed, was 150 ms, now we poll instantly",
+                "de": "Interne Optimierungen - Abfrage nach entferntem Zeitlimit für Änderungen betrug 150 ms, jetzt werden sofort abgefragt",
+                "ru": "внутренняя оптимизация - опрос после изменения времени ожидания удален, прошло 150 мс, теперь мы проводим опрос мгновенно",
+                "pt": "otimizações internas - a pesquisa após o tempo limite da alteração foi removida foi de 150 ms, agora pesquisamos",
+                "nl": "interne optimalisaties - polling nadat de time-out voor de wijziging was verwijderd, was 150 ms, nu peilen we onmiddellijk",
+                "fr": "optimisations internes - interrogation après expiration du délai de modification, était de 150 ms, nous interrogeons instantanément",
+                "it": "ottimizzazioni interne: il polling dopo la modifica del timeout rimosso era di 150 ms, ora eseguiamo immediatamente il polling",
+                "es": "optimizaciones internas: el sondeo después de que se eliminó el tiempo de espera de cambio, era de 150 ms, ahora sondeamos al instante",
+                "pl": "wewnętrzne optymalizacje - odpytywanie po usunięciu limitu czasu zmiany wynosiło 150 ms, teraz sondujemy natychmiast",
+                "zh-cn": "内部优化-更改超时删除后的轮询为150毫秒，现在我们立即进行轮询"
+            },
             "3.3.0": {
                 "en": " introduce `allOn` state for groups, `anyOn` and `allOn` are now controllable and act like the `on` state, when native turn on/off behaviour is used, the brightness change of partially turned on groups will not turn",
                 "de": " Einführung des Status \"allOn\" für Gruppen, \"anyOn\" und \"allOn\" sind jetzt steuerbar und verhalten sich wie der Status \"on\". Wenn das native Ein- / Ausschaltverhalten verwendet wird, wird die Helligkeitsänderung von teilweise eingeschalteten Gruppen nicht aktiviert",

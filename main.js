@@ -507,15 +507,15 @@ function startAdapter(options) {
                 adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
                 try {
                     await api.groups.setGroupState(groupIds[id], lightState);
-                    setTimeout(updateGroupState, 150, {
+                    await updateGroupState({
                         id: groupIds[id],
                         name: obj._id.substr(adapter.namespace.length + 1)
-                    }, () => {
-                        adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
                     });
+                    adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
                 } catch (e) {
                     adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
                 } // endTryCatch
+
             } else if (obj.common.role === 'switch') {
                 if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
                     finalLS = {on: finalLS.on};
@@ -526,12 +526,10 @@ function startAdapter(options) {
                     lightState.on(finalLS.on);
                     try {
                         await api.lights.setLightState(channelIds[id], lightState);
-                        setTimeout(updateLightState, 150, {
-                            id: channelIds[id],
+                        await updateLightState({id: channelIds[id],
                             name: obj._id.substr(adapter.namespace.length + 1)
-                        }, () => {
-                            adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                         });
+                        adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                     } catch (e) {
                         adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
                     }
@@ -542,13 +540,16 @@ function startAdapter(options) {
                 // log final changes / states
                 adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
-                await api.lights.setLightState(channelIds[id], lightState);
-                setTimeout(updateLightState, 150, {
-                    id: channelIds[id],
-                    name: obj._id.substr(adapter.namespace.length + 1)
-                }, () => {
+                try {
+                    await api.lights.setLightState(channelIds[id], lightState);
+                    await updateLightState({
+                        id: channelIds[id],
+                        name: obj._id.substr(adapter.namespace.length + 1)
+                    });
                     adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
-                });
+                } catch (e) {
+                    adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
+                }
             } // endElse
         },
         message: async obj => {
@@ -663,7 +664,13 @@ const pollLights = [];
 const pollSensors = [];
 const pollGroups = [];
 
-async function updateGroupState(group, callback) {
+/**
+ * polls the given group and sets states accordingly
+ *
+ * @param {object} group group object containing id and name of the group
+ * @returns {Promise<void>}
+ */
+async function updateGroupState(group) {
     adapter.log.debug(`polling group ${group.name} (${group.id})`);
     const values = [];
 
@@ -736,10 +743,18 @@ async function updateGroupState(group, callback) {
         adapter.log.debug(`Unblock ${blockableId}`);
         blockedIds[blockableId] = false;
     } // endIf
-    syncStates(values, callback);
+
+    await syncStates(values);
+    return Promise.resolve();
 }
 
-async function updateLightState(light, callback) {
+/**
+ * poll the given light and sets states accordingly
+ *
+ * @param {object} light object containing the light id and the name
+ * @returns {Promise<void>}
+ */
+async function updateLightState(light) {
     adapter.log.debug(`polling light ${light.name} (${light.id})`);
     const values = [];
 
@@ -805,7 +820,9 @@ async function updateLightState(light, callback) {
         adapter.log.debug(`Unblock ${blockableId}`);
         blockedIds[blockableId] = false;
     } // endIf
-    syncStates(values, callback);
+
+    await syncStates(values);
+    return Promise.resolve();
 } // endUpdateLightState
 
 async function connect(cb) {
@@ -1490,71 +1507,76 @@ async function connect(cb) {
         native: config.config
     });
 
-    syncObjects(objs, cb);
+    await syncObjects(objs);
+    cb();
 } // endConnect
 
 /**
  * Create/Extend given objects
  *
  * @param {string[]} objs objects which will be created
- * @param {function} callback cb to be executed afterwards
+ * @returns {Promise<void>}
  */
-async function syncObjects(objs, callback) {
-    if (!objs || !objs.length) {
-        return callback && callback();
-    }
-    const task = objs.shift();
-
-    try {
-        const obj = await adapter.getForeignObjectAsync(task._id);
-        // add saturation into enum.functions.color
-        if (task.common.role === 'level.color.saturation') {
-            const _enum = await adapter.getForeignObjectAsync('enum.functions.color');
-            if (_enum && _enum.common && _enum.common.members && _enum.common.members.indexOf(task._id) === -1) {
-                _enum.common.members.push(task._id);
-                await adapter.setForeignObjectNotExists(_enum._id, _enum);
-                if (!obj) {
-                    adapter.setForeignObject(task._id, task, () => setImmediate(syncObjects, objs, callback));
+async function syncObjects(objs) {
+    for (const task of objs) {
+        try {
+            const obj = await adapter.getForeignObjectAsync(task._id);
+            // add saturation into enum.functions.color
+            if (task.common.role === 'level.color.saturation') {
+                const _enum = await adapter.getForeignObjectAsync('enum.functions.color');
+                if (_enum && _enum.common && _enum.common.members && _enum.common.members.indexOf(task._id) === -1) {
+                    _enum.common.members.push(task._id);
+                    await adapter.setForeignObjectNotExists(_enum._id, _enum);
+                    if (!obj) {
+                        await adapter.setForeignObjectAsync(task._id, task);
+                    } else {
+                        obj.native = task.native;
+                        await adapter.extendForeignObjectAsync(obj._id, obj);
+                    }
+                } else if (!obj) {
+                    await adapter.setForeignObjectAsync(task._id, task);
                 } else {
                     obj.native = task.native;
-                    adapter.extendForeignObject(obj._id, obj, () => setImmediate(syncObjects, objs, callback));
+                    await adapter.extendForeignObjectAsync(obj._id, obj);
                 }
             } else if (!obj) {
-                adapter.setForeignObject(task._id, task, () => setImmediate(syncObjects, objs, callback));
+                await adapter.setForeignObjectAsync(task._id, task);
             } else {
                 obj.native = task.native;
-                adapter.extendForeignObject(obj._id, obj, () => setImmediate(syncObjects, objs, callback));
+                await adapter.extendForeignObjectAsync(obj._id, obj);
             }
-        } else if (!obj) {
-            adapter.setForeignObject(task._id, task, () => setImmediate(syncObjects, objs, callback));
-        } else {
-            obj.native = task.native;
-            adapter.extendForeignObject(obj._id, obj, () => setImmediate(syncObjects,  objs, callback));
+        } catch (e) {
+            adapter.log.error(`Could not sync object ${task._id}: ${e}`);
         }
-    } catch (e) {
-        adapter.log.error(`Could not sync object ${task._id}: ${e}`);
-        setImmediate(syncObjects, objs, callback);
     }
+    return Promise.resolve();
 }
 
-function syncStates(states, callback) {
-    if (!states || !states.length) {
-        return callback && callback();
-    }
-    const task = states.shift();
+/**
+ * Set given states in db if changed
+ *
+ * @param {string[]} states states to set in db
+ * @returns {Promise<void>}
+ */
+async function syncStates(states) {
+    for (const task of states) {
+        if (typeof task.val === 'object' && task.val !== null) {
+            task.val = task.val.toString();
+        }
 
-    if (typeof task.val === 'object' && task.val !== null && task.val !== undefined) {
-        task.val = task.val.toString();
+        // poll guard to prevent too fast polling of recently changed id
+        const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
+        if (blockedIds[nameId] !== true) {
+            try {
+                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val, true);
+            } catch (e) {
+                adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e}`);
+            }
+        } else {
+            adapter.log.debug(`Syncing state of ${nameId} blocked`);
+        }
     }
-
-    // poll guard to prevent too fast polling of recently changed id
-    const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
-    if (blockedIds[nameId] !== true) {
-        adapter.setForeignStateChanged(task.id.replace(/\s/g, '_'), task.val, true, () => setImmediate(syncStates, states, callback));
-    } else {
-        adapter.log.debug(`Syncing state of ${nameId} blocked`);
-        setImmediate(syncStates, states, callback);
-    }
+    return Promise.resolve();
 } // endSyncStates
 
 async function poll() {
@@ -1798,7 +1820,7 @@ async function poll() {
                     }
                 });
             } // endIf
-            syncStates(values);
+            await syncStates(values);
         } // endIf
     } catch (e) {
         adapter.log.error(`Could not poll all: ${e.message || e}`);
