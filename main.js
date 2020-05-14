@@ -299,7 +299,7 @@ function startAdapter(options) {
                 lightState = lightState.bri(Math.min(254, ls.bri));
                 finalLS.bri = Math.min(254, ls.bri);
                 // if nativeTurnOnOffBehaviour -> only turn group on if no lamp is on yet on brightness change
-                if (!adapter.config.nativeTurnOffBehaviour || alls['anyOn'] === false) {
+                if (!adapter.config.nativeTurnOffBehaviour || !alls['anyOn']) {
                     finalLS.on = true;
                     lightState = lightState.on();
                 }
