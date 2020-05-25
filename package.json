@@ -34,7 +34,7 @@
         "gulp": "^4.0.2",
         "mocha": "^7.1.2",
         "chai": "^4.2.0",
-        "eslint": "^7.0.0",
+        "eslint": "^7.1.0",
         "@iobroker/testing": "^2.2.0"
     },
     "scripts": {
