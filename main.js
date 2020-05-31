@@ -874,7 +874,15 @@ async function connect(cb) {
 
         if (supportedSensors.includes(sensor.type)) {
             let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(FORBIDDEN_CHARS, '')}` : sensor.name.replace(FORBIDDEN_CHARS, '');
-            if (channelNames.indexOf(channelName) !== -1) {
+            let existingChObj;
+            try {
+                existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
+            } catch (e) {
+                adapter.log.warn(`Could not check channel existence: ${e}`);
+            }
+
+            // if channel name already taken or channel object already exists with another role, we have to adjust name
+            if (channelNames.indexOf(channelName) !== -1 || (existingChObj && existingChObj.common && existingChObj.common.role !== sensor.type)) {
                 const newChannelName = `${channelName} ${sensor.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
                     adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
@@ -999,7 +1007,15 @@ async function connect(cb) {
         const light = lights[lid];
 
         let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}` : light.name.replace(/\./g, '_');
-        if (channelNames.indexOf(channelName) !== -1) {
+        let existingChObj;
+        try {
+            existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
+        } catch (e) {
+            adapter.log.warn(`Could not check channel existence: ${e}`);
+        }
+
+        // if channel name already taken or channel object already exists with another role, we have to adjust name
+        if (channelNames.indexOf(channelName) !== -1 || (existingChObj && existingChObj.common && existingChObj.common.role && !existingChObj.common.role.startsWith('light'))) {
             const newChannelName = `${channelName} ${light.type}`;
             if (channelNames.indexOf(newChannelName) !== -1) {
                 adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
@@ -1221,7 +1237,15 @@ async function connect(cb) {
             const group = groups[gid];
 
             let groupName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}` : group.name.replace(/\./g, '_');
-            if (channelNames.indexOf(groupName) !== -1) {
+            let existingChObj;
+            try {
+                existingChObj = await adapter.getObjectAsync(groupName.replace(/\s/g, '_'));
+            } catch (e) {
+                adapter.log.warn(`Could not check channel existence: ${e}`);
+            }
+
+            // if group name already taken or channel object already exists with another role, we have to adjust name
+            if (channelNames.indexOf(groupName) !== -1 || (existingChObj && existingChObj.common && !['Entertainment', 'LightGroup', 'Room', 'Zone'].includes(existingChObj.common.role))) {
                 const newGroupName = `${groupName} ${group.type}`;
                 if (channelNames.indexOf(newGroupName) !== -1) {
                     adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
@@ -1442,6 +1466,9 @@ async function connect(cb) {
             let sceneCounter = 0;
             const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}` : `${adapter.namespace}`;
             for (const sceneId in scenes) {
+                if (!Object.prototype.hasOwnProperty.call(scenes, sceneId)) {
+                    continue;
+                }
                 const scene = scenes[sceneId];
                 if (scene.type === 'GroupScene') {
                     if (adapter.config.ignoreGroups) {
@@ -1555,7 +1582,7 @@ async function syncObjects(objs) {
 /**
  * Set given states in db if changed
  *
- * @param {string[]} states states to set in db
+ * @param {string[]|object[]} states states to set in db
  * @returns {Promise<void>}
  */
 async function syncStates(states) {
