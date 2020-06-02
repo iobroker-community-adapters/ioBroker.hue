@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.3",
+        "version": "3.3.4",
         "news": {
-            "3.3.3": {
+            "3.3.4": {
                 "en": "we now handle potential id conflicts, when user adds new devices from different type with same name over time",
                 "de": "Wir behandeln jetzt potenzielle ID-Konflikte, wenn der Benutzer im Laufe der Zeit neue Geräte unterschiedlichen Typs mit demselben Namen hinzufügt",
                 "ru": "Теперь мы обрабатываем потенциальные конфликты идентификаторов, когда пользователь со временем добавляет новые устройства другого типа с одинаковыми именами.",

@@ -1015,7 +1015,8 @@ async function connect(cb) {
         }
 
         // if channel name already taken or channel object already exists with another role, we have to adjust name
-        if (channelNames.indexOf(channelName) !== -1 || (existingChObj && existingChObj.common && existingChObj.common.role && !existingChObj.common.role.startsWith('light'))) {
+        if (channelNames.indexOf(channelName) !== -1 || (existingChObj && existingChObj.common && existingChObj.common.role &&
+            !existingChObj.common.role.startsWith('light') && existingChObj.common.role !== 'switch')) {
             const newChannelName = `${channelName} ${light.type}`;
             if (channelNames.indexOf(newChannelName) !== -1) {
                 adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
