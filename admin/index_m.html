@@ -164,7 +164,7 @@
                }
             });
 
-            $('#pollingInterval').change(function() {
+            $('#pollingInterval').focusout(function() {
                if (parseInt($(this).val()) < 2) {
                    showToast(null, _('Minimal polling interval is 2 seconds'));
                    $(this).val(2);

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.4",
+        "version": "3.3.5",
         "news": {
+            "3.3.5": {
+                "en": "fixed issue on frontend validation of polling intervals starting with 1",
+                "de": "Problem bei der Frontend-Validierung von Abfrageintervallen beginnend mit 1 behoben",
+                "ru": "исправлена ошибка проверки внешнего интерфейса интервалов опроса, начиная с 1",
+                "pt": "Foi corrigido um problema na validação front-end dos intervalos de pesquisa, começando com 1",
+                "nl": "Probleem opgelost met frontend validatie van polling-intervallen beginnend met 1",
+                "fr": "correction d'un problème lors de la validation frontale des intervalles d'interrogation commençant par 1",
+                "it": "risolto problema relativo alla convalida frontend degli intervalli di polling che inizia con 1",
+                "es": "problema solucionado en la validación frontend de los intervalos de sondeo que comienzan con 1",
+                "pl": "naprawiono problem z frontendem sprawdzania interwałów odpytywania zaczynających się od 1",
+                "zh-cn": "解决了从1开始的轮询间隔的前端验证问题"
+            },
             "3.3.4": {
                 "en": "we now handle potential id conflicts, when user adds new devices from different type with same name over time",
                 "de": "Wir behandeln jetzt potenzielle ID-Konflikte, wenn der Benutzer im Laufe der Zeit neue Geräte unterschiedlichen Typs mit demselben Namen hinzufügt",
