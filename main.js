@@ -969,6 +969,7 @@ async function connect(cb) {
                     case 'temperature':
                         lobj.common.type = 'number';
                         lobj.common.role = 'indicator.temperature';
+                        lobj.common.write = false;
                         value = convertTemperature(value);
                         break;
                     default:
@@ -1064,10 +1065,7 @@ async function connect(cb) {
             objs.push(lobj);
         } // endIf
 
-        for (const state in light.state) {
-            if (!Object.prototype.hasOwnProperty.call(light.state, state)) {
-                continue;
-            }
+        for (const state of Object.keys(light.state)) {
             let value = light.state[state];
             const objId = `${channelName}.${state}`;
 
