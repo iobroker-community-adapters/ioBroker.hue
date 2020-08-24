@@ -28,7 +28,7 @@
         "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
     },
     "dependencies": {
-        "node-hue-api": "^4.0.8",
+        "node-hue-api": "^4.0.9",
         "@iobroker/adapter-core": "^2.4.0"
     },
     "devDependencies": {
