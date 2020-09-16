@@ -1901,7 +1901,3 @@ if (module && module.parent) {
     // or start the instance directly
     startAdapter();
 }
-
-process.on('unhandledRejection', reason => {
-    adapter.log.error(`Uhandeld Rejection ${reason} at ${reason.stack}`);
-});
