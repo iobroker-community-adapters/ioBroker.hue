@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.5",
+        "version": "3.3.6",
         "news": {
+            "3.3.6": {
+                "en": "temperature is now read-only, automatically report unhandled rejections if sentry enabled",
+                "de": "Die Temperatur ist jetzt schreibgeschützt. Melden Sie unbehandelte Ablehnungen automatisch, wenn der Wachposten aktiviert ist",
+                "ru": "температура теперь доступна только для чтения, автоматически сообщать о необработанных отказах, если включена охрана",
+                "pt": "temperatura agora é somente leitura, relata automaticamente rejeições não tratadas se o sentinela estiver habilitado",
+                "nl": "temperatuur is nu alleen-lezen, meld automatisch onverwerkte weigeringen als wachtpost is ingeschakeld",
+                "fr": "la température est maintenant en lecture seule, signale automatiquement les rejets non gérés si la sentinelle est activée",
+                "it": "la temperatura ora è di sola lettura, segnala automaticamente i rifiuti non gestiti se la sentinella è abilitata",
+                "es": "la temperatura ahora es de solo lectura, informa automáticamente los rechazos no controlados si el centinela está habilitado",
+                "pl": "temperatura jest teraz tylko do odczytu, automatycznie raportuje nieobsłużone odrzucenia, jeśli wartownik jest włączony",
+                "zh-cn": "温度现在为只读，如果启用了哨兵功能，则自动报告未处理的拒绝"
+            },
             "3.3.5": {
                 "en": "fixed issue on frontend validation of polling intervals starting with 1",
                 "de": "Problem bei der Frontend-Validierung von Abfrageintervallen beginnend mit 1 behoben",
