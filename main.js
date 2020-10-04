@@ -621,9 +621,9 @@ async function browse(timeout) {
 
     const ips = [];
 
-    // rm duplicates
-    for (let i = 0; i < bridges.length; i++) {
-        if (bridges[i].ipaddress in ips) {
+    // rm duplicates - reverse because splicing
+    for (let i = bridges.length - 1; i >= 0; i--) {
+        if (ips.includes(bridges[i].ipaddress)) {
             bridges.splice(i, 1);
         } else {
             ips.push(bridges[i].ipaddress);

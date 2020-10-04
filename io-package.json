@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.6",
+        "version": "3.3.7",
         "news": {
-            "3.3.6": {
+            "3.3.7": {
                 "en": "temperature is now read-only, automatically report unhandled rejections if sentry enabled",
                 "de": "Die Temperatur ist jetzt schreibgeschützt. Melden Sie unbehandelte Ablehnungen automatisch, wenn der Wachposten aktiviert ist",
                 "ru": "температура теперь доступна только для чтения, автоматически сообщать о необработанных отказах, если включена охрана",
