@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.7",
+        "version": "3.3.8",
         "news": {
+            "3.3.8": {
+                "en": "marked read-only states accordingly",
+                "de": "schreibgeschützte Zustände entsprechend markiert",
+                "ru": "отмечены состояния только для чтения соответственно",
+                "pt": "marcado como somente leitura de acordo",
+                "nl": "gemarkeerd als alleen-lezen staten dienovereenkomstig",
+                "fr": "États en lecture seule marqués en conséquence",
+                "it": "contrassegnato di conseguenza gli stati di sola lettura",
+                "es": "marcados estados de solo lectura en consecuencia",
+                "pl": "oznaczone odpowiednio jako tylko do odczytu",
+                "zh-cn": "标记为只读状态"
+            },
             "3.3.7": {
                 "en": "temperature is now read-only, automatically report unhandled rejections if sentry enabled",
                 "de": "Die Temperatur ist jetzt schreibgeschützt. Melden Sie unbehandelte Ablehnungen automatisch, wenn der Wachposten aktiviert ist",

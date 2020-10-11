@@ -925,6 +925,7 @@ async function connect(cb) {
                     case 'on':
                         lobj.common.type = 'boolean';
                         lobj.common.role = 'switch';
+                        lobj.common.write = true;
                         break;
                     case 'reachable':
                         lobj.common.type = 'boolean';
@@ -934,19 +935,23 @@ async function connect(cb) {
                     case 'buttonevent':
                         lobj.common.type = 'number';
                         lobj.common.role = 'state';
+                        lobj.common.write = false;
                         break;
                     case 'lastupdated':
                         lobj.common.type = 'string';
                         lobj.common.role = 'date';
+                        lobj.common.write = false;
                         break;
                     case 'battery':
                         lobj.common.type = 'number';
                         lobj.common.role = 'value.battery';
                         lobj.common.unit = '%';
+                        lobj.common.write = false;
                         break;
                     case 'pending':
                         lobj.common.type = 'number';
                         lobj.common.role = 'config';
+                        lobj.common.write = false;
                         break;
                     case 'daylight':
                         lobj.common.type = 'boolean';
@@ -1173,7 +1178,6 @@ async function connect(cb) {
                     lobj.common.type = 'string';
                     lobj.common.role = 'text';
                     break;
-
                 default:
                     adapter.log.info(`skip light: ${objId}`);
                     break;
