@@ -239,10 +239,7 @@ function startAdapter(options) {
             if (commandSupported && dp === 'command') {
                 try {
                     const commands = JSON.parse(state.val);
-                    for (const command in commands) {
-                        if (!Object.prototype.hasOwnProperty.call(commands, command)) {
-                            continue;
-                        }
+                    for (const command of Object.keys(commands)) {
                         if (command === 'on') {
                             //convert on to bri
                             if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
@@ -680,10 +677,7 @@ async function updateGroupState(group) {
 
         result = result['_data'];
 
-        for (const stateA in result.action) {
-            if (!Object.prototype.hasOwnProperty.call(result.action, stateA)) {
-                continue;
-            }
+        for (const stateA of Object.keys(result.action)) {
             states[stateA] = result.action[stateA];
         }
 
@@ -727,10 +721,7 @@ async function updateGroupState(group) {
             states.activeStream = result.stream.active;
         } // endIf
 
-        for (const stateB in states) {
-            if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
-                continue;
-            }
+        for (const stateB of Object.keys(states)) {
             values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
         }
     } catch (e) {
@@ -768,10 +759,7 @@ async function updateLightState(light) {
             values.push({id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state});
         } // endIf
 
-        for (const stateA in result.state) {
-            if (!Object.prototype.hasOwnProperty.call(result.state, stateA)) {
-                continue;
-            }
+        for (const stateA of Object.keys(result.state)) {
             states[stateA] = result.state[stateA];
         }
 
@@ -804,10 +792,7 @@ async function updateLightState(light) {
             // convert color temperature from mired to kelvin
             states.ct = Math.round(1e6 / states.ct);
         }
-        for (const stateB in states) {
-            if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
-                continue;
-            }
+        for (const stateB of Object.keys(states)) {
             values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
         }
     } catch (e) {
@@ -865,11 +850,7 @@ async function connect(cb) {
     const sensors = config.sensors;
     const objs = [];
 
-    for (const sid in sensors) {
-        if (!Object.prototype.hasOwnProperty.call(sensors, sid)) {
-            continue;
-        }
-
+    for (const sid of Object.keys(sensors)) {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
@@ -900,10 +881,7 @@ async function connect(cb) {
             pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
 
             const sensorCopy = {...sensor.state, ...sensor.config};
-            for (const state in sensorCopy) {
-                if (!Object.prototype.hasOwnProperty.call(sensorCopy, state)) {
-                    continue;
-                }
+            for (const state of Object.keys(sensorCopy)) {
                 const objId = `${channelName}.${state}`;
 
                 const lobj = {
@@ -1006,10 +984,7 @@ async function connect(cb) {
 
     adapter.log.info(`created/updated ${pollSensors.length} sensor channels`);
 
-    for (const lid in lights) {
-        if (!Object.prototype.hasOwnProperty.call(lights, lid)) {
-            continue;
-        }
+    for (const lid of Object.keys(lights)) {
         const light = lights[lid];
 
         let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}` : light.name.replace(/\./g, '_');
@@ -1233,10 +1208,7 @@ async function connect(cb) {
                 xy: '0,0'
             }
         };
-        for (const gid in groups) {
-            if (!Object.prototype.hasOwnProperty.call(groups, gid)) {
-                continue;
-            }
+        for (const gid of Object.keys(groups)) {
             const group = groups[gid];
 
             let groupName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}` : group.name.replace(/\./g, '_');
@@ -1269,11 +1241,7 @@ async function connect(cb) {
             group.action.command = '{}';
             group.action.level = 0;
 
-            for (const action in group.action) {
-                if (!Object.prototype.hasOwnProperty.call(group.action, action)) {
-                    continue;
-                }
-
+            for (const action of Object.keys(group.action)) {
                 const gobjId = `${groupName}.${action}`;
 
                 const gobj = {
@@ -1468,10 +1436,7 @@ async function connect(cb) {
 
             let sceneCounter = 0;
             const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}` : `${adapter.namespace}`;
-            for (const sceneId in scenes) {
-                if (!Object.prototype.hasOwnProperty.call(scenes, sceneId)) {
-                    continue;
-                }
+            for (const sceneId of Object.keys(scenes)) {
                 const scene = scenes[sceneId];
                 if (scene.type === 'GroupScene') {
                     if (adapter.config.ignoreGroups) {
@@ -1656,20 +1621,14 @@ async function poll() {
                 sensor.name = sensorName;
 
                 const sensorStates = {...sensor.config, ...sensor.state};
-                for (const stateA in sensorStates) {
-                    if (!Object.prototype.hasOwnProperty.call(sensorStates, stateA)) {
-                        continue;
-                    }
+                for (const stateA of Object.keys(sensorStates)) {
                     states[stateA] = sensorStates[stateA];
                 }
 
                 if (states.temperature !== undefined) {
                     states.temperature = convertTemperature(states.temperature);
                 }
-                for (const stateB in states) {
-                    if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
-                        continue;
-                    }
+                for (const stateB of Object.keys(states)) {
                     values.push({
                         id: `${adapter.namespace}.${sensor.name}.${stateB}`,
                         val: states[stateB]
@@ -1708,10 +1667,7 @@ async function poll() {
                     });
                 } // endIf
 
-                for (const stateA in light.state) {
-                    if (!Object.prototype.hasOwnProperty.call(light.state, stateA)) {
-                        continue;
-                    }
+                for (const stateA of Object.keys(light.state)) {
                     states[stateA] = light.state[stateA];
                 }
 
@@ -1744,10 +1700,7 @@ async function poll() {
                     // convert color temperature from mired to kelvin
                     states.ct = Math.round(1e6 / states.ct);
                 }
-                for (const stateB in states) {
-                    if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
-                        continue;
-                    }
+                for (const stateB of Object.keys(states)) {
                     values.push({
                         id: `${adapter.namespace}.${light.name}.${stateB}`,
                         val: states[stateB]
@@ -1782,10 +1735,7 @@ async function poll() {
 
                         group.name = groupName;
 
-                        for (const stateA in group.action) {
-                            if (!Object.prototype.hasOwnProperty.call(group.action, stateA)) {
-                                continue;
-                            }
+                        for (const stateA of Object.keys(group.action)) {
                             states[stateA] = group.action[stateA];
                         }
                         if (states.reachable === false && states.bri !== undefined) {
@@ -1824,10 +1774,7 @@ async function poll() {
                             states.activeStream = group.stream.active;
                         } // endIf
 
-                        for (const stateB in states) {
-                            if (!Object.prototype.hasOwnProperty.call(states, stateB)) {
-                                continue;
-                            }
+                        for (const stateB of Object.keys(states)) {
                             values.push({
                                 id: `${adapter.namespace}.${group.name}.${stateB}`,
                                 val: states[stateB]
