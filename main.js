@@ -808,6 +808,11 @@ async function updateLightState(light) {
     await syncStates(values);
 } // endUpdateLightState
 
+/**
+ * Connects to the bridge and creates the initial objects
+ *
+ * @return {Promise<void>}
+ */
 async function connect() {
     let config;
     try {
@@ -1185,8 +1190,8 @@ async function connect() {
                 pointsymbol: light.pointsymbol
             }
         });
-
     }
+
     adapter.log.info(`created/updated ${pollLights.length} light channels`);
 
     // Create/update groups
@@ -1208,6 +1213,7 @@ async function connect() {
                 xy: '0,0'
             }
         };
+
         for (const gid of Object.keys(groups)) {
             const group = groups[gid];
 
@@ -1571,6 +1577,11 @@ async function syncStates(states) {
     }
 } // endSyncStates
 
+/**
+ * Polls all lights from bridge, creates new groups/lights/sensors and deletes removed ones
+ *
+ * @return {Promise<void>}
+ */
 async function poll() {
     // clear polling interval
     if (pollingInterval) {
@@ -1594,7 +1605,7 @@ async function poll() {
             const groups = config.groups;
 
             // update sensors
-            pollSensors.forEach(sensor => {
+            for (let sensor of pollSensors) {
                 const states = {};
                 const sensorName = sensor.name;
 
@@ -1612,7 +1623,7 @@ async function poll() {
                         adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
                         ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName} manually`);
                     } // endElse
-                    return;
+                    continue;
                 } // endElse
 
                 sensor.name = sensorName;
@@ -1631,10 +1642,10 @@ async function poll() {
                         val: states[stateB]
                     });
                 }
-            });
+            }
 
             // LIGHTS
-            pollLights.forEach(light => {
+            for (let light of pollLights) {
                 const states = {};
                 const lightName = light.name;
 
@@ -1652,7 +1663,7 @@ async function poll() {
                         adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
                         ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName} manually`);
                     } // endElse
-                    return;
+                    continue;
                 } // endElse
 
                 light.name = lightName;
@@ -1703,11 +1714,11 @@ async function poll() {
                         val: states[stateB]
                     });
                 }
-            });
+            }
 
             // Create/update groups
             if (!adapter.config.ignoreGroups) {
-                pollGroups.forEach(group => {
+                for (let group of pollGroups) {
                     // Group 0 needs extra polling
                     if (group.id !== '0') {
                         const states = {};
@@ -1727,7 +1738,7 @@ async function poll() {
                                 adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
                                 ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName} manually`);
                             } // endElse
-                            return;
+                            continue;
                         } // endElse
 
                         group.name = groupName;
@@ -1792,7 +1803,7 @@ async function poll() {
                         // poll the 0 - ALL group
                         updateGroupState(group);
                     }
-                });
+                }
             } // endIf
             await syncStates(values);
         } // endIf
