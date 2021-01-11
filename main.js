@@ -589,7 +589,7 @@ function startAdapter(options) {
                 }
                 adapter.log.info('cleaned everything up...');
                 callback();
-            } catch (e) {
+            } catch {
                 callback();
             }
         }
@@ -810,7 +810,7 @@ async function updateLightState(light) {
     return Promise.resolve();
 } // endUpdateLightState
 
-async function connect(cb) {
+async function connect() {
     let config;
     try {
         if (adapter.config.ssl) {
@@ -824,14 +824,16 @@ async function connect(cb) {
     } catch (e) {
         adapter.log.warn(`could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
         adapter.log.error(e.message || e);
-        reconnectTimeout = setTimeout(connect, 5000, cb);
-        return;
+        await new Promise(resolve => {
+            reconnectTimeout = setTimeout(connect, 5000, resolve);
+        });
     } // endCatch
 
     if (!config) {
         adapter.log.warn(`could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
-        reconnectTimeout = setTimeout(connect, 5000, cb);
-        return;
+        await new Promise(resolve => {
+            reconnectTimeout = setTimeout(connect, 5000, resolve);
+        });
     } // endIf
 
     // even if useLegacyStructure is false, we check if the structure exists to not create chaos
@@ -1503,7 +1505,6 @@ async function connect(cb) {
     });
 
     await syncObjects(objs);
-    cb();
 } // endConnect
 
 /**
@@ -1824,11 +1825,11 @@ async function main() {
         return;
     } // endIf
 
-    connect(() => {
-        if (adapter.config.polling) {
-            poll();
-        }
-    });
+    await connect();
+
+    if (adapter.config.polling) {
+        poll();
+    }
 }
 
 function convertTemperature(value) {
