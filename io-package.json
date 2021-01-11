@@ -205,54 +205,6 @@
                 "es": "problema solucionado al encender / apagar interruptores como Osram Plug",
                 "pl": "naprawiono problem z włączaniem / wyłączaniem przełączników takich jak Osram Plug",
                 "zh-cn": "解决了打开/关闭Osram Plug等开关的问题"
-            },
-            "3.0.1": {
-                "en": "removed queue, because handled by dependency now, better error handling, requires NodeJS 10",
-                "de": "Warteschlange entfernt, da jetzt durch Abhängigkeit gehandhabt, bessere Fehlerbehandlung, erfordert NodeJS 10",
-                "ru": "удаленная очередь, потому что теперь обрабатывается зависимостью, для лучшей обработки ошибок требуется NodeJS 10",
-                "pt": "A fila removida, porque manipulada pela dependência agora, melhor manipulação de erros, requer o NodeJS 10",
-                "nl": "wachtrij verwijderd, omdat nu afgehandeld door afhankelijkheid, betere foutafhandeling, NodeJS 10 vereist",
-                "fr": "file d'attente supprimée, car gérée par la dépendance maintenant, meilleure gestion des erreurs, nécessite NodeJS 10",
-                "it": "coda rimossa, perché gestita dalla dipendenza ora, una migliore gestione degli errori, richiede NodeJS 10",
-                "es": "cola eliminada, porque ahora se maneja por dependencia, un mejor manejo de errores, requiere NodeJS 10",
-                "pl": "usunięta kolejka, ponieważ teraz obsługiwana przez zależność, lepsza obsługa błędów, wymaga NodeJS 10",
-                "zh-cn": "删除队列，因为现在由依赖项处理，更好的错误处理，需要NodeJS 10"
-            },
-            "2.5.0": {
-                "en": "implemented a mechanic to prevent regular polling of recently changed state",
-                "de": "Es wurde eine Mechanik implementiert, um ein regelmäßiges Abfragen des zuletzt geänderten Zustands zu verhindern",
-                "ru": "реализован механизм предотвращения регулярного опроса недавно измененного состояния",
-                "pt": "implementou um mecânico para evitar pesquisas regulares de estados recentemente alterados",
-                "nl": "een monteur geïmplementeerd om regelmatig pollen van recent gewijzigde status te voorkomen",
-                "fr": "mis en place un mécanisme pour empêcher l'interrogation régulière de l'état récemment changé",
-                "it": "implementato un meccanico per impedire il polling regolare dello stato recentemente cambiato",
-                "es": "implementado un mecánico para evitar encuestas periódicas del estado recientemente cambiado",
-                "pl": "zaimplementowano mechanikę zapobiegającą regularnemu odpytywaniu ostatnio zmienionego stanu",
-                "zh-cn": "实施机制以防止对最近更改的状态进行定期轮询"
-            },
-            "2.4.7": {
-                "en": "we do not set default values on every adapter start anymore",
-                "de": "Wir setzen nicht mehr bei jedem Adapterstart Standardwerte",
-                "ru": "мы больше не устанавливаем значения по умолчанию при каждом запуске адаптера",
-                "pt": "não configuramos mais os valores padrão em cada inicialização do adaptador",
-                "nl": "we stellen niet meer standaardwaarden in bij elke start van de adapter",
-                "fr": "nous ne définissons plus de valeurs par défaut à chaque démarrage de l'adaptateur",
-                "it": "non impostiamo più valori predefiniti su ogni avvio dell'adattatore",
-                "es": "ya no establecemos valores predeterminados en cada inicio de adaptador",
-                "pl": "nie ustawiamy już wartości domyślnych przy każdym uruchomieniu adaptera",
-                "zh-cn": "我们不再为每个适配器启动设置默认值"
-            },
-            "2.4.4": {
-                "en": "increased performance, improved error handling",
-                "de": "erhöhte Leistung, verbesserte Fehlerbehandlung",
-                "ru": "повышенная производительность, улучшенная обработка ошибок",
-                "pt": "desempenho aprimorado, manipulação aprimorada de erros",
-                "nl": "verbeterde prestaties, verbeterde foutafhandeling",
-                "fr": "performances accrues, gestion des erreurs améliorée",
-                "it": "aumento delle prestazioni, migliore gestione degli errori",
-                "es": "mayor rendimiento, mejor manejo de errores",
-                "pl": "zwiększona wydajność, poprawiona obsługa błędów",
-                "zh-cn": "提高性能，改善错误处理"
             }
         },
         "title": "Philips Hue Bridge",
