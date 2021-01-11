@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.8",
+        "version": "3.3.9",
         "news": {
+            "3.3.9": {
+                "en": "we do not set states of non-existing states anymore",
+                "de": "Wir setzen keine Zustände nicht existierender Zustände mehr",
+                "ru": "мы больше не устанавливаем состояния несуществующих состояний",
+                "pt": "nós não definimos estados de estados não existentes mais",
+                "nl": "we stellen geen staten meer in van niet-bestaande staten",
+                "fr": "nous ne définissons plus les états d'états non existants",
+                "it": "non impostiamo più stati di stati inesistenti",
+                "es": "ya no establecemos estados de estados no existentes",
+                "pl": "nie stawiamy już stanów nieistniejących stanów",
+                "zh-cn": "我们不再设置不存在状态的状态"
+            },
             "3.3.8": {
                 "en": "marked read-only states accordingly",
                 "de": "schreibgeschützte Zustände entsprechend markiert",

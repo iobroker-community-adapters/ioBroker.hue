@@ -108,9 +108,9 @@ function startAdapter(options) {
 
             const fullIdBase = `${tmp.join('.')}.`;
             let ls = {};
-            // if .on changed instead change .bri to 254 or 0
+            // if .on changed instead change .bri to 254 or 0, except it is a switch which has no brightness
             let bri = 0;
-            if (dp === 'on' && !adapter.config.nativeTurnOffBehaviour) {
+            if (dp === 'on' && !adapter.config.nativeTurnOffBehaviour && !(channelObj && channelObj.common && channelObj.common.role === 'switch')) {
                 bri = state.val ? 254 : 0;
                 adapter.setState([id, 'bri'].join('.'), {val: bri, ack: false});
                 return;
