@@ -627,7 +627,7 @@ async function browse(timeout) {
         } // endElse
     } // endFor
 
-    return Promise.resolve(bridges);
+    return bridges;
 }
 
 /**
@@ -643,13 +643,13 @@ async function createUser(ip) {
         const api = adapter.config.ssl ? await v3.api.createLocal(ip, adapter.config.port).connect() : await v3.api.createInsecureLocal(ip, adapter.config.port).connect();
         const newUser = await api.users.createUser(ip, newUserName, userDescription);
         adapter.log.info(`created new User: ${newUser.username}`);
-        return Promise.resolve({error: 0, message: newUser.username});
+        return {error: 0, message: newUser.username};
     } catch (e) {
         // 101 is bridge button not pressed
         if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
             adapter.log.error(e);
         }
-        return Promise.resolve({error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)});
+        return {error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)};
     }
 } // endCreateUser
 
@@ -736,7 +736,6 @@ async function updateGroupState(group) {
     } // endIf
 
     await syncStates(values);
-    return Promise.resolve();
 }
 
 /**
@@ -807,7 +806,6 @@ async function updateLightState(light) {
     } // endIf
 
     await syncStates(values);
-    return Promise.resolve();
 } // endUpdateLightState
 
 async function connect() {
@@ -1545,7 +1543,6 @@ async function syncObjects(objs) {
             adapter.log.error(`Could not sync object ${task._id}: ${e}`);
         }
     }
-    return Promise.resolve();
 }
 
 /**
@@ -1572,7 +1569,6 @@ async function syncStates(states) {
             adapter.log.debug(`Syncing state of ${nameId} blocked`);
         }
     }
-    return Promise.resolve();
 } // endSyncStates
 
 async function poll() {
