@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.9",
+        "version": "3.3.10",
         "news": {
+            "3.3.10": {
+                "en": "fixed updating `anyOn` and `allOn` if legacy structure used",
+                "de": "Die Aktualisierung von \"anyOn\" und \"allOn\" wurde korrigiert, wenn eine ältere Struktur verwendet wurde",
+                "ru": "исправлено обновление anyOn и allOn при использовании устаревшей структуры",
+                "pt": "corrigida a atualização de `anyOn` e` allOn` se a estrutura legada usada",
+                "nl": "update van `anyOn` en` allOn` opgelost als de legacy-structuur werd gebruikt",
+                "fr": "correction de la mise à jour de `anyOn` et` allOn` si la structure héritée était utilisée",
+                "it": "corretto l'aggiornamento di `anyOn` e` allOn` se si utilizzava la struttura legacy",
+                "es": "Se corrigió la actualización de `anyOn` y` allOn` si se usa la estructura heredada",
+                "pl": "naprawiono aktualizację `anyOn` i` allOn`, jeśli używana była starsza struktura",
+                "zh-cn": "修复了如果使用旧式结构则更新`anyOn`和`allOn`的问题"
+            },
             "3.3.9": {
                 "en": "we do not set states of non-existing states anymore",
                 "de": "Wir setzen keine Zustände nicht existierender Zustände mehr",

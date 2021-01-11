@@ -1722,26 +1722,24 @@ async function poll() {
                     // Group 0 needs extra polling
                     if (group.id !== '0') {
                         const states = {};
-                        const groupName = group.name;
 
                         if (groups[group.id] !== undefined) {
                             group = groups[group.id];
                         } else {
                             // detect removed groups
-                            adapter.log.info(`Group ${groupName} has been removed from bridge`);
-                            pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
+                            adapter.log.info(`Group ${group.name} has been removed from bridge`);
                             // if recursive deletion is supported we delete the object
                             if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                                adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName}`);
-                                adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName}`, {recursive: true});
+                                adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name}`);
+                                adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name}`, {recursive: true});
                             } else {
                                 adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                                ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${groupName}` : groupName} manually`);
+                                ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name} manually`);
                             } // endElse
+
+                            pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
                             continue;
                         } // endElse
-
-                        group.name = groupName;
 
                         for (const stateA of Object.keys(group.action)) {
                             states[stateA] = group.action[stateA];
@@ -1788,15 +1786,16 @@ async function poll() {
                                 val: states[stateB]
                             });
                         } // endFor
+
                         // set anyOn state
                         values.push({
-                            id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.anyOn`,
+                            id: `${adapter.namespace}.${group.name}.anyOn`,
                             val: group.state['any_on']
                         });
 
                         // set allOn state
                         values.push({
-                            id: `${adapter.namespace}.${groupName.replace(/[\s.]/g, '_')}.allOn`,
+                            id: `${adapter.namespace}.${group.name}.allOn`,
                             val: group.state['all_on']
                         });
                     } else {
