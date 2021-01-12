@@ -1723,6 +1723,9 @@ async function poll() {
                     if (group.id !== '0') {
                         const states = {};
 
+                        // save name before changing group
+                        const groupName = group.name;
+
                         if (groups[group.id] !== undefined) {
                             group = groups[group.id];
                         } else {
@@ -1740,6 +1743,8 @@ async function poll() {
                             pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
                             continue;
                         } // endElse
+
+                        group.name = groupName;
 
                         for (const stateA of Object.keys(group.action)) {
                             states[stateA] = group.action[stateA];

@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.10",
+        "version": "3.3.11",
         "news": {
-            "3.3.10": {
+            "3.3.11": {
                 "en": "fixed updating `anyOn` and `allOn` if legacy structure used",
                 "de": "Die Aktualisierung von \"anyOn\" und \"allOn\" wurde korrigiert, wenn eine ältere Struktur verwendet wurde",
                 "ru": "исправлено обновление anyOn и allOn при использовании устаревшей структуры",
