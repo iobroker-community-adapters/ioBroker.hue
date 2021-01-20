@@ -1,6 +1,6 @@
 {
     "name": "iobroker.hue",
-    "version": "3.3.11",
+    "version": "3.4.0",
     "description": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges",
     "author": "hobbyquaker <hq@ccu.io>",
     "contributors": [
@@ -28,14 +28,14 @@
         "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
     },
     "dependencies": {
-        "node-hue-api": "^4.0.9",
+        "node-hue-api": "^4.0.10",
         "@iobroker/adapter-core": "^2.4.0"
     },
     "devDependencies": {
         "gulp": "^4.0.2",
         "mocha": "^8.2.1",
         "chai": "^4.2.0",
-        "eslint": "^7.17.0",
+        "eslint": "^7.18.0",
         "@iobroker/testing": "^2.4.2"
     },
     "scripts": {

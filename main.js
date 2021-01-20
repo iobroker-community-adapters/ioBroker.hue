@@ -13,12 +13,12 @@
 /* jslint node: true */
 'use strict';
 
-const hue = require('node-hue-api');
-const v3 = hue.v3;
+const { v3 } = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
 const FORBIDDEN_CHARS = /[\][*,;'"`<>\\?]/g;
 const blockedIds = [];
+let noDevices;
 
 let adapter;
 let pollingInterval;
@@ -825,7 +825,7 @@ async function connect() {
         } // endElse
         config = await api.configuration.getAll();
     } catch (e) {
-        adapter.log.warn(`could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
+        adapter.log.warn(`Could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
         adapter.log.error(e.message || e);
         await new Promise(resolve => {
             reconnectTimeout = setTimeout(connect, 5000, resolve);
@@ -833,7 +833,7 @@ async function connect() {
     } // endCatch
 
     if (!config) {
-        adapter.log.warn(`could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
+        adapter.log.warn(`Could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
         await new Promise(resolve => {
             reconnectTimeout = setTimeout(connect, 5000, resolve);
         });
@@ -853,9 +853,13 @@ async function connect() {
     // Create/update lamps
     const lights = config.lights;
     const sensors = config.sensors;
+    const sensorsArr = Object.keys(sensors);
+    const lightsArr = Object.keys(lights);
     const objs = [];
 
-    for (const sid of Object.keys(sensors)) {
+    noDevices = sensorsArr.length + lightsArr.length;
+
+    for (const sid of sensorsArr) {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
@@ -989,7 +993,7 @@ async function connect() {
 
     adapter.log.info(`created/updated ${pollSensors.length} sensor channels`);
 
-    for (const lid of Object.keys(lights)) {
+    for (const lid of lightsArr) {
         const light = lights[lid];
 
         let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}` : light.name.replace(/\./g, '_');
@@ -1214,7 +1218,10 @@ async function connect() {
             }
         };
 
-        for (const gid of Object.keys(groups)) {
+        const groupsArr = Object.keys(groups);
+        noDevices += groupsArr.length;
+
+        for (const gid of groupsArr) {
             const group = groups[gid];
 
             let groupName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}` : group.name.replace(/\./g, '_');
@@ -1604,6 +1611,8 @@ async function poll() {
             const sensors = config.sensors;
             const groups = config.groups;
 
+            let noCurrentDevices = Object.keys(lights).length + Object.keys(sensors).length;
+
             // update sensors
             for (let sensor of pollSensors) {
                 const states = {};
@@ -1614,6 +1623,7 @@ async function poll() {
                 } else {
                     // detect removed sensors
                     adapter.log.info(`Sensor ${sensorName} has been removed from bridge`);
+                    noDevices--;
                     pollSensors.splice(pollSensors.findIndex(item => item.id === sensor.id), 1);
                     // if recursive deletion is supported we delete the object
                     if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
@@ -1654,6 +1664,7 @@ async function poll() {
                 } else {
                     // detect removed lights
                     adapter.log.info(`Light ${lightName} has been removed from bridge`);
+                    noDevices--;
                     pollLights.splice(pollLights.findIndex(item => item.id === light.id), 1);
                     // if recursive deletion is supported we delete the object
                     if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
@@ -1718,6 +1729,7 @@ async function poll() {
 
             // Create/update groups
             if (!adapter.config.ignoreGroups) {
+                noCurrentDevices += Object.keys(groups).length;
                 for (let group of pollGroups) {
                     // Group 0 needs extra polling
                     if (group.id !== '0') {
@@ -1731,6 +1743,7 @@ async function poll() {
                         } else {
                             // detect removed groups
                             adapter.log.info(`Group ${group.name} has been removed from bridge`);
+                            noDevices--;
                             // if recursive deletion is supported we delete the object
                             if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                                 adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name}`);
@@ -1810,6 +1823,19 @@ async function poll() {
                 }
             } // endIf
             await syncStates(values);
+
+            // check if new devices detected
+            if (noCurrentDevices > noDevices) {
+                // we have more devices then expected (no of devices at start - deleted ones)
+                // Note, that this can only be a well working non cpu-intensive heuristic,
+                // because if 1 sensor removed which are not part of the adapter (count not decreased)
+                // and 1 real sensor added, between the same polling, the count will stay the same, however should be a super edge case
+                // for now we restart - TODO: split up connect and object creation function and call w/o restart
+                adapter.log.info('New devices detected - initializing restart');
+                return void adapter.restart();
+            } else {
+                noDevices = noCurrentDevices;
+            }
         } // endIf
     } catch (e) {
         adapter.log.error(`Could not poll all: ${e.message || e}`);

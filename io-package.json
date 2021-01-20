@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.3.11",
+        "version": "3.4.0",
         "news": {
+            "3.4.0": {
+                "en": "we now restart the adapter automatically to add new devices if they have been added to bridge",
+                "de": "Wir starten den Adapter jetzt automatisch neu, um neue Geräte hinzuzufügen, wenn diese zur Bridge hinzugefügt wurden",
+                "ru": "Теперь мы автоматически перезапускаем адаптер, чтобы добавить новые устройства, если они были добавлены в мост",
+                "pt": "agora reiniciamos o adaptador automaticamente para adicionar novos dispositivos se eles foram adicionados à ponte",
+                "nl": "we herstarten de adapter nu automatisch om nieuwe apparaten toe te voegen als ze aan de bridge zijn toegevoegd",
+                "fr": "nous redémarrons maintenant l'adaptateur automatiquement pour ajouter de nouveaux périphériques s'ils ont été ajoutés au pont",
+                "it": "ora riavviamo automaticamente l'adattatore per aggiungere nuovi dispositivi se sono stati aggiunti al bridge",
+                "es": "ahora reiniciamos el adaptador automáticamente para agregar nuevos dispositivos si se han agregado al puente",
+                "pl": "teraz automatycznie ponownie uruchomimy adapter, aby dodać nowe urządzenia, jeśli zostały dodane do mostu",
+                "zh-cn": "我们现在自动重启适配器以添加新设备（如果已将它们添加到网桥中）"
+            },
             "3.3.11": {
                 "en": "fixed updating `anyOn` and `allOn` if legacy structure used",
                 "de": "Die Aktualisierung von \"anyOn\" und \"allOn\" wurde korrigiert, wenn eine ältere Struktur verwendet wurde",
