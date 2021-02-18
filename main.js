@@ -16,7 +16,6 @@
 const { v3 } = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
-const FORBIDDEN_CHARS = /[^._\-/ :!#$%&()+=@^{}|~\p{Ll}\p{Lu}\p{Nd}]+/gu;
 const blockedIds = [];
 let noDevices;
 
@@ -863,7 +862,7 @@ async function connect() {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
-            let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(FORBIDDEN_CHARS, '')}` : sensor.name.replace(FORBIDDEN_CHARS, '');
+            let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(adapter.FORBIDDEN_CHARS, '')}` : sensor.name.replace(adapter.FORBIDDEN_CHARS, '');
             let existingChObj;
             try {
                 existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
@@ -1457,7 +1456,7 @@ async function connect() {
                     }
                     adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
                     objs.push({
-                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/[\s.]/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
+                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/[\s.]/g, '_').replace(adapter.FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
@@ -1484,7 +1483,7 @@ async function connect() {
 
                     adapter.log.debug(`Create ${scene.name}`);
                     objs.push({
-                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/[\s.]/g, '_').replace(FORBIDDEN_CHARS, '').toLowerCase()}`,
+                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/[\s.]/g, '_').replace(adapter.FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
