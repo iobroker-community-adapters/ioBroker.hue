@@ -16,7 +16,7 @@
 const { v3 } = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
-const FORBIDDEN_CHARS = /[\][*,;'"`<>\\?]/g;
+const FORBIDDEN_CHARS = /[^._\-/ :!#$%&()+=@^{}|~\p{Ll}\p{Lu}\p{Nd}]+/gu;
 const blockedIds = [];
 let noDevices;
 

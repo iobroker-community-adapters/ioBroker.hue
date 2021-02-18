@@ -1,51 +1,53 @@
 {
-    "name": "iobroker.hue",
-    "version": "3.4.0",
-    "description": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges",
-    "author": "hobbyquaker <hq@ccu.io>",
-    "contributors": [
-        "hobbyquaker <hq@ccu.io>",
-        "Pmant <patrickmo@gmx.de>",
-        "Bluefox <dogafox@gmail.com>",
-        "Moritz Heusinger <moritz.heusinger@gmail.com>"
-    ],
-    "engines": {
-        "node": ">=10"
-    },
-    "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
-    "license": "Apache-2.0",
-    "keywords": [
-        "ioBroker",
-        "hue",
-        "led",
-        "rgb",
-        "smartlink",
-        "zigbee",
-        "home automation"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
-    },
-    "dependencies": {
-        "node-hue-api": "^4.0.10",
-        "@iobroker/adapter-core": "^2.4.0"
-    },
-    "devDependencies": {
-        "gulp": "^4.0.2",
-        "mocha": "^8.2.1",
-        "chai": "^4.2.0",
-        "eslint": "^7.18.0",
-        "@iobroker/testing": "^2.4.2"
-    },
-    "scripts": {
-        "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
-        "test:package": "node_modules/.bin/mocha test/packageFiles --exit",
-        "test:integration": "node_modules/.bin/mocha test/integrationAdapter --exit",
-        "test": "node node_modules/mocha/bin/mocha --exit"
-    },
-    "bugs": {
-        "url": "https://github.com/iobroker-community-adapters/ioBroker.hue/issues"
-    },
-    "main": "main.js"
+  "name": "iobroker.hue",
+  "version": "3.5.0",
+  "description": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges",
+  "author": "hobbyquaker <hq@ccu.io>",
+  "contributors": [
+    "hobbyquaker <hq@ccu.io>",
+    "Pmant <patrickmo@gmx.de>",
+    "Bluefox <dogafox@gmail.com>",
+    "Moritz Heusinger <moritz.heusinger@gmail.com>"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
+  "license": "Apache-2.0",
+  "keywords": [
+    "ioBroker",
+    "hue",
+    "led",
+    "rgb",
+    "smartlink",
+    "zigbee",
+    "home automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
+  },
+  "dependencies": {
+    "node-hue-api": "^4.0.10",
+    "@iobroker/adapter-core": "^2.4.0"
+  },
+  "devDependencies": {
+    "@alcalzone/release-script": "^1.8.3",
+    "@iobroker/testing": "^2.4.2",
+    "chai": "^4.3.0",
+    "eslint": "^7.20.0",
+    "gulp": "^4.0.2",
+    "mocha": "^8.3.0"
+  },
+  "scripts": {
+    "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
+    "test:package": "node_modules/.bin/mocha test/packageFiles --exit",
+    "test:integration": "node_modules/.bin/mocha test/integrationAdapter --exit",
+    "test": "node node_modules/mocha/bin/mocha --exit",
+    "release": "release-script"
+  },
+  "bugs": {
+    "url": "https://github.com/iobroker-community-adapters/ioBroker.hue/issues"
+  },
+  "main": "main.js"
 }

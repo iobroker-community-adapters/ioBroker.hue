@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.4.0",
+        "version": "3.5.0",
         "news": {
+            "3.5.0": {
+                "en": "use official js-controller regex for replacing forbidden chars (fixes #165)\nuse release-script\nsentry added",
+                "de": "Verwenden Sie den offiziellen regulären Ausdruck für js-controller, um verbotene Zeichen zu ersetzen (Fixes # 165).\nbenutze das Release-Skript\nWachposten hinzugefügt",
+                "ru": "использовать официальное регулярное выражение js-controller для замены запрещенных символов (исправления # 165)\nиспользовать релиз-скрипт\nдобавлен часовой",
+                "pt": "use o regex oficial do js-controller para substituir os caracteres proibidos (correções # 165)\nusar script de lançamento\nsentinela adicionada",
+                "nl": "gebruik officiële js-controller regex voor het vervangen van verboden tekens (fixes # 165)\ngebruik release-script\nsentry toegevoegd",
+                "fr": "utiliser l'expression régulière js-controller pour remplacer les caractères interdits (correctifs # 165)\nutiliser release-script\nsentinelle ajoutée",
+                "it": "usa regex js-controller ufficiale per sostituire i caratteri proibiti (correzioni # 165)\nusa lo script di rilascio\nsentinella aggiunta",
+                "es": "use la expresión regular js-controller oficial para reemplazar caracteres prohibidos (correcciones # 165)\nusar script de lanzamiento\ncentinela agregado",
+                "pl": "użyj oficjalnego wyrażenia regularnego js-controller do zamiany zabronionych znaków (poprawki # 165)\nużyj skryptu wydania\ndodany wartownik",
+                "zh-cn": "使用官方js控制器正则表达式替换禁止的字符（修复＃165）\n使用发布脚本\n哨兵已添加"
+            },
             "3.4.0": {
                 "en": "we now restart the adapter automatically to add new devices if they have been added to bridge",
                 "de": "Wir starten den Adapter jetzt automatisch neu, um neue Geräte hinzuzufügen, wenn diese zur Bridge hinzugefügt wurden",
@@ -145,7 +157,8 @@
                 "it": "sostituiamo i punti nei nomi luce / gruppo / sensore / .. con caratteri di sottolineatura",
                 "es": "reemplazamos los puntos en los nombres light / group / sensor / .. por guiones bajos",
                 "pl": "kropki w nazwach light / group / sensor / .. zastępujemy podkreślnikami",
-                "zh-cn": "我们用下划线替换光/组/传感器/ ..名称中的点"            },
+                "zh-cn": "我们用下划线替换光/组/传感器/ ..名称中的点"
+            },
             "3.2.4": {
                 "en": "changed role of battery states to `value.battery` and made unit `%`",
                 "de": "Die Rolle der Batteriezustände wurde in \"value.battery\" geändert und die Einheit in \"%\" geändert",
@@ -269,6 +282,15 @@
                 "js-controller": ">=1.4.2"
             }
         ],
+        "plugins": {
+            "sentry": {
+                "dsn": "https://032355a1870c46b9a3fb6a879412bd2f@sentry.iobroker.net/42",
+                "pathWhitelist": [],
+                "errorBlacklist": [
+                    "SyntaxError"
+                ]
+            }
+        },
         "enabled": true,
         "compact": true,
         "readme": "https://github.com/iobroker-community-adapters/ioBroker.hue/blob/master/README.md",
