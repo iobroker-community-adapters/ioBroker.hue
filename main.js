@@ -268,7 +268,13 @@ function startAdapter(options) {
             try {
                 obj = await adapter.getObjectAsync(id);
             } catch (e) {
-                adapter.log.error(`obj "${id}" in callback getObject is null or undefined`);
+                adapter.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
+                return;
+            }
+
+            // maybe someone emitted a state change for a non existing device via script
+            if (!obj) {
+                adapter.log.error(`Object "${id}" on stateChange is null or undefined`);
                 return;
             }
 
@@ -316,7 +322,12 @@ function startAdapter(options) {
 
                 let xy = ls.xy.toString().split(',');
                 xy = {'x': xy[0], 'y': xy[1]};
-                xy = hueHelper.GamutXYforModel(xy.x, xy.y, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
+                xy = hueHelper.GamutXYforModel(xy.x, xy.y, Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default');
+                if (!xy) {
+                    adapter.log.error(`Invalid "xy" value "${state.val}" for id "${id}"`);
+                    return;
+                }
+
                 finalLS.xy = `${xy.x},${xy.y}`;
 
                 lightState = lightState.xy(parseFloat(xy.x), parseFloat(xy.y));
@@ -648,7 +659,7 @@ async function createUser(ip) {
         if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
             adapter.log.error(e);
         }
-        return {error: e.getHueErrorType ? e.getHueErrorType() : e, message: JSON.stringify(e)};
+        return {error: e.getHueErrorType ? e.getHueErrorType() : e, message: e.message};
     }
 } // endCreateUser
 

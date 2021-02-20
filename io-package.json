@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.0",
+        "version": "3.5.1",
         "news": {
+            "3.5.1": {
+                "en": "avoid crash cases on invalid xy, setting state for non-existing device and on failing user creation",
+                "de": "Vermeiden Sie Absturzfälle auf ungültigem xy, setzen Sie den Status für nicht vorhandenes Gerät und schlagen Sie die Benutzererstellung fehl",
+                "ru": "Избегайте сбоев при недопустимом xy, настройке состояния для несуществующего устройства и при сбое создания пользователя",
+                "pt": "evite casos de falha em xy inválido, configuração de estado para dispositivo não existente e falha na criação do usuário",
+                "nl": "vermijd crashgevallen op ongeldige xy, instellingstoestand voor niet-bestaand apparaat en bij mislukte aanmaak van gebruikers",
+                "fr": "éviter les cas de plantage sur un xy non valide, définir l'état d'un périphérique non existant et en cas d'échec de la création d'utilisateur",
+                "it": "evitare casi di arresto anomalo su xy non valido, impostazione dello stato per dispositivo inesistente e mancata creazione dell'utente",
+                "es": "evitar casos de bloqueo en xy no válido, establecer el estado para el dispositivo no existente y en la creación de un usuario fallido",
+                "pl": "unikaj przypadków awarii na nieprawidłowym xy, ustawianiu stanu dla nieistniejącego urządzenia i niepowodzeniu tworzenia użytkownika",
+                "zh-cn": "避免在无效的xy，不存在的设备的设置状态以及用户创建失败时发生崩溃的情况"
+            },
             "3.5.0": {
                 "en": "use official js-controller regex for replacing forbidden chars (fixes #165)\nuse release-script\nsentry added",
                 "de": "Verwenden Sie den offiziellen regulären Ausdruck für js-controller, um verbotene Zeichen zu ersetzen (Fixes # 165).\nbenutze das Release-Skript\nWachposten hinzugefügt",
@@ -230,18 +242,6 @@
                 "es": "Se agregaron nuevos indicadores de grupos de entretenimiento y se agregó la posibilidad de iniciar y detener la transmisión",
                 "pl": "dodano nowe wskaźniki grup rozrywkowych oraz dodano możliwość rozpoczęcia i zakończenia transmisji",
                 "zh-cn": "添加了娱乐团体的新指标，并增加了开始和停止流媒体播放的可能性"
-            },
-            "3.0.3": {
-                "en": "fixed problem turning on/off switchs like Osram Plug",
-                "de": "Problem beim Ein- und Ausschalten von Schaltern wie Osram Plug behoben",
-                "ru": "исправлена проблема включения / выключения выключателей, таких как Osram Plug",
-                "pt": "problema corrigido ao ligar / desligar interruptores como o Osram Plug",
-                "nl": "probleem opgelost met het in- en uitschakelen van schakelaars zoals Osram Plug",
-                "fr": "correction d'un problème d'activation / désactivation des interrupteurs comme la prise Osram",
-                "it": "risolto il problema di accensione / spegnimento di interruttori come Osram Plug",
-                "es": "problema solucionado al encender / apagar interruptores como Osram Plug",
-                "pl": "naprawiono problem z włączaniem / wyłączaniem przełączników takich jak Osram Plug",
-                "zh-cn": "解决了打开/关闭Osram Plug等开关的问题"
             }
         },
         "title": "Philips Hue Bridge",
