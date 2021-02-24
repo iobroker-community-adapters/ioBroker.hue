@@ -106,7 +106,7 @@ function startAdapter(options) {
             }
 
             const fullIdBase = `${tmp.join('.')}.`;
-            let ls = {};
+
             // if .on changed instead change .bri to 254 or 0, except it is a switch which has no brightness
             let bri = 0;
             if (dp === 'on' && !adapter.config.nativeTurnOffBehaviour && !(channelObj && channelObj.common && channelObj.common.role === 'switch')) {
@@ -130,12 +130,17 @@ function startAdapter(options) {
             }
 
             // gather states that need to be changed
-            ls = {};
+            const ls = {};
             const alls = {};
             let lampOn = false;
             let commandSupported = false;
 
-            function handleParam(idState, prefill) {
+            /**
+             * Sets the light states and all light states according to the current state values
+             * @param {string} idState - state id
+             * @param {boolean} prefill - prefill requires ack of state to be true else it returns immediately
+             */
+            const handleParam = (idState, prefill) => {
                 if (!idStates[idState]) {
                     return;
                 }
@@ -208,7 +213,7 @@ function startAdapter(options) {
                         break;
                 }
                 idStates[idState].handled = true;
-            }
+            };
 
             // work through the relevant states in the correct order for the logic to work
             // but only if ack=true - so real values from device
@@ -258,7 +263,7 @@ function startAdapter(options) {
                         }
                     }
                 } catch (e) {
-                    adapter.log.error(e);
+                    adapter.log.error(e.message);
                     return;
                 }
             }
@@ -280,13 +285,13 @@ function startAdapter(options) {
 
             // apply rgb to xy with modelId
             if ('r' in ls || 'g' in ls || 'b' in ls) {
-                if (!('r' in ls)) {
+                if (!('r' in ls) || ls.r > 255 || ls.r < 0 || typeof ls.r !== 'number') {
                     ls.r = 0;
                 }
-                if (!('g' in ls)) {
+                if (!('g' in ls) || ls.g > 255 || ls.g < 0 || typeof ls.g !== 'number') {
                     ls.g = 0;
                 }
-                if (!('b' in ls)) {
+                if (!('b' in ls) || ls.b > 255 || ls.b < 0 || typeof ls.b !== 'number') {
                     ls.b = 0;
                 }
                 const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
@@ -344,6 +349,11 @@ function startAdapter(options) {
                 finalLS.b = Math.round(rgb.Blue * 254);
             }
             if ('ct' in ls) {
+                if (typeof ls.ct !== 'number') {
+                    adapter.log.error(`Invalid "ct" value "${state.val}" (type: ${typeof ls.ct}) for id "${id}"`);
+                    return;
+                }
+
                 finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
                 // convert kelvin to mired
                 finalLS.ct = Math.round(1e6 / finalLS.ct);
@@ -357,6 +367,11 @@ function startAdapter(options) {
                 }
             }
             if ('hue' in ls) {
+                if (typeof ls.hue !== 'number') {
+                    adapter.log.error(`Invalid "hue" value "${state.val}" (type: ${typeof ls.hue}) for id "${id}"`);
+                    return;
+                }
+
                 finalLS.hue = Math.min(ls.hue, 360);
                 if (finalLS.hue < 0) {
                     finalLS.hue = 360;
@@ -565,14 +580,14 @@ function startAdapter(options) {
                     case 'browse': {
                         const res = await browse(obj.message);
                         if (obj.callback) {
-                            adapter.sendTo(obj.from, obj.command, JSON.stringify(res), obj.callback);
+                            adapter.sendTo(obj.from, obj.command, res, obj.callback);
                         }
                         break;
                     }
                     case 'createUser': {
                         const res = await createUser(obj.message);
                         if (obj.callback) {
-                            adapter.sendTo(obj.from, obj.command, JSON.stringify(res), obj.callback);
+                            adapter.sendTo(obj.from, obj.command, res, obj.callback);
                         }
                         break;
                     }

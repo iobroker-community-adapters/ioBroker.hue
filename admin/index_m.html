@@ -72,7 +72,6 @@
                 (function sendCreate() {
                     sendTo('hue.' + instance, 'createUser', $('#bridge.value').val(), function (result) {
                         try {
-                            result = JSON.parse(result);
                             if (result && result.error) {
                                 if (result.error === 101 && count < 10) {
                                     count++;
@@ -84,6 +83,7 @@
                                 }
                             } else {
                                 $('#user.value').val(result.message).trigger('change');
+                                M.updateTextFields();
                             }
                         } catch (e) {
                             showMessage(_('error creating user'), _('Error'), 'alert');
@@ -112,7 +112,7 @@
                 sendTo('hue.' + instance, 'browse', 5000, function (result) {
                     $('#dialog-bridges .btn-close').removeClass('disabled');
                     try {
-                        var arr = JSON.parse(result);
+                        var arr = result;
                         var popup;
                         if (!arr.length) {
                             popup = _('Cannot find bridge');

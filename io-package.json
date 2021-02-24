@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.1",
+        "version": "3.5.2",
         "news": {
+            "3.5.2": {
+                "en": "fix crashes if wrong data type or invalid value passed for ct and hue, now logging an error\nfix crashes if rgb where outside allowed range or wrong type\nfix potential crashes on bridge discovery, due to unnecessary stringify/parse logic\nfix graphical issue with the label of bridge user when newly created, due to missing call of updateTextFields",
+                "de": "Behebung von Abstürzen, wenn ein falscher Datentyp oder ein ungültiger Wert für ct und hue übergeben wurde und jetzt ein Fehler protokolliert wird\nBehebung von Abstürzen, wenn RGB außerhalb des zulässigen Bereichs oder des falschen Typs liegt\nBeheben Sie mögliche Abstürze bei der Bridge-Erkennung aufgrund unnötiger Stringify / Parse-Logik\nBehebung eines Grafikproblems mit der Bezeichnung des Bridge-Benutzers bei der Neuerstellung aufgrund eines fehlenden Aufrufs von updateTextFields",
+                "ru": "исправить сбои, если для ct и hue передан неправильный тип данных или недопустимое значение, теперь регистрируется ошибка\nисправить сбои, если rgb находится за пределами допустимого диапазона или неправильного типа\nисправить потенциальные сбои при обнаружении моста из-за ненужной логики преобразования / синтаксического анализа\nисправить графическую проблему с меткой пользователя моста при создании нового из-за отсутствия вызова updateTextFields",
+                "pt": "consertar falhas se o tipo de dado errado ou valor inválido for passado para ct e hue, agora registrando um erro\nconsertar falhas se rgb estiver fora do intervalo permitido ou tipo errado\nconsertar possíveis falhas na descoberta da ponte, devido à lógica de stringify / parse desnecessária\ncorrigir o problema gráfico com o rótulo do usuário ponte quando recém-criado, devido à chamada ausente de updateTextFields",
+                "nl": "fix crasht als er een verkeerd gegevenstype of een ongeldige waarde wordt doorgegeven voor ct en hue, nu een fout wordt geregistreerd\nrepareer crashes als rgb buiten het toegestane bereik valt of het verkeerde type is\nmogelijke crashes bij bridge-detectie oplossen als gevolg van onnodige stringify / parse-logica\nlos grafisch probleem op met het label van de bridge-gebruiker wanneer deze nieuw werd gemaakt, vanwege een ontbrekende aanroep van updateTextFields",
+                "fr": "correction des plantages en cas de type de données incorrect ou de valeur non valide transmise pour ct et hue, consignant maintenant une erreur\ncorrection des plantages si rgb était hors de la plage autorisée ou type incorrect\ncorrection des plantages potentiels lors de la découverte de ponts, en raison d'une logique stringify / parse inutile\ncorrection d'un problème graphique avec l'étiquette de l'utilisateur du pont lors de sa nouvelle création, en raison d'un appel manquant de updateTextFields",
+                "it": "risolve gli arresti anomali se viene passato un tipo di dati errato o un valore non valido per ct e hue, registrando un errore\nrisolve arresti anomali se rgb era al di fuori dell'intervallo consentito o di tipo sbagliato\nrisolvere potenziali arresti anomali durante la scoperta del bridge, a causa di una logica stringify / parse non necessaria\nrisolve il problema grafico con l'etichetta dell'utente bridge quando viene creata di recente, a causa della chiamata mancante di updateTextFields",
+                "es": "corrige fallas si se pasa un tipo de datos incorrecto o un valor no válido para ct y hue, ahora registrando un error\narregla los bloqueos si rgb fuera del rango permitido o del tipo incorrecto\ncorregir posibles bloqueos en el descubrimiento de puentes, debido a una lógica de secuenciación / análisis innecesaria\nSolucione el problema gráfico con la etiqueta del usuario del puente cuando se creó nuevamente, debido a la falta de llamada de updateTextFields",
+                "pl": "naprawa awarie, jeśli nieprawidłowy typ danych lub nieprawidłowa wartość przekazana dla ct i hue, teraz rejestruje błąd\nnaprawić awarie, jeśli rgb jest poza dozwolonym zakresem lub niewłaściwy typ\nnaprawia potencjalne awarie przy wykrywaniu mostów z powodu niepotrzebnej logiki stringify / parse\nnaprawa graficznego problemu z etykietą użytkownika mostka po jego utworzeniu z powodu braku wywołania updateTextFields",
+                "zh-cn": "如果为ct和hue传递了错误的数据类型或无效值，则修复崩溃，现在记录错误\n如果rgb超出允许范围或错误类型，则修复崩溃\n修复由于不必要的字符串化/解析逻辑而可能导致网桥发现崩溃的问题\n由于缺少对updateTextFields的调用，修复了新创建时桥用户标签的图形问题"
+            },
             "3.5.1": {
                 "en": "avoid crash cases on invalid xy, setting state for non-existing device and on failing user creation",
                 "de": "Vermeiden Sie Absturzfälle auf ungültigem xy, setzen Sie den Status für nicht vorhandenes Gerät und schlagen Sie die Benutzererstellung fehl",
@@ -230,18 +242,6 @@
                 "es": "Se agregó validación frontend adicional del intervalo de sondeo y mejor manejo de errores",
                 "pl": "dodano dodatkową weryfikację interfejsu interwału sondowania i ulepszoną obsługę błędów",
                 "zh-cn": "添加了额外的轮询间隔前端验证并改进了错误处理"
-            },
-            "3.1.0": {
-                "en": "added new indicators of entertainment groups and added possiblity to start and stop streaming ",
-                "de": "Es wurden neue Anzeigen für Unterhaltungsgruppen und die Möglichkeit hinzugefügt, das Streaming zu starten und zu stoppen",
-                "ru": "добавлены новые индикаторы развлекательных групп и добавлена возможность запуска и остановки потокового вещания",
-                "pt": "novos indicadores de grupos de entretenimento e possibilidade de iniciar e interromper a transmissão",
-                "nl": "nieuwe indicatoren van entertainmentgroepen toegevoegd en mogelijkheid om streaming te starten en stoppen",
-                "fr": "ajout de nouveaux indicateurs de groupes de divertissement et possibilité de démarrer et d'arrêter le streaming",
-                "it": "aggiunti nuovi indicatori di gruppi di intrattenimento e aggiunta possibilità di avviare e interrompere lo streaming",
-                "es": "Se agregaron nuevos indicadores de grupos de entretenimiento y se agregó la posibilidad de iniciar y detener la transmisión",
-                "pl": "dodano nowe wskaźniki grup rozrywkowych oraz dodano możliwość rozpoczęcia i zakończenia transmisji",
-                "zh-cn": "添加了娱乐团体的新指标，并增加了开始和停止流媒体播放的可能性"
             }
         },
         "title": "Philips Hue Bridge",
