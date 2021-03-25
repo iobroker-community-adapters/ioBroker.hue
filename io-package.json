@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.2",
+        "version": "3.5.3",
         "news": {
+            "3.5.3": {
+                "en": "fixing several edge case crashes",
+                "de": "Beheben mehrerer Abstürze des Randgehäuses",
+                "ru": "исправление нескольких сбоев краевого корпуса",
+                "pt": "consertando várias falhas de casos extremos",
+                "nl": "het oplossen van verschillende crashes aan de rand",
+                "fr": "correction de plusieurs plantages de bordures",
+                "it": "risolvendo diversi crash del case edge",
+                "es": "arreglando varios choques de la caja del borde",
+                "pl": "naprawianie kilku awarii krawędzi",
+                "zh-cn": "修复多个边缘案例崩溃"
+            },
             "3.5.2": {
                 "en": "fix crashes if wrong data type or invalid value passed for ct and hue, now logging an error\nfix crashes if rgb where outside allowed range or wrong type\nfix potential crashes on bridge discovery, due to unnecessary stringify/parse logic\nfix graphical issue with the label of bridge user when newly created, due to missing call of updateTextFields",
                 "de": "Behebung von Abstürzen, wenn ein falscher Datentyp oder ein ungültiger Wert für ct und hue übergeben wurde und jetzt ein Fehler protokolliert wird\nBehebung von Abstürzen, wenn RGB außerhalb des zulässigen Bereichs oder des falschen Typs liegt\nBeheben Sie mögliche Abstürze bei der Bridge-Erkennung aufgrund unnötiger Stringify / Parse-Logik\nBehebung eines Grafikproblems mit der Bezeichnung des Bridge-Benutzers bei der Neuerstellung aufgrund eines fehlenden Aufrufs von updateTextFields",
@@ -232,7 +244,6 @@
                 "zh-cn": "添加了额外的轮询间隔前端验证并改进了错误处理"
             }
         },
-        "title": "Philips Hue Bridge",
         "titleLang": {
             "en": "Philips Hue Bridge",
             "de": "Philips Hue-Bridge",
@@ -295,7 +306,8 @@
         "icon": "hue.jpeg",
         "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
         "type": "lighting",
-        "connectionType": "local polling"
+        "connectionType": "local",
+        "dataSource": "poll"
     },
     "native": {
         "bridge": "",

@@ -16,6 +16,7 @@
 const { v3 } = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
+const tools = require('./lib/tools');
 const blockedIds = [];
 let noDevices;
 
@@ -60,7 +61,14 @@ function startAdapter(options) {
 
             // check if its a sensor
             const channelId = id.substring(0, id.lastIndexOf('.'));
-            const channelObj = await adapter.getForeignObjectAsync(channelId);
+
+            let channelObj;
+            try {
+                channelObj = await adapter.getForeignObjectAsync(channelId);
+            } catch (e) {
+                adapter.log.error(`Cannot get channelObj on stateChange for id "${id}" (${channelId}): ${e.message}`);
+                return;
+            }
 
             if (channelObj && channelObj.common && supportedSensors.includes(channelObj.common.role)) {
                 // its a sensor - we support turning it on and off
@@ -392,7 +400,7 @@ function startAdapter(options) {
                 }
             }
             if ('sat' in ls) {
-                finalLS.sat = Math.max(0, Math.min(254, ls.sat));
+                finalLS.sat = Math.max(0, Math.min(254, ls.sat)) || 0;
                 lightState = lightState.sat(finalLS.sat);
                 if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                     lightState = lightState.on();
@@ -425,7 +433,7 @@ function startAdapter(options) {
             if ('transitiontime' in ls) {
                 const transitiontime = parseInt(ls.transitiontime);
                 if (!isNaN(transitiontime)) {
-                    finalLS.transitiontime = transitiontime;
+                    finalLS.transitiontime = Math.max(0, Math.min(65535, transitiontime));
                     lightState = lightState.transitiontime(transitiontime);
                 }
             }
@@ -580,21 +588,21 @@ function startAdapter(options) {
                     case 'browse': {
                         const res = await browse(obj.message);
                         if (obj.callback) {
-                            adapter.sendTo(obj.from, obj.command, res, obj.callback);
+                            await adapter.sendToAsync(obj.from, obj.command, res, obj.callback);
                         }
                         break;
                     }
                     case 'createUser': {
                         const res = await createUser(obj.message);
                         if (obj.callback) {
-                            adapter.sendTo(obj.from, obj.command, res, obj.callback);
+                            await adapter.sendToAsync(obj.from, obj.command, res, obj.callback);
                         }
                         break;
                     }
                     default:
                         adapter.log.warn(`Unknown command: ${obj.command}`);
                         if (obj.callback) {
-                            adapter.sendTo(obj.from, obj.command, obj.message, obj.callback);
+                            await adapter.sendToAsync(obj.from, obj.command, obj.message, obj.callback);
                         }
                         break;
                 }
@@ -637,8 +645,20 @@ async function browse(timeout) {
         timeout = 5000;
     }
 
-    const res1 = await v3.discovery.upnpSearch(timeout);
-    const res2 = await v3.discovery.nupnpSearch();
+    let res1 = [];
+    let res2 = [];
+    // methods can throw timeout error
+    try {
+        res1 = await v3.discovery.upnpSearch(timeout);
+    } catch (e) {
+        adapter.log.error(`Error on browsing via UPNP: ${e.message}`);
+    }
+
+    try {
+        res2 = await v3.discovery.nupnpSearch();
+    } catch (e) {
+        adapter.log.error(`Error on browsing via NUPNP: ${e.message}`);
+    }
     const bridges = res1.concat(res2);
 
     const ips = [];
@@ -697,7 +717,7 @@ async function updateGroupState(group) {
     const values = [];
 
     try {
-        let result = await api.groups.get(group.id);
+        let result = await api.groups.getGroup(group.id);
         const states = {};
 
         result = result['_data'];
@@ -878,8 +898,8 @@ async function connect() {
     // Create/update lamps
     const lights = config.lights;
     const sensors = config.sensors;
-    const sensorsArr = Object.keys(sensors);
-    const lightsArr = Object.keys(lights);
+    const sensorsArr = sensors ? Object.keys(sensors) : [];
+    const lightsArr = lights ? Object.keys(lights) : [];
     const objs = [];
 
     noDevices = sensorsArr.length + lightsArr.length;
@@ -1294,7 +1314,7 @@ async function connect() {
                         id: gid
                     }
                 };
-                if (typeof group.action[action] === 'object') {
+                if (tools.isObject(group.action[action])) {
                     group.action[action] = group.action[action].toString();
                 }
 
