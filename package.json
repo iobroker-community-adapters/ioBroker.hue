@@ -33,11 +33,11 @@
   },
   "devDependencies": {
     "@alcalzone/release-script": "^1.8.3",
-    "@iobroker/testing": "^2.4.2",
-    "chai": "^4.3.0",
-    "eslint": "^7.20.0",
+    "@iobroker/testing": "^2.4.4",
+    "chai": "^4.3.4",
+    "eslint": "^7.22.0",
     "gulp": "^4.0.2",
-    "mocha": "^8.3.0"
+    "mocha": "^8.3.2"
   },
   "scripts": {
     "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
