@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.4",
+        "version": "3.5.5",
         "news": {
+            "3.5.5": {
+                "en": "fixed a bug where an error on user creation crashed the adapter instance",
+                "de": "Es wurde ein Fehler behoben, durch den ein Fehler bei der Benutzererstellung die Adapterinstanz zum Absturz brachte",
+                "ru": "исправлена ошибка, из-за которой ошибка при создании пользователя приводила к сбою экземпляра адаптера",
+                "pt": "corrigiu um bug em que um erro na criação do usuário travava a instância do adaptador",
+                "nl": "een bug verholpen waarbij een fout bij het maken van de gebruiker de adapterinstantie crashte",
+                "fr": "correction d'un bug où une erreur lors de la création de l'utilisateur bloquait l'instance d'adaptateur",
+                "it": "risolto un bug in cui un errore nella creazione dell'utente causava il crash dell'istanza dell'adattatore",
+                "es": "Se corrigió un error en el que un error en la creación del usuario bloqueaba la instancia del adaptador.",
+                "pl": "naprawiono błąd polegający na tym, że błąd podczas tworzenia użytkownika powodował awarię instancji adaptera",
+                "zh-cn": "修复了用户创建错误使适配器实例崩溃的错误"
+            },
             "3.5.4": {
                 "en": "fixing several edge case crashes",
                 "de": "Beheben mehrerer Abstürze des Randgehäuses",
@@ -230,18 +242,6 @@
                 "es": "ya no requiere reiniciar cuando se elimina el dispositivo, eliminar automáticamente si se admite la función de eliminación recursiva",
                 "pl": "nie wymaga już restartu po usunięciu urządzenia, automatyczne usuwanie, jeśli obsługiwana jest funkcja usuwania rekurencyjnego",
                 "zh-cn": "删除设备后不再需要重新启动，如果支持递归删除功能，则自动删除"
-            },
-            "3.1.1": {
-                "en": "added additional frontend validation of polling interval and improved error handling",
-                "de": "Zusätzliche Frontend-Validierung des Abfrageintervalls und verbesserte Fehlerbehandlung hinzugefügt",
-                "ru": "добавлена дополнительная проверка внешнего интерфейса интервала опроса и улучшена обработка ошибок",
-                "pt": "adição adicional de validação front-end do intervalo de pesquisa e melhor tratamento de erros",
-                "nl": "extra frontend-validatie van polling-interval en verbeterde foutafhandeling toegevoegd",
-                "fr": "ajouté une validation frontale supplémentaire de l'intervalle d'interrogation et une meilleure gestion des erreurs",
-                "it": "aggiunta ulteriore validazione frontend dell'intervallo di polling e migliorata gestione degli errori",
-                "es": "Se agregó validación frontend adicional del intervalo de sondeo y mejor manejo de errores",
-                "pl": "dodano dodatkową weryfikację interfejsu interwału sondowania i ulepszoną obsługę błędów",
-                "zh-cn": "添加了额外的轮询间隔前端验证并改进了错误处理"
             }
         },
         "titleLang": {

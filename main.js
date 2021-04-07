@@ -13,7 +13,7 @@
 /* jslint node: true */
 'use strict';
 
-const { v3 } = require('node-hue-api');
+const {v3} = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
 const tools = require('./lib/tools');
@@ -24,12 +24,14 @@ let adapter;
 let pollingInterval;
 let reconnectTimeout;
 
-const supportedSensors = ['ZLLSwitch',
+const supportedSensors = [
+    'ZLLSwitch',
     'ZGPSwitch',
     'Daylight',
     'ZLLTemperature',
     'ZLLPresence',
-    'ZLLLightLevel'];
+    'ZLLLightLevel'
+];
 
 function startAdapter(options) {
     options = options || {};
@@ -556,7 +558,8 @@ function startAdapter(options) {
                     lightState.on(finalLS.on);
                     try {
                         await api.lights.setLightState(channelIds[id], lightState);
-                        await updateLightState({id: channelIds[id],
+                        await updateLightState({
+                            id: channelIds[id],
                             name: obj._id.substr(adapter.namespace.length + 1)
                         });
                         adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
@@ -692,9 +695,14 @@ async function createUser(ip) {
     } catch (e) {
         // 101 is bridge button not pressed
         if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
-            adapter.log.error(e);
+            adapter.log.error(e.message);
         }
-        return {error: e.getHueErrorType ? e.getHueErrorType() : e, message: e.message};
+        // we see error as an error code only to detect 101, we do not use whole e here,
+        // because it seems to be a circular structure sometimes
+        return {
+            error: e.getHueErrorType ? e.getHueErrorType() : -1,
+            message: e.getHueErrorMessage ? e.getHueErrorMessage() : e.message
+        };
     }
 } // endCreateUser
 
