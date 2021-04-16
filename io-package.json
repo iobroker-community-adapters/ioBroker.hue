@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.5",
+        "version": "3.5.6",
         "news": {
+            "3.5.6": {
+                "en": "`buttonevent` will now be updated even if state value not changed to make scripting more user-friendly (closes #178)",
+                "de": "`buttonevent` wird jetzt aktualisiert, auch wenn der Statuswert nicht geändert wurde, um die Skripterstellung benutzerfreundlicher zu gestalten (schließt # 178).",
+                "ru": "`buttonevent` теперь будет обновляться, даже если значение состояния не изменилось, чтобы сделать сценарии более удобными для пользователя (закрывает # 178)",
+                "pt": "`buttonevent` agora será atualizado mesmo se o valor do estado não for alterado para tornar o script mais amigável (fecha # 178)",
+                "nl": "`buttonevent` wordt nu bijgewerkt, zelfs als de waarde van de status niet is gewijzigd om scripting gebruiksvriendelijker te maken (sluit # 178)",
+                "fr": "`buttonevent` sera maintenant mis à jour même si la valeur de l'état n'a pas été modifiée pour rendre le script plus convivial (ferme # 178)",
+                "it": "`buttonevent` verrà ora aggiornato anche se il valore dello stato non è cambiato per rendere lo scripting più user-friendly (chiude # 178)",
+                "es": "`buttonevent` ahora se actualizará incluso si el valor del estado no se cambia para hacer que las secuencias de comandos sean más fáciles de usar (cierra # 178)",
+                "pl": "`buttonevent` będzie teraz aktualizowane, nawet jeśli wartość stanu nie zostanie zmieniona, aby uczynić skrypty bardziej przyjaznymi dla użytkownika (zamyka # 178)",
+                "zh-cn": "即使状态值未更改以使脚本更加用户友好，“ buttonevent”现在也将更新（关闭＃178）"
+            },
             "3.5.5": {
                 "en": "fixed a bug where an error on user creation crashed the adapter instance",
                 "de": "Es wurde ein Fehler behoben, durch den ein Fehler bei der Benutzererstellung die Adapterinstanz zum Absturz brachte",
@@ -230,18 +242,6 @@
                 "es": "problemas potenciales corregidos cuando el tipo de error no es HueError",
                 "pl": "naprawiono potencjalne problemy, gdy typ błędu nie jest HueError",
                 "zh-cn": "修复了错误类型不是HueError时的潜在问题"
-            },
-            "3.2.1": {
-                "en": "no longer require restart when device is deleted, auto delete if recursive deletion feature is supported",
-                "de": "Neustart nicht mehr erforderlich, wenn das Gerät gelöscht wird, automatische Löschung, wenn die Funktion zum rekursiven Löschen unterstützt wird",
-                "ru": "больше не требуется перезагрузка при удалении устройства, автоматическое удаление, если поддерживается функция рекурсивного удаления",
-                "pt": "não é mais necessário reiniciar quando o dispositivo é excluído, exclusão automática se o recurso de exclusão recursiva for suportado",
-                "nl": "niet langer opnieuw opstarten nodig wanneer apparaat wordt verwijderd, automatisch verwijderen als functie voor recursieve verwijdering wordt ondersteund",
-                "fr": "ne nécessite plus de redémarrage lorsque l'appareil est supprimé, suppression automatique si la fonction de suppression récursive est prise en charge",
-                "it": "non è più necessario riavviare quando il dispositivo viene eliminato, eliminazione automatica se è supportata la funzione di eliminazione ricorsiva",
-                "es": "ya no requiere reiniciar cuando se elimina el dispositivo, eliminar automáticamente si se admite la función de eliminación recursiva",
-                "pl": "nie wymaga już restartu po usunięciu urządzenia, automatyczne usuwanie, jeśli obsługiwana jest funkcja usuwania rekurencyjnego",
-                "zh-cn": "删除设备后不再需要重新启动，如果支持递归删除功能，则自动删除"
             }
         },
         "titleLang": {
