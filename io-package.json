@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.6",
+        "version": "3.5.7",
         "news": {
-            "3.5.6": {
+            "3.5.7": {
                 "en": "`buttonevent` will now be updated even if state value not changed to make scripting more user-friendly (closes #178)",
                 "de": "`buttonevent` wird jetzt aktualisiert, auch wenn der Statuswert nicht geändert wurde, um die Skripterstellung benutzerfreundlicher zu gestalten (schließt # 178).",
                 "ru": "`buttonevent` теперь будет обновляться, даже если значение состояния не изменилось, чтобы сделать сценарии более удобными для пользователя (закрывает # 178)",

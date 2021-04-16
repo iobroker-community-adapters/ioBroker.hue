@@ -1627,12 +1627,7 @@ async function syncStates(states) {
         const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
         if (blockedIds[nameId] !== true) {
             try {
-                if (task.id.endsWith('buttonevent')) {
-                    // update button event to let users trigger on update - here it makes sense
-                    await adapter.setForeignStateAsync(task.id.replace(/\s/g, '_'), task.val, true);
-                } else {
-                    await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val, true);
-                }
+                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val, true);
             } catch (e) {
                 adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e}`);
             }

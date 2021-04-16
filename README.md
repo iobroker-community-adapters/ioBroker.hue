@@ -57,7 +57,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	### __WORK IN PROGRESS__
 -->
 
-### 3.5.6 (2021-04-17)
+### 3.5.7 (2021-04-17)
 * (foxriver76) `buttonevent` will now be updated even if state value not changed to make scripting more user-friendly (closes #178)
 
 ### 3.5.5 (2021-04-07)
