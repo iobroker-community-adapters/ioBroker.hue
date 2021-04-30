@@ -1009,7 +1009,6 @@ async function connect() {
                         lobj.common.type = 'number';
                         lobj.common.role = 'lightlevel';
                         lobj.common.min = 0;
-                        lobj.common.max = 17000;
                         break;
                     case 'temperature':
                         lobj.common.type = 'number';
@@ -1402,6 +1401,10 @@ async function connect() {
                         gobj.common.type = 'string';
                         gobj.common.role = 'command';
                         break;
+                    case 'status':
+                        gobj.common.type = 'number';
+                        gobj.common.role = 'indicator.status';
+                        break;
                     default:
                         adapter.log.info(`skip group: ${gobjId}`);
                         continue;
@@ -1416,6 +1419,7 @@ async function connect() {
                 type: 'state',
                 common: {
                     name: `${groupName}.anyOn`,
+                    type: 'boolean',
                     role: 'indicator.switch',
                     read: true,
                     write: true,
@@ -1430,6 +1434,7 @@ async function connect() {
                 type: 'state',
                 common: {
                     name: `${groupName}.allOn`,
+                    type: 'boolean',
                     role: 'indicator.switch',
                     read: true,
                     write: true,

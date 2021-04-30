@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.9",
+        "version": "3.5.10",
         "tier": 2,
         "news": {
+            "3.5.10": {
+                "en": "we removed the common.max from lightlevel, was 17,000 but can be much higher\nwe added common.type for states where the attribute was missing",
+                "de": "wir haben die common.max von lightlevel entfernt, war 17.000, kann aber viel höher sein\nWir haben common.type für Zustände hinzugefügt, in denen das Attribut fehlte",
+                "ru": "мы удалили common.max из уровня освещенности, было 17000, но может быть намного выше\nмы добавили common.type для состояний, в которых отсутствовал атрибут",
+                "pt": "removemos o common.max do lightlevel, era 17.000, mas pode ser muito maior\nadicionamos common.type para estados em que o atributo estava ausente",
+                "nl": "we hebben de common.max verwijderd van lightlevel, was 17.000 maar kan veel hoger zijn\nwe hebben common.type toegevoegd voor staten waar het attribuut ontbrak",
+                "fr": "nous avons supprimé le common.max du niveau de lumière, était de 17000 mais peut être beaucoup plus élevé\nnous avons ajouté common.type pour les états où l'attribut était manquant",
+                "it": "abbiamo rimosso common.max da lightlevel, era 17.000 ma può essere molto più alto\nabbiamo aggiunto common.type per gli stati in cui l'attributo mancava",
+                "es": "eliminamos el common.max del nivel de luz, era 17,000 pero puede ser mucho más alto\nagregamos common.type para los estados donde faltaba el atributo",
+                "pl": "usunęliśmy common.max z poziomu lightlevel, który wynosił 17 000, ale może być znacznie wyższy\ndodaliśmy common.type dla stanów, w których brakowało atrybutu",
+                "zh-cn": "我们从光水平移除了common.max，它是17,000，但可能更高\n我们为缺少属性的州添加了common.type"
+            },
             "3.5.9": {
                 "en": "start this adapter in TIER 2",
                 "de": "Starten Sie diesen Adapter in TIER 2",
@@ -231,18 +243,6 @@
                 "es": "Se cambió la función de los estados de la batería a `value.battery` y se convirtió en la unidad`% `",
                 "pl": "zmieniono rolę stanów baterii na „wartość. akumulator” i zmieniono jednostkę na „%”",
                 "zh-cn": "将电池状态的角色更改为“ value.battery”，并使单位“％”"
-            },
-            "3.2.3": {
-                "en": "minor fix",
-                "de": "kleinere Korrektur",
-                "ru": "незначительное исправление",
-                "pt": "correção menor",
-                "nl": "kleine oplossing",
-                "fr": "correction mineure",
-                "it": "correzione minore",
-                "es": "corrección menor",
-                "pl": "drobna poprawka",
-                "zh-cn": "小修"
             }
         },
         "titleLang": {
