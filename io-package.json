@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.8",
+        "version": "3.5.9",
+        "tier": 2,
         "news": {
+            "3.5.9": {
+                "en": "start this adapter in TIER 2",
+                "de": "Starten Sie diesen Adapter in TIER 2",
+                "ru": "запустить этот адаптер на УРОВНЕ 2",
+                "pt": "inicie este adaptador em TIER 2",
+                "nl": "start deze adapter in TIER 2",
+                "fr": "démarrer cet adaptateur au TIER 2",
+                "it": "avviare questo adattatore in TIER 2",
+                "es": "inicie este adaptador en TIER 2",
+                "pl": "uruchom ten adapter w TIER 2",
+                "zh-cn": "在TIER 2中启动此适配器"
+            },
             "3.5.8": {
                 "en": "minor changes",
                 "de": "kleinere Änderungen",
@@ -230,18 +243,6 @@
                 "es": "corrección menor",
                 "pl": "drobna poprawka",
                 "zh-cn": "小修"
-            },
-            "3.2.2": {
-                "en": "fixed potential issues when error type is not HueError",
-                "de": "Mögliche Probleme behoben, wenn der Fehlertyp nicht HueError ist",
-                "ru": "исправлены потенциальные проблемы, когда тип ошибки не HueError",
-                "pt": "possíveis problemas corrigidos quando o tipo de erro não é HueError",
-                "nl": "mogelijke problemen opgelost wanneer het fouttype niet HueError is",
-                "fr": "correction de problèmes potentiels lorsque le type d'erreur n'est pas HueError",
-                "it": "risolti potenziali problemi quando il tipo di errore non è HueError",
-                "es": "problemas potenciales corregidos cuando el tipo de error no es HueError",
-                "pl": "naprawiono potencjalne problemy, gdy typ błędu nie jest HueError",
-                "zh-cn": "修复了错误类型不是HueError时的潜在问题"
             }
         },
         "titleLang": {
