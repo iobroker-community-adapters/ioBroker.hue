@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.10",
+        "version": "3.5.11",
         "tier": 2,
         "news": {
+            "3.5.11": {
+                "en": "we now update objects if type has changed",
+                "de": "Wir aktualisieren jetzt Objekte, wenn sich der Typ geändert hat",
+                "ru": "теперь мы обновляем объекты, если тип изменился",
+                "pt": "agora atualizamos objetos se o tipo mudou",
+                "nl": "we werken nu objecten bij als het type is gewijzigd",
+                "fr": "nous mettons maintenant à jour les objets si le type a changé",
+                "it": "ora aggiorniamo gli oggetti se il tipo è cambiato",
+                "es": "ahora actualizamos los objetos si el tipo ha cambiado",
+                "pl": "teraz aktualizujemy obiekty, jeśli zmienił się typ",
+                "zh-cn": "现在，如果类型已更改，我们将更新对象"
+            },
             "3.5.10": {
                 "en": "we removed the common.max from lightlevel, was 17,000 but can be much higher\nwe added common.type for states where the attribute was missing",
                 "de": "wir haben die common.max von lightlevel entfernt, war 17.000, kann aber viel höher sein\nWir haben common.type für Zustände hinzugefügt, in denen das Attribut fehlte",
@@ -231,18 +243,6 @@
                 "es": "reemplazamos los puntos en los nombres light / group / sensor / .. por guiones bajos",
                 "pl": "kropki w nazwach light / group / sensor / .. zastępujemy podkreślnikami",
                 "zh-cn": "我们用下划线替换光/组/传感器/ ..名称中的点"
-            },
-            "3.2.4": {
-                "en": "changed role of battery states to `value.battery` and made unit `%`",
-                "de": "Die Rolle der Batteriezustände wurde in \"value.battery\" geändert und die Einheit in \"%\" geändert",
-                "ru": "изменил роль состояний батареи на `value.battery` и сделал единицу`% `",
-                "pt": "função alterada dos estados da bateria para `value.battery` e criou a unidade`% `",
-                "nl": "veranderde de rol van batterijstatus in `waarde.batterij` en maakte eenheid`% `",
-                "fr": "changement du rôle des états de la batterie en «value.battery» et fabrication de l'unité «%»",
-                "it": "ha cambiato il ruolo degli stati della batteria in `value.battery` e ha reso l'unità`% `",
-                "es": "Se cambió la función de los estados de la batería a `value.battery` y se convirtió en la unidad`% `",
-                "pl": "zmieniono rolę stanów baterii na „wartość. akumulator” i zmieniono jednostkę na „%”",
-                "zh-cn": "将电池状态的角色更改为“ value.battery”，并使单位“％”"
             }
         },
         "titleLang": {
@@ -279,7 +279,7 @@
         "messagebox": true,
         "dependencies": [
             {
-                "js-controller": ">=1.4.2"
+                "js-controller": ">=3.2.0"
             }
         ],
         "plugins": {

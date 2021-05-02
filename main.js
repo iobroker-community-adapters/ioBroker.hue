@@ -1584,8 +1584,9 @@ async function connect() {
  */
 async function syncObjects(objs) {
     for (const task of objs) {
+        const obj = await adapter.getForeignObjectAsync(task._id);
+
         try {
-            const obj = await adapter.getForeignObjectAsync(task._id);
             // add saturation into enum.functions.color
             if (task.common.role === 'level.color.saturation') {
                 const _enum = await adapter.getForeignObjectAsync('enum.functions.color');
@@ -1604,14 +1605,15 @@ async function syncObjects(objs) {
                     obj.native = task.native;
                     await adapter.extendForeignObjectAsync(obj._id, obj);
                 }
-            } else if (!obj) {
-                await adapter.setForeignObjectAsync(task._id, task);
             } else {
-                obj.native = task.native;
-                await adapter.extendForeignObjectAsync(obj._id, obj);
+                // we have deleted common.max so extend will not remove it
+                if (obj && obj.common) {
+                    task.common.name = obj.common.name;
+                }
+                await adapter.setForeignObjectAsync(task._id, task, {preserve: {common: ['name']}});
             }
         } catch (e) {
-            adapter.log.error(`Could not sync object ${task._id}: ${e}`);
+            adapter.log.error(`Could not sync object ${task._id}: ${e.message}`);
         }
     }
 }
