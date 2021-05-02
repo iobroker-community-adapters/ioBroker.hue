@@ -1017,6 +1017,7 @@ async function connect() {
                         value = convertTemperature(value);
                         break;
                     default:
+                        lobj.common.type = 'mixed';
                         adapter.log.info(`skip switch: ${objId}`);
                         break;
                 }
@@ -1363,8 +1364,8 @@ async function connect() {
                         gobj.common.type = 'number';
                         gobj.common.role = 'level.color.temperature';
                         gobj.common.unit = '°K';
-                        gobj.common.min = 2200; // 500
-                        gobj.common.max = 6500; // 153
+                        gobj.common.min = 2179; // 500
+                        gobj.common.max = 6536; // 153
                         break;
                     case 'alert':
                         gobj.common.type = 'string';
