@@ -1364,8 +1364,8 @@ async function connect() {
                         gobj.common.type = 'number';
                         gobj.common.role = 'level.color.temperature';
                         gobj.common.unit = '°K';
-                        gobj.common.min = 2179; // 500
-                        gobj.common.max = 6536; // 153
+                        gobj.common.min = 2200; // 500
+                        gobj.common.max = 6500; // 153
                         break;
                     case 'alert':
                         gobj.common.type = 'string';
