@@ -57,6 +57,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	### __WORK IN PROGRESS__
 -->
 
+### __WORK IN PROGRESS__
+* (foxriver76) we fixed some more types
+
 ### 3.5.12 (2021-05-02)
 * (foxriver76) we give skipped switches common.type 'mixed' instead of none
 * (foxriver76) we have corrected the min max of color temperature (empirically found)

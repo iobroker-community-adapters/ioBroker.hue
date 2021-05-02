@@ -1169,11 +1169,11 @@ async function connect() {
                     break;
                 case 'alert':
                     lobj.common.type = 'string';
-                    lobj.common.role = 'switch';
+                    lobj.common.role = 'text';
                     break;
                 case 'effect':
-                    lobj.common.type = 'boolean';
-                    lobj.common.role = 'switch';
+                    lobj.common.type = 'string';
+                    lobj.common.role = 'text';
                     break;
                 case 'colormode':
                     lobj.common.type = 'string';
@@ -1220,7 +1220,7 @@ async function connect() {
                     break;
             }
 
-            lobj.common.def = value;
+            lobj.common.def = typeof value === 'object' ? JSON.stringify(value) : value;
             objs.push(lobj);
         }
 
@@ -1450,6 +1450,7 @@ async function connect() {
                     _id: `${adapter.namespace}.${groupName.replace(/\s/g, '_')}.class`,
                     type: 'state',
                     common: {
+                        type: 'string',
                         name: `${groupName}.class`,
                         role: 'indicator',
                         read: true,
@@ -1635,7 +1636,7 @@ async function syncStates(states) {
         const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
         if (blockedIds[nameId] !== true) {
             try {
-                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val, true);
+                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), typeof task.val === 'object' ? JSON.stringify(task.val) : task.val, true);
             } catch (e) {
                 adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e}`);
             }
