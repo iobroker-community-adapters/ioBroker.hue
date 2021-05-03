@@ -323,6 +323,7 @@
         "ssl": true,
         "syncSoftwareSensors": false
     },
+    "protectedNative": ["user"],
     "objects": [
         {
             "_id": "enum.functions.color",
