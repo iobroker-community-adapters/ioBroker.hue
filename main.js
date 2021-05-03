@@ -1163,8 +1163,8 @@ async function connect() {
                     lobj.common.type = 'number';
                     lobj.common.role = 'level.color.temperature';
                     lobj.common.unit = '°K';
-                    lobj.common.min = 2200; // 500
-                    lobj.common.max = 6500; // 153
+                    lobj.common.min = 2179; // 500
+                    lobj.common.max = 6536; // 153
                     value = Math.round(1e6 / value);
                     break;
                 case 'alert':
@@ -1349,6 +1349,8 @@ async function connect() {
                         gobj.common.unit = '°';
                         gobj.common.min = 0;
                         gobj.common.max = 360;
+                        // rescale to max of 360 instead of max 65535
+                        group.action[action] = Math.round(group.action[action] / 65535 * 360);
                         break;
                     case 'sat':
                         gobj.common.type = 'number';
@@ -1364,15 +1366,17 @@ async function connect() {
                         gobj.common.type = 'number';
                         gobj.common.role = 'level.color.temperature';
                         gobj.common.unit = '°K';
-                        gobj.common.min = 2200; // 500
-                        gobj.common.max = 6500; // 153
+                        gobj.common.min = 2179; // 500
+                        gobj.common.max = 6536; // 153
+                        // mired to kelvin
+                        group.action[action] = Math.round(1e6 / group.action[action]);
                         break;
                     case 'alert':
                         gobj.common.type = 'string';
                         gobj.common.role = 'switch';
                         break;
                     case 'effect':
-                        gobj.common.type = 'boolean';
+                        gobj.common.type = 'string';
                         gobj.common.role = 'switch';
                         break;
                     case 'colormode':

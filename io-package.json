@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.12",
+        "version": "3.5.13",
         "tier": 2,
         "news": {
+            "3.5.13": {
+                "en": "we fixed some more types",
+                "de": "Wir haben einige weitere Typen behoben",
+                "ru": "мы исправили еще несколько типов",
+                "pt": "nós consertamos mais alguns tipos",
+                "nl": "we hebben nog wat meer soorten gerepareerd",
+                "fr": "nous avons corrigé d'autres types",
+                "it": "abbiamo corretto altri tipi",
+                "es": "arreglamos algunos tipos más",
+                "pl": "naprawiliśmy kilka innych typów",
+                "zh-cn": "我们修复了更多类型"
+            },
             "3.5.12": {
                 "en": "we give skipped switches common.type 'mixed' instead of none\nwe have corrected the min max of color temperature (empirically found)",
                 "de": "Wir geben übersprungene Schalter common.type 'gemischt' anstelle von keiner\nWir haben das minimale Maximum der Farbtemperatur korrigiert (empirisch gefunden).",
@@ -231,18 +243,6 @@
                 "es": " introduzca el estado `allOn` para grupos,` anyOn` y `allOn` ahora son controlables y actúan como el estado` on`, cuando se usa el comportamiento nativo de encendido / apagado, el cambio de brillo de los grupos parcialmente activados no se activa",
                 "pl": " wprowadzamy stan „allOn” dla grup, „anyOn” i „allOn” są teraz sterowane i działają jak stan „on”, gdy stosowane jest natywne zachowanie włączania / wyłączania, zmiana jasności częściowo włączonych grup nie zmieni się",
                 "zh-cn": " 为组引入“ allOn”状态，“ anyOn”和“ allOn”现在是可控的，就像“ on”状态一样，当使用本机打开/关闭行为时，部分打开的组的亮度变化不会打开"
-            },
-            "3.2.9": {
-                "en": "fixed issues on user creation",
-                "de": "Probleme bei der Benutzererstellung behoben",
-                "ru": "исправлены ошибки при создании пользователя",
-                "pt": "problemas corrigidos na criação do usuário",
-                "nl": "opgeloste problemen bij het maken van gebruikers",
-                "fr": "correction de problèmes lors de la création d'utilisateurs",
-                "it": "risolti i problemi relativi alla creazione dell'utente",
-                "es": "problemas resueltos en la creación de usuarios",
-                "pl": "naprawiono problemy z tworzeniem użytkowników",
-                "zh-cn": "解决了用户创建方面的问题"
             }
         },
         "titleLang": {
