@@ -1262,7 +1262,7 @@ async function connect() {
                 alert: 'select',
                 bri: 0,
                 colormode: '',
-                ct: 0,
+                ct: 2179, // min value, else it gets inf
                 effect: 'none',
                 hue: 0,
                 on: false,
@@ -1414,7 +1414,7 @@ async function connect() {
                         adapter.log.info(`skip group: ${gobjId}`);
                         continue;
                 }
-                gobj.common.def = group.action[action];
+                gobj.common.def = typeof group.action[action] === 'object' ? JSON.stringify(group.action[action]): group.action[action];
                 objs.push(gobj);
             } // endFor
 

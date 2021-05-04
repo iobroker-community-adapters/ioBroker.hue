@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.13",
+        "version": "3.5.14",
         "tier": 2,
         "news": {
+            "3.5.14": {
+                "en": "protect the user token from access by foreign adapters\nfixed types of default values on groups",
+                "de": "Schützen Sie das Benutzertoken vor dem Zugriff durch fremde Adapter\nFeste Arten von Standardwerten für Gruppen",
+                "ru": "защитить токен пользователя от доступа посторонних адаптеров\nфиксированные типы значений по умолчанию для групп",
+                "pt": "proteger o token do usuário do acesso por adaptadores estrangeiros\ntipos fixos de valores padrão em grupos",
+                "nl": "bescherm het gebruikerstoken tegen toegang door buitenlandse adapters\nvaste soorten standaardwaarden voor groepen",
+                "fr": "protéger le jeton utilisateur contre l'accès par des adaptateurs étrangers\ntypes fixes de valeurs par défaut sur les groupes",
+                "it": "proteggere il token utente dall'accesso da parte di adattatori esterni\ntipi fissi di valori predefiniti sui gruppi",
+                "es": "proteger el token de usuario del acceso de adaptadores externos\ntipos fijos de valores predeterminados en grupos",
+                "pl": "chronić token użytkownika przed dostępem obcych adapterów\nustalone typy wartości domyślnych na grupach",
+                "zh-cn": "保护用户令牌不被外部适配器访问\n固定类型的默认值在组上"
+            },
             "3.5.13": {
                 "en": "we fixed some more types",
                 "de": "Wir haben einige weitere Typen behoben",
@@ -231,18 +243,6 @@
                 "es": "optimizaciones internas: el sondeo después de que se eliminó el tiempo de espera de cambio, era de 150 ms, ahora sondeamos al instante",
                 "pl": "wewnętrzne optymalizacje - odpytywanie po usunięciu limitu czasu zmiany wynosiło 150 ms, teraz sondujemy natychmiast",
                 "zh-cn": "内部优化-更改超时删除后的轮询为150毫秒，现在我们立即进行轮询"
-            },
-            "3.3.0": {
-                "en": " introduce `allOn` state for groups, `anyOn` and `allOn` are now controllable and act like the `on` state, when native turn on/off behaviour is used, the brightness change of partially turned on groups will not turn",
-                "de": " Einführung des Status \"allOn\" für Gruppen, \"anyOn\" und \"allOn\" sind jetzt steuerbar und verhalten sich wie der Status \"on\". Wenn das native Ein- / Ausschaltverhalten verwendet wird, wird die Helligkeitsänderung von teilweise eingeschalteten Gruppen nicht aktiviert",
-                "ru": " введите для групп состояние «allOn», теперь «anyOn» и «allOn» являются управляемыми и действуют как состояние «вкл», при использовании встроенного режима включения / выключения изменение яркости частично включенных групп не будет",
-                "pt": " introduzir o estado `allOn` para grupos,` anyOn` e `allOn` agora são controláveis e agem como o estado` on`, quando o comportamento nativo de ligar / desligar é usado, a mudança de brilho de grupos parcialmente ativados não será ativada.",
-                "nl": " introduceren `allOn` status voor groepen,` anyOn` en `allOn` zijn nu bestuurbaar en werken als de` aan` status, wanneer native aan / uit gedrag wordt gebruikt, zal de helderheidsverandering van gedeeltelijk ingeschakelde groepen niet draaien",
-                "fr": " introduire l'état `allOn` pour les groupes,` anyOn` et `allOn` sont désormais contrôlables et agissent comme l'état` on`, lorsque le comportement d'activation / désactivation natif est utilisé, le changement de luminosité des groupes partiellement activés ne tourne pas",
-                "it": " introdurre lo stato `allOn` per i gruppi,` anyOn` e `allOn` sono ora controllabili e si comportano come lo stato` on`, quando viene utilizzato il comportamento di accensione / spegnimento nativo, il cambiamento di luminosità dei gruppi parzialmente attivati non gira",
-                "es": " introduzca el estado `allOn` para grupos,` anyOn` y `allOn` ahora son controlables y actúan como el estado` on`, cuando se usa el comportamiento nativo de encendido / apagado, el cambio de brillo de los grupos parcialmente activados no se activa",
-                "pl": " wprowadzamy stan „allOn” dla grup, „anyOn” i „allOn” są teraz sterowane i działają jak stan „on”, gdy stosowane jest natywne zachowanie włączania / wyłączania, zmiana jasności częściowo włączonych grup nie zmieni się",
-                "zh-cn": " 为组引入“ allOn”状态，“ anyOn”和“ allOn”现在是可控的，就像“ on”状态一样，当使用本机打开/关闭行为时，部分打开的组的亮度变化不会打开"
             }
         },
         "titleLang": {
@@ -323,7 +323,9 @@
         "ssl": true,
         "syncSoftwareSensors": false
     },
-    "protectedNative": ["user"],
+    "protectedNative": [
+        "user"
+    ],
     "objects": [
         {
             "_id": "enum.functions.color",
