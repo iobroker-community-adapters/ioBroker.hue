@@ -57,6 +57,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	### __WORK IN PROGRESS__
 -->
 
+### 3.5.15 (2021-05-05)
+* (foxriver76) fixed some default type values, which produced warnings once
+
 ### 3.5.14 (2021-05-04)
 * (foxriver76) protect the user token from access by foreign adapters
 * (foxriver76) fixed types of default values on groups 

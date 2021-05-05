@@ -989,7 +989,7 @@ async function connect() {
                         lobj.common.write = false;
                         break;
                     case 'pending':
-                        lobj.common.type = 'number';
+                        lobj.common.type = 'array';
                         lobj.common.role = 'config';
                         lobj.common.write = false;
                         break;
@@ -1022,7 +1022,7 @@ async function connect() {
                         break;
                 }
 
-                lobj.common.def = value;
+                lobj.common.def = value && typeof value === 'object' ? JSON.stringify(value) : value;
                 objs.push(lobj);
             }
 
@@ -1208,7 +1208,7 @@ async function connect() {
                     lobj.common.role = 'command';
                     break;
                 case 'pending':
-                    lobj.common.type = 'number';
+                    lobj.common.type = 'array';
                     lobj.common.role = 'config';
                     break;
                 case 'mode':
@@ -1220,7 +1220,7 @@ async function connect() {
                     break;
             }
 
-            lobj.common.def = typeof value === 'object' ? JSON.stringify(value) : value;
+            lobj.common.def = value && typeof value === 'object' ? JSON.stringify(value) : value;
             objs.push(lobj);
         }
 
@@ -1262,7 +1262,7 @@ async function connect() {
                 alert: 'select',
                 bri: 0,
                 colormode: '',
-                ct: 2179, // min value, else it gets inf
+                ct: 1e6 / 2179, // min value, else it gets inf
                 effect: 'none',
                 hue: 0,
                 on: false,
@@ -1414,7 +1414,7 @@ async function connect() {
                         adapter.log.info(`skip group: ${gobjId}`);
                         continue;
                 }
-                gobj.common.def = typeof group.action[action] === 'object' ? JSON.stringify(group.action[action]): group.action[action];
+                gobj.common.def = group.action[action] && typeof group.action[action] === 'object' ? JSON.stringify(group.action[action]): group.action[action];
                 objs.push(gobj);
             } // endFor
 
@@ -1471,6 +1471,7 @@ async function connect() {
                     type: 'state',
                     common: {
                         name: `${groupName}.activeStream`,
+                        type: 'boolean',
                         role: 'indicator',
                         read: true,
                         write: true,
@@ -1640,7 +1641,7 @@ async function syncStates(states) {
         const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
         if (blockedIds[nameId] !== true) {
             try {
-                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), typeof task.val === 'object' ? JSON.stringify(task.val) : task.val, true);
+                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val && typeof task.val === 'object' ? JSON.stringify(task.val) : task.val, true);
             } catch (e) {
                 adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e}`);
             }

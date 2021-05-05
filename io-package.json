@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.14",
+        "version": "3.5.15",
         "tier": 2,
         "news": {
+            "3.5.15": {
+                "en": "fixed some default type values, which produced warnings once",
+                "de": "Einige Standardtypwerte wurden behoben, die einmal zu Warnungen führten",
+                "ru": "исправлены некоторые значения типов по умолчанию, которые один раз выдавали предупреждения",
+                "pt": "corrigiu alguns valores de tipo padrão, que produziram avisos uma vez",
+                "nl": "enkele standaard typewaarden gerepareerd, die eenmaal waarschuwingen produceerden",
+                "fr": "correction de certaines valeurs de type par défaut, qui produisaient des avertissements une fois",
+                "it": "risolti alcuni valori di tipo predefinito, che producevano avvisi una volta",
+                "es": "se corrigieron algunos valores de tipo predeterminados, que producían advertencias una vez",
+                "pl": "naprawiono niektóre domyślne wartości typu, które raz generowały ostrzeżenia",
+                "zh-cn": "修复了一些默认类型值，该默认值一旦产生警告"
+            },
             "3.5.14": {
                 "en": "protect the user token from access by foreign adapters\nfixed types of default values on groups",
                 "de": "Schützen Sie das Benutzertoken vor dem Zugriff durch fremde Adapter\nFeste Arten von Standardwerten für Gruppen",
@@ -231,18 +243,6 @@
                 "es": "ahora manejamos posibles conflictos de identificación, cuando el usuario agrega nuevos dispositivos de diferentes tipos con el mismo nombre a lo largo del tiempo",
                 "pl": "teraz radzimy sobie z potencjalnymi konfliktami identyfikatorów, gdy użytkownik dodaje z czasem nowe urządzenia innego typu o tej samej nazwie",
                 "zh-cn": "现在，当用户随着时间的推移添加具有相同名称的不同类型的新设备时，我们现在可以处理潜在的ID冲突"
-            },
-            "3.3.2": {
-                "en": "internal optimizations - polling after change timeout removed, was 150 ms, now we poll instantly",
-                "de": "Interne Optimierungen - Abfrage nach entferntem Zeitlimit für Änderungen betrug 150 ms, jetzt werden sofort abgefragt",
-                "ru": "внутренняя оптимизация - опрос после изменения времени ожидания удален, прошло 150 мс, теперь мы проводим опрос мгновенно",
-                "pt": "otimizações internas - a pesquisa após o tempo limite da alteração foi removida foi de 150 ms, agora pesquisamos",
-                "nl": "interne optimalisaties - polling nadat de time-out voor de wijziging was verwijderd, was 150 ms, nu peilen we onmiddellijk",
-                "fr": "optimisations internes - interrogation après expiration du délai de modification, était de 150 ms, nous interrogeons instantanément",
-                "it": "ottimizzazioni interne: il polling dopo la modifica del timeout rimosso era di 150 ms, ora eseguiamo immediatamente il polling",
-                "es": "optimizaciones internas: el sondeo después de que se eliminó el tiempo de espera de cambio, era de 150 ms, ahora sondeamos al instante",
-                "pl": "wewnętrzne optymalizacje - odpytywanie po usunięciu limitu czasu zmiany wynosiło 150 ms, teraz sondujemy natychmiast",
-                "zh-cn": "内部优化-更改超时删除后的轮询为150毫秒，现在我们立即进行轮询"
             }
         },
         "titleLang": {
