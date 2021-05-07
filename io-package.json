@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.15",
+        "version": "3.5.16",
         "tier": 2,
         "news": {
+            "3.5.16": {
+                "en": "make buttons type `boolean` (closes #189)",
+                "de": "make-Schaltflächen geben \"boolean\" ein (schließt # 189)",
+                "ru": "сделать кнопки типа `boolean` (закрывает # 189)",
+                "pt": "botões de make tipo `boolean` (fecha # 189)",
+                "nl": "laat knoppen 'boolean' typen (sluit # 189)",
+                "fr": "faire des boutons de type `booléen` (ferme # 189)",
+                "it": "fare in modo che i pulsanti digitino `booleano` (chiude # 189)",
+                "es": "hacer botones tipo `boolean` (cierra # 189)",
+                "pl": "uczynić przyciski typu `boolean` (zamyka # 189)",
+                "zh-cn": "使按钮类型为布尔值（关闭＃189）"
+            },
             "3.5.15": {
                 "en": "fixed some default type values, which produced warnings once",
                 "de": "Einige Standardtypwerte wurden behoben, die einmal zu Warnungen führten",
@@ -231,18 +243,6 @@
                 "es": "problema solucionado en la validación frontend de los intervalos de sondeo que comienzan con 1",
                 "pl": "naprawiono problem z frontendem sprawdzania interwałów odpytywania zaczynających się od 1",
                 "zh-cn": "解决了从1开始的轮询间隔的前端验证问题"
-            },
-            "3.3.4": {
-                "en": "we now handle potential id conflicts, when user adds new devices from different type with same name over time",
-                "de": "Wir behandeln jetzt potenzielle ID-Konflikte, wenn der Benutzer im Laufe der Zeit neue Geräte unterschiedlichen Typs mit demselben Namen hinzufügt",
-                "ru": "Теперь мы обрабатываем потенциальные конфликты идентификаторов, когда пользователь со временем добавляет новые устройства другого типа с одинаковыми именами.",
-                "pt": "agora lidamos com possíveis conflitos de identificação, quando o usuário adiciona novos dispositivos de tipos diferentes com o mesmo nome ao longo do tempo",
-                "nl": "we behandelen nu potentiële id-conflicten wanneer de gebruiker na verloop van tijd nieuwe apparaten van een ander type met dezelfde naam toevoegt",
-                "fr": "nous gérons maintenant les conflits potentiels d'ID, lorsque l'utilisateur ajoute de nouveaux appareils de type différent avec le même nom au fil du temps",
-                "it": "ora gestiamo potenziali conflitti di ID, quando l'utente aggiunge nuovi dispositivi di diverso tipo con lo stesso nome nel tempo",
-                "es": "ahora manejamos posibles conflictos de identificación, cuando el usuario agrega nuevos dispositivos de diferentes tipos con el mismo nombre a lo largo del tiempo",
-                "pl": "teraz radzimy sobie z potencjalnymi konfliktami identyfikatorów, gdy użytkownik dodaje z czasem nowe urządzenia innego typu o tej samej nazwie",
-                "zh-cn": "现在，当用户随着时间的推移添加具有相同名称的不同类型的新设备时，我们现在可以处理潜在的ID冲突"
             }
         },
         "titleLang": {
