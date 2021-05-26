@@ -40,10 +40,10 @@
     "mocha": "^8.4.0"
   },
   "scripts": {
-    "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
-    "test:package": "node_modules/.bin/mocha test/packageFiles --exit",
-    "test:integration": "node_modules/.bin/mocha test/integrationAdapter --exit",
-    "test": "node node_modules/mocha/bin/mocha --exit",
+    "test:unit": "mocha test/unitAdapter --exit",
+    "test:package": "mocha test/packageFiles --exit",
+    "test:integration": "mocha test/integrationAdapter --exit",
+    "test": "mocha --exit",
     "release": "release-script"
   },
   "bugs": {
