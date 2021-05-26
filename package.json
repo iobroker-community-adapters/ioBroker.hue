@@ -28,16 +28,16 @@
     "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.4.0",
+    "@iobroker/adapter-core": "^2.5.0",
     "node-hue-api": "^4.0.10"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^1.10.0",
     "@iobroker/testing": "^2.4.4",
     "chai": "^4.3.4",
-    "eslint": "^7.25.0",
+    "eslint": "^7.27.0",
     "gulp": "^4.0.2",
-    "mocha": "^8.3.2"
+    "mocha": "^8.4.0"
   },
   "scripts": {
     "test:unit": "node_modules/.bin/mocha test/unitAdapter --exit",
