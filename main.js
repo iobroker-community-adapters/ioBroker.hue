@@ -1592,9 +1592,9 @@ async function connect() {
  */
 async function syncObjects(objs) {
     for (const task of objs) {
-        const obj = await adapter.getForeignObjectAsync(task._id);
-
         try {
+            const obj = await adapter.getForeignObjectAsync(task._id);
+
             // add saturation into enum.functions.color
             if (task.common.role === 'level.color.saturation') {
                 const _enum = await adapter.getForeignObjectAsync('enum.functions.color');

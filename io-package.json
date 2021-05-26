@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.16",
+        "version": "3.5.17",
         "tier": 2,
         "news": {
+            "3.5.17": {
+                "en": "prevent edge case crash (fixes #196)",
+                "de": "Kantenabsturz verhindern (Fixes # 196)",
+                "ru": "предотвращение краха краевого случая (исправления # 196)",
+                "pt": "evita a falha do caso extremo (corrige # 196)",
+                "nl": "voorkomen edge case crash (fixes # 196)",
+                "fr": "empêcher le crash du cas de bord (corrections # 196)",
+                "it": "prevenire l'arresto anomalo del case edge (correzioni # 196)",
+                "es": "prevenir el bloqueo de la caja del borde (arreglos # 196)",
+                "pl": "zapobiegaj awariom Edge Case (poprawki # 196)",
+                "zh-cn": "防止边缘情况崩溃（修复＃196）"
+            },
             "3.5.16": {
                 "en": "make buttons type `boolean` (closes #189)",
                 "de": "make-Schaltflächen geben \"boolean\" ein (schließt # 189)",
@@ -231,18 +243,6 @@
                 "es": "la temperatura ahora es de solo lectura, informa automáticamente los rechazos no controlados si el centinela está habilitado",
                 "pl": "temperatura jest teraz tylko do odczytu, automatycznie raportuje nieobsłużone odrzucenia, jeśli wartownik jest włączony",
                 "zh-cn": "温度现在为只读，如果启用了哨兵功能，则自动报告未处理的拒绝"
-            },
-            "3.3.5": {
-                "en": "fixed issue on frontend validation of polling intervals starting with 1",
-                "de": "Problem bei der Frontend-Validierung von Abfrageintervallen beginnend mit 1 behoben",
-                "ru": "исправлена ошибка проверки внешнего интерфейса интервалов опроса, начиная с 1",
-                "pt": "Foi corrigido um problema na validação front-end dos intervalos de pesquisa, começando com 1",
-                "nl": "Probleem opgelost met frontend validatie van polling-intervallen beginnend met 1",
-                "fr": "correction d'un problème lors de la validation frontale des intervalles d'interrogation commençant par 1",
-                "it": "risolto problema relativo alla convalida frontend degli intervalli di polling che inizia con 1",
-                "es": "problema solucionado en la validación frontend de los intervalos de sondeo que comienzan con 1",
-                "pl": "naprawiono problem z frontendem sprawdzania interwałów odpytywania zaczynających się od 1",
-                "zh-cn": "解决了从1开始的轮询间隔的前端验证问题"
             }
         },
         "titleLang": {
