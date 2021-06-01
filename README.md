@@ -57,6 +57,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	### __WORK IN PROGRESS__
 -->
 
+### 3.5.18 (2021-06-01)
+* (foxriver76) get the correct min/max ct values from api for lights (closes #192)
+
 ### 3.5.17 (2021-05-26)
 * (foxriver76) prevent edge case crash (fixes #196)
 

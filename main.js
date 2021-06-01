@@ -1159,14 +1159,18 @@ async function connect() {
                     lobj.common.type = 'string';
                     lobj.common.role = 'level.color.xy';
                     break;
-                case 'ct':
+                case 'ct': {
+                    const light = await api.lights.getLight(parseInt(lid));
+                    // often max: 454 or 500, min: 153
+                    const ctObj = light._populationData.capabilities.control.ct;
                     lobj.common.type = 'number';
                     lobj.common.role = 'level.color.temperature';
                     lobj.common.unit = '°K';
-                    lobj.common.min = 2179; // 500
-                    lobj.common.max = 6536; // 153
+                    lobj.common.min = Math.round(1e6 / ctObj.max); // this way, because with higher Kelvin -> smaller Mired
+                    lobj.common.max = Math.round(1e6 / ctObj.min);
                     value = Math.round(1e6 / value);
                     break;
+                }
                 case 'alert':
                     lobj.common.type = 'string';
                     lobj.common.role = 'text';
@@ -1262,7 +1266,7 @@ async function connect() {
                 alert: 'select',
                 bri: 0,
                 colormode: '',
-                ct: 1e6 / 2179, // min value, else it gets inf
+                ct: 454, // min value, else it gets inf
                 effect: 'none',
                 hue: 0,
                 on: false,

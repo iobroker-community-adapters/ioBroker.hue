@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.17",
+        "version": "3.5.18",
         "tier": 2,
         "news": {
+            "3.5.18": {
+                "en": "get the correct min/max ct values from api for lights (closes #192)",
+                "de": "Holen Sie sich die richtigen Min / Max-Ct-Werte von der API für Lichter (schließt # 192)",
+                "ru": "получить правильные значения min / max ct из api для источников света (закрывается # 192)",
+                "pt": "obter os valores min / max ct corretos da api para luzes (fecha # 192)",
+                "nl": "verkrijg de juiste min / max ct-waarden van api voor lichten (sluit # 192)",
+                "fr": "obtenir les valeurs correctes min / max ct de l'API pour les lumières (ferme # 192)",
+                "it": "ottenere i valori ct min / max corretti dall'api per le luci (chiude # 192)",
+                "es": "obtenga los valores de ct min / max correctos de api para luces (cierra # 192)",
+                "pl": "pobierz prawidłowe wartości min / max ct z interfejsu API dla świateł (zamyka # 192)",
+                "zh-cn": "从api获取正确的最小/最大ct值（关闭＃192）"
+            },
             "3.5.17": {
                 "en": "prevent edge case crash (fixes #196)",
                 "de": "Kantenabsturz verhindern (Fixes # 196)",
@@ -231,18 +243,6 @@
                 "es": "marcados estados de solo lectura en consecuencia",
                 "pl": "oznaczone odpowiednio jako tylko do odczytu",
                 "zh-cn": "标记为只读状态"
-            },
-            "3.3.7": {
-                "en": "temperature is now read-only, automatically report unhandled rejections if sentry enabled",
-                "de": "Die Temperatur ist jetzt schreibgeschützt. Melden Sie unbehandelte Ablehnungen automatisch, wenn der Wachposten aktiviert ist",
-                "ru": "температура теперь доступна только для чтения, автоматически сообщать о необработанных отказах, если включена охрана",
-                "pt": "temperatura agora é somente leitura, relata automaticamente rejeições não tratadas se o sentinela estiver habilitado",
-                "nl": "temperatuur is nu alleen-lezen, meld automatisch onverwerkte weigeringen als wachtpost is ingeschakeld",
-                "fr": "la température est maintenant en lecture seule, signale automatiquement les rejets non gérés si la sentinelle est activée",
-                "it": "la temperatura ora è di sola lettura, segnala automaticamente i rifiuti non gestiti se la sentinella è abilitata",
-                "es": "la temperatura ahora es de solo lectura, informa automáticamente los rechazos no controlados si el centinela está habilitado",
-                "pl": "temperatura jest teraz tylko do odczytu, automatycznie raportuje nieobsłużone odrzucenia, jeśli wartownik jest włączony",
-                "zh-cn": "温度现在为只读，如果启用了哨兵功能，则自动报告未处理的拒绝"
             }
         },
         "titleLang": {
