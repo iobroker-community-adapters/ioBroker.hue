@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.18",
+        "version": "3.5.19",
         "tier": 2,
         "news": {
+            "3.5.19": {
+                "en": "fix crash case if we cannot get min/max ct values",
+                "de": "Crash-Fall beheben, wenn wir keine Min/Max-CT-Werte erhalten können",
+                "ru": "исправить случай сбоя, если мы не можем получить минимальные / максимальные значения ct",
+                "pt": "consertar o caso de falha se não conseguirmos obter os valores min / max ct",
+                "nl": "crashgeval repareren als we geen min/max ct-waarden kunnen krijgen",
+                "fr": "corriger le cas de plantage si nous ne pouvons pas obtenir les valeurs min/max ct",
+                "it": "risolvere il caso di arresto anomalo se non riusciamo a ottenere i valori ct min/max",
+                "es": "arreglar caso de falla si no podemos obtener valores mínimos / máximos de ct",
+                "pl": "napraw przypadek awarii, jeśli nie możemy uzyskać wartości min/max ct",
+                "zh-cn": "如果我们无法获得最小/最大 ct 值，则修复崩溃案例"
+            },
             "3.5.18": {
                 "en": "get the correct min/max ct values from api for lights (closes #192)",
                 "de": "Holen Sie sich die richtigen Min / Max-Ct-Werte von der API für Lichter (schließt # 192)",
@@ -231,18 +243,6 @@
                 "es": "ya no establecemos estados de estados no existentes",
                 "pl": "nie stawiamy już stanów nieistniejących stanów",
                 "zh-cn": "我们不再设置不存在状态的状态"
-            },
-            "3.3.8": {
-                "en": "marked read-only states accordingly",
-                "de": "schreibgeschützte Zustände entsprechend markiert",
-                "ru": "отмечены состояния только для чтения соответственно",
-                "pt": "marcado como somente leitura de acordo",
-                "nl": "gemarkeerd als alleen-lezen staten dienovereenkomstig",
-                "fr": "États en lecture seule marqués en conséquence",
-                "it": "contrassegnato di conseguenza gli stati di sola lettura",
-                "es": "marcados estados de solo lectura en consecuencia",
-                "pl": "oznaczone odpowiednio jako tylko do odczytu",
-                "zh-cn": "标记为只读状态"
             }
         },
         "titleLang": {

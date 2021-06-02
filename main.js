@@ -1160,9 +1160,14 @@ async function connect() {
                     lobj.common.role = 'level.color.xy';
                     break;
                 case 'ct': {
-                    const light = await api.lights.getLight(parseInt(lid));
-                    // often max: 454 or 500, min: 153
-                    const ctObj = light._populationData.capabilities.control.ct;
+                    let ctObj = {min: 153, max: 500}; // fallback object
+                    try {
+                        const light = await api.lights.getLight(parseInt(lid));
+                        // often max: 454 or 500, min: 153
+                        ctObj = light._populationData.capabilities.control.ct;
+                    } catch {
+                        // ignore
+                    }
                     lobj.common.type = 'number';
                     lobj.common.role = 'level.color.temperature';
                     lobj.common.unit = '°K';
