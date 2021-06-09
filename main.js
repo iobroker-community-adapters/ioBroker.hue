@@ -1625,9 +1625,10 @@ async function syncObjects(objs) {
             } else {
                 // we have deleted common.max so extend will not remove it
                 if (obj && obj.common) {
+                    // preserve the name
                     task.common.name = obj.common.name;
                 }
-                await adapter.setForeignObjectAsync(task._id, task, {preserve: {common: ['name']}});
+                await adapter.setForeignObjectAsync(task._id, task);
             }
         } catch (e) {
             adapter.log.error(`Could not sync object ${task._id}: ${e.message}`);
