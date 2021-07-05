@@ -254,7 +254,8 @@
             "fr": "Philips Hue Bridge",
             "it": "Philips Hue Bridge",
             "es": "Philips Hue Bridge",
-            "pl": "Philips Hue Bridge"
+            "pl": "Philips Hue Bridge",
+            "zh-cn": "飞利浦 Hue 桥"
         },
         "desc": {
             "en": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges with ioBroker",
@@ -265,7 +266,8 @@
             "fr": "Permet de connecter les ampoules LED Philips Hue, les lampes et les bandes LED Friends of Hue et d'autres périphériques compatibles SmartLink (LivingWhites, certains LivingColors) via Philips Hue Bridges avec ioBroker",
             "it": "Collega lampadine LED Philips Hue, lampade e strisce LED Friends of Hue e altri dispositivi compatibili SmartLink (LivingWhite, alcuni LivingColors) tramite Philips Hue Bridges con ioBroker",
             "es": "Conecta bombillas LED Philips Hue, lámparas y rayas LED Friends of Hue y otros dispositivos compatibles con SmartLink (LivingWhites, algunos LivingColors) a través de Philips Hue Bridges con ioBroker",
-            "pl": "Łączy żarówki Philips Hue LED, lampy i paski Friends of Hue oraz inne urządzenia z funkcją SmartLink (LivingWhites, niektóre kolory LivingColors) za pośrednictwem Philips Hue Bridges z ioBroker"
+            "pl": "Łączy żarówki Philips Hue LED, lampy i paski Friends of Hue oraz inne urządzenia z funkcją SmartLink (LivingWhites, niektóre kolory LivingColors) za pośrednictwem Philips Hue Bridges z ioBroker",
+            "zh-cn": "通过飞利浦 Hue 桥接器与 ioBroker 连接飞利浦 Hue LED 灯泡、Hue LED 灯和条纹之友以及其他支持 SmartLink 的设备（LivingWhites、一些 LivingColors）"
         },
         "authors": [
             "hobbyquaker <hq@ccu.io>",

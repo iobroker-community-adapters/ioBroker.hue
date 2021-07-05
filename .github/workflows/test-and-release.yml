@@ -49,7 +49,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 16.x]
+        node-version: [12.x, 14.x, 16.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
@@ -134,4 +134,5 @@ jobs:
           export SENTRY_PROJECT=iobroker-hue
           export SENTRY_VERSION=iobroker.hue@${{ steps.extract_release.outputs.VERSION }}
           sentry-cli releases new $SENTRY_VERSION
+          sentry-cli releases set-commits $SENTRY_VERSION --auto
           sentry-cli releases finalize $SENTRY_VERSION
