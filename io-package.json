@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.19",
+        "version": "3.5.20",
         "tier": 2,
         "news": {
+            "3.5.20": {
+                "en": "we now define minimum ct of groups to 2000 instead of 2179 (fixes #216)",
+                "de": "wir definieren jetzt die minimale Anzahl von Gruppen auf 2000 statt 2179 (Fixes #216)",
+                "ru": "теперь мы определяем минимальный ct групп равным 2000 вместо 2179 (исправления # 216)",
+                "pt": "agora definimos o ct mínimo de grupos para 2.000 em vez de 2.179 (correções # 216)",
+                "nl": "we definiëren nu minimum ct van groepen tot 2000 in plaats van 2179 (fixes #216)",
+                "fr": "nous définissons maintenant le nombre minimum de groupes à 2000 au lieu de 2179 (corrections #216)",
+                "it": "ora definiamo il ct minimo di gruppi a 2000 invece di 2179 (correzioni #216)",
+                "es": "ahora definimos ct mínimo de grupos a 2000 en lugar de 2179 (arreglos # 216)",
+                "pl": "teraz definiujemy minimalny ct grup do 2000 zamiast 2179 (poprawki #216)",
+                "zh-cn": "我们现在将组的最小 ct 定义为 2000 而不是 2179（修复 #216）"
+            },
             "3.5.19": {
                 "en": "fix crash case if we cannot get min/max ct values",
                 "de": "Crash-Fall beheben, wenn wir keine Min/Max-CT-Werte erhalten können",
@@ -231,18 +243,6 @@
                 "es": "Se corrigió la actualización de `anyOn` y` allOn` si se usa la estructura heredada",
                 "pl": "naprawiono aktualizację `anyOn` i` allOn`, jeśli używana była starsza struktura",
                 "zh-cn": "修复了如果使用旧式结构则更新`anyOn`和`allOn`的问题"
-            },
-            "3.3.9": {
-                "en": "we do not set states of non-existing states anymore",
-                "de": "Wir setzen keine Zustände nicht existierender Zustände mehr",
-                "ru": "мы больше не устанавливаем состояния несуществующих состояний",
-                "pt": "nós não definimos estados de estados não existentes mais",
-                "nl": "we stellen geen staten meer in van niet-bestaande staten",
-                "fr": "nous ne définissons plus les états d'états non existants",
-                "it": "non impostiamo più stati di stati inesistenti",
-                "es": "ya no establecemos estados de estados no existentes",
-                "pl": "nie stawiamy już stanów nieistniejących stanów",
-                "zh-cn": "我们不再设置不存在状态的状态"
             }
         },
         "titleLang": {
