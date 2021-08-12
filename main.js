@@ -89,7 +89,7 @@ function startAdapter(options) {
                         adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
                     } // endElse
                 } catch (e) {
-                    adapter.log.error(`Cannot update sensor ${channelObj.native.id}: ${e}`);
+                    adapter.log.error(`Cannot update sensor ${channelObj.native.id}: ${e.message}`);
                 } // endCatch
                 return;
             } // endIf
@@ -544,7 +544,7 @@ function startAdapter(options) {
                     });
                     adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
                 } catch (e) {
-                    adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e}`);
+                    adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
                 } // endTryCatch
 
             } else if (obj.common.role === 'switch') {
@@ -563,7 +563,7 @@ function startAdapter(options) {
                         });
                         adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                     } catch (e) {
-                        adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
+                        adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
                     }
                 } else {
                     adapter.log.warn('invalid switch operation');
@@ -580,7 +580,7 @@ function startAdapter(options) {
                     });
                     adapter.log.debug(`updated lighstate(${channelIds[id]}) after change`);
                 } catch (e) {
-                    adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e}`);
+                    adapter.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
                 }
             } // endElse
         },
@@ -847,7 +847,7 @@ async function updateLightState(light) {
             values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
         }
     } catch (e) {
-        adapter.log.error(`Cannot update light state ${light.name} (${light.id}): ${e}`);
+        adapter.log.error(`Cannot update light state ${light.name} (${light.id}): ${e.message}`);
     }
 
     // poll guard to prevent too fast polling of recently changed id
@@ -920,7 +920,7 @@ async function connect() {
             try {
                 existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
             } catch (e) {
-                adapter.log.warn(`Could not check channel existence: ${e}`);
+                adapter.log.warn(`Could not check channel existence: ${e.message}`);
             }
 
             // if channel name already taken or channel object already exists with another role, we have to adjust name
@@ -1053,7 +1053,7 @@ async function connect() {
         try {
             existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
         } catch (e) {
-            adapter.log.warn(`Could not check channel existence: ${e}`);
+            adapter.log.warn(`Could not check channel existence: ${e.message}`);
         }
 
         // if channel name already taken or channel object already exists with another role, we have to adjust name
@@ -1295,7 +1295,7 @@ async function connect() {
             try {
                 existingChObj = await adapter.getObjectAsync(groupName.replace(/\s/g, '_'));
             } catch (e) {
-                adapter.log.warn(`Could not check channel existence: ${e}`);
+                adapter.log.warn(`Could not check channel existence: ${e.message}`);
             }
 
             // if group name already taken or channel object already exists with another role, we have to adjust name
@@ -1578,7 +1578,7 @@ async function connect() {
             } // endFor
             adapter.log.info(`created/updated ${sceneCounter} scenes`);
         } catch (e) {
-            adapter.log.error(`Error syncing scenes: ${e}`);
+            adapter.log.error(`Error syncing scenes: ${e.message}`);
         } // endCatch
 
     } // endIf
@@ -1658,7 +1658,7 @@ async function syncStates(states) {
             try {
                 await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val && typeof task.val === 'object' ? JSON.stringify(task.val) : task.val, true);
             } catch (e) {
-                adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e}`);
+                adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e.message}`);
             }
         } else {
             adapter.log.debug(`Syncing state of ${nameId} blocked`);
