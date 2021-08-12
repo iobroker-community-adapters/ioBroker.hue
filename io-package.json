@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.20",
+        "version": "3.5.21",
         "tier": 2,
         "news": {
+            "3.5.21": {
+                "en": "fixed several sentry issues (closes #217, closes #218, closes #219, closes #220)",
+                "de": "Mehrere Wachenprobleme behoben (schließt #217, schließt #218, schließt #219, schließt #220)",
+                "ru": "исправлено несколько проблем с часовой (закрывает # 217, закрывает # 218, закрывает # 219, закрывает # 220)",
+                "pt": "corrigiu vários problemas de sentinela (fecha # 217, fecha # 218, fecha # 219, fecha # 220)",
+                "nl": "verschillende schildwachtproblemen opgelost (sluit #217, sluit #218, sluit #219, sluit #220)",
+                "fr": "correction de plusieurs problèmes de sentinelle (ferme #217, ferme #218, ferme #219, ferme #220)",
+                "it": "risolti diversi problemi di sentinella (chiude #217, chiude #218, chiude #219, chiude #220)",
+                "es": "Se corrigieron varios problemas de centinela (cierra # 217, cierra # 218, cierra # 219, cierra # 220)",
+                "pl": "naprawiono kilka błędów wartowników (zamykanie #217, zamykanie #218, zamykanie #219, zamykanie #220)",
+                "zh-cn": "修复了几个哨兵问题（关闭#217，关闭#218，关闭#219，关闭#220）"
+            },
             "3.5.20": {
                 "en": "we now define minimum ct of groups to 2000 instead of 2179 (fixes #216)",
                 "de": "wir definieren jetzt die minimale Anzahl von Gruppen auf 2000 statt 2179 (Fixes #216)",
@@ -231,18 +243,6 @@
                 "es": "ahora reiniciamos el adaptador automáticamente para agregar nuevos dispositivos si se han agregado al puente",
                 "pl": "teraz automatycznie ponownie uruchomimy adapter, aby dodać nowe urządzenia, jeśli zostały dodane do mostu",
                 "zh-cn": "我们现在自动重启适配器以添加新设备（如果已将它们添加到网桥中）"
-            },
-            "3.3.11": {
-                "en": "fixed updating `anyOn` and `allOn` if legacy structure used",
-                "de": "Die Aktualisierung von \"anyOn\" und \"allOn\" wurde korrigiert, wenn eine ältere Struktur verwendet wurde",
-                "ru": "исправлено обновление anyOn и allOn при использовании устаревшей структуры",
-                "pt": "corrigida a atualização de `anyOn` e` allOn` se a estrutura legada usada",
-                "nl": "update van `anyOn` en` allOn` opgelost als de legacy-structuur werd gebruikt",
-                "fr": "correction de la mise à jour de `anyOn` et` allOn` si la structure héritée était utilisée",
-                "it": "corretto l'aggiornamento di `anyOn` e` allOn` se si utilizzava la struttura legacy",
-                "es": "Se corrigió la actualización de `anyOn` y` allOn` si se usa la estructura heredada",
-                "pl": "naprawiono aktualizację `anyOn` i` allOn`, jeśli używana była starsza struktura",
-                "zh-cn": "修复了如果使用旧式结构则更新`anyOn`和`allOn`的问题"
             }
         },
         "titleLang": {

@@ -142,6 +142,7 @@ function startAdapter(options) {
             // gather states that need to be changed
             const ls = {};
             const alls = {};
+            let finalLS = {};
             let lampOn = false;
             let commandSupported = false;
 
@@ -253,9 +254,14 @@ function startAdapter(options) {
             if (commandSupported && dp === 'command') {
                 try {
                     const commands = JSON.parse(state.val);
+
                     for (const command of Object.keys(commands)) {
                         if (command === 'on') {
-                            //convert on to bri
+                            // if on is the only command and nativeTurnOn is activated
+                            if (Object.keys(commands).length === 1 && adapter.config.nativeTurnOffBehaviour) {
+                                finalLS.on = !!commands[command]; // we can set finalLs directly
+                            }
+                            // convert on to bri
                             if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
                                 ls.bri = 254;
                             } else {
@@ -311,8 +317,7 @@ function startAdapter(options) {
 
             // create lightState from ls and check values
             let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
-            let finalLS = {};
-            if (ls.bri > 0) {
+            if (parseInt(ls.bri) > 0) {
                 lightState = lightState.bri(Math.min(254, ls.bri));
                 finalLS.bri = Math.min(254, ls.bri);
                 // if nativeTurnOnOffBehaviour -> only turn group on if no lamp is on yet on brightness change
@@ -523,14 +528,7 @@ function startAdapter(options) {
                 } else {
                     lightState.off();
                 } // endElse
-            } else if (dp === 'command' && adapter.config.nativeTurnOffBehaviour && Object.keys(JSON.parse(state.val)).length === 1 && JSON.parse(state.val).on !== undefined) {
-                lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
-                if (JSON.parse(state.val).on) {
-                    lightState.on();
-                } else {
-                    lightState.off();
-                } // endElse
-            } // endElseIf
+            }
 
             blockedIds[id] = true;
 
@@ -1164,7 +1162,7 @@ async function connect() {
                     try {
                         const light = await api.lights.getLight(parseInt(lid));
                         // often max: 454 or 500, min: 153
-                        ctObj = light._populationData.capabilities.control.ct;
+                        ctObj = light._populationData.capabilities.control.ct || ctObj;
                     } catch {
                         // ignore
                     }
@@ -1262,9 +1260,14 @@ async function connect() {
 
     // Create/update groups
     if (!adapter.config.ignoreGroups) {
+        if (!config.groups) {
+            adapter.log.error(`Could not get groups from API: ${JSON.stringify(config)}`);
+            adapter.restart();
+        }
+
         const groups = config.groups;
         groups[0] = {
-            name: 'All',   //"Lightset 0"
+            name: 'All',   // "Lightset 0"
             type: 'LightGroup',
             id: 0,
             action: {
