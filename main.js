@@ -260,12 +260,13 @@ function startAdapter(options) {
                             // if on is the only command and nativeTurnOn is activated
                             if (Object.keys(commands).length === 1 && adapter.config.nativeTurnOffBehaviour) {
                                 finalLS.on = !!commands[command]; // we can set finalLs directly
-                            }
-                            // convert on to bri
-                            if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
-                                ls.bri = 254;
                             } else {
-                                ls.bri = 0;
+                                // convert on to bri
+                                if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
+                                    ls.bri = 254;
+                                } else {
+                                    ls.bri = 0;
+                                }
                             }
                         } else if (command === 'level') {
                             //convert level to bri

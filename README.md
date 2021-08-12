@@ -60,7 +60,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	### __WORK IN PROGRESS__
 -->
 
-### 3.5.21 (2021-08-12)
+### 3.5.22 (2021-08-12)
 * (foxriver76) fixed several sentry issues (closes #217, closes #218, closes #219, closes #220)
 
 ### 3.5.20 (2021-08-10)
