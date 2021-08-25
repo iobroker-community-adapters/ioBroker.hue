@@ -1164,6 +1164,13 @@ async function connect() {
                         const light = await api.lights.getLight(parseInt(lid));
                         // often max: 454 or 500, min: 153
                         ctObj = light._populationData.capabilities.control.ct || ctObj;
+                        //fix invalid bridge values
+                        if (ctObj.min === 0) {
+                            ctObj.min = 153;
+                        }
+                        if (ctObj.max === 65535 || ctObj.max === 0) {
+                            ctObj.max = 500;
+                        }
                     } catch {
                         // ignore
                     }
