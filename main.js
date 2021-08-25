@@ -1168,7 +1168,7 @@ async function connect() {
                         if (ctObj.min === 0) {
                             ctObj.min = 153;
                         }
-                        if (ctObj.max === 65535) {
+                        if (ctObj.max === 65535 || ctObj.max === 0) {
                             ctObj.max = 500;
                         }
                     } catch {
