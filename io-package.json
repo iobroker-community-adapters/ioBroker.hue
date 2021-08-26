@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.22",
+        "version": "3.5.23",
         "tier": 2,
         "news": {
+            "3.5.23": {
+                "en": "fix for third party devices delivering wrong ct values",
+                "de": "Fix für Geräte von Drittanbietern, die falsche ct-Werte liefern",
+                "ru": "исправить для сторонних устройств, доставляющих неправильные значения ct",
+                "pt": "correção para dispositivos de terceiros que fornecem valores CT incorretos",
+                "nl": "oplossing voor apparaten van derden die verkeerde ct-waarden leveren",
+                "fr": "correctif pour les appareils tiers fournissant des valeurs de ct erronées",
+                "it": "correzione per dispositivi di terze parti che forniscono valori ct errati",
+                "es": "corrección para dispositivos de terceros que entregan valores de CT incorrectos",
+                "pl": "poprawka dla urządzeń firm trzecich dostarczających błędne wartości ct",
+                "zh-cn": "修复提供错误 ct 值的第三方设备"
+            },
             "3.5.22": {
                 "en": "fixed several sentry issues (closes #217, closes #218, closes #219, closes #220)",
                 "de": "Mehrere Wachenprobleme behoben (schließt #217, schließt #218, schließt #219, schließt #220)",
@@ -231,18 +243,6 @@
                 "es": "use la expresión regular js-controller oficial para reemplazar caracteres prohibidos (correcciones # 165)\nusar script de lanzamiento\ncentinela agregado",
                 "pl": "użyj oficjalnego wyrażenia regularnego js-controller do zamiany zabronionych znaków (poprawki # 165)\nużyj skryptu wydania\ndodany wartownik",
                 "zh-cn": "使用官方js控制器正则表达式替换禁止的字符（修复＃165）\n使用发布脚本\n哨兵已添加"
-            },
-            "3.4.0": {
-                "en": "we now restart the adapter automatically to add new devices if they have been added to bridge",
-                "de": "Wir starten den Adapter jetzt automatisch neu, um neue Geräte hinzuzufügen, wenn diese zur Bridge hinzugefügt wurden",
-                "ru": "Теперь мы автоматически перезапускаем адаптер, чтобы добавить новые устройства, если они были добавлены в мост",
-                "pt": "agora reiniciamos o adaptador automaticamente para adicionar novos dispositivos se eles foram adicionados à ponte",
-                "nl": "we herstarten de adapter nu automatisch om nieuwe apparaten toe te voegen als ze aan de bridge zijn toegevoegd",
-                "fr": "nous redémarrons maintenant l'adaptateur automatiquement pour ajouter de nouveaux périphériques s'ils ont été ajoutés au pont",
-                "it": "ora riavviamo automaticamente l'adattatore per aggiungere nuovi dispositivi se sono stati aggiunti al bridge",
-                "es": "ahora reiniciamos el adaptador automáticamente para agregar nuevos dispositivos si se han agregado al puente",
-                "pl": "teraz automatycznie ponownie uruchomimy adapter, aby dodać nowe urządzenia, jeśli zostały dodane do mostu",
-                "zh-cn": "我们现在自动重启适配器以添加新设备（如果已将它们添加到网桥中）"
             }
         },
         "titleLang": {
