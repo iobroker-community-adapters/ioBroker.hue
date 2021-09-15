@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.23",
+        "version": "3.5.24",
         "tier": 2,
         "news": {
+            "3.5.24": {
+                "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
+                "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
+                "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
+                "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
+                "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
+                "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
+                "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
+                "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
+                "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
+                "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
+            },
             "3.5.23": {
                 "en": "fix for third party devices delivering wrong ct values",
                 "de": "Fix für Geräte von Drittanbietern, die falsche ct-Werte liefern",
@@ -231,18 +243,6 @@
                 "es": "evitar casos de bloqueo en xy no válido, establecer el estado para el dispositivo no existente y en la creación de un usuario fallido",
                 "pl": "unikaj przypadków awarii na nieprawidłowym xy, ustawianiu stanu dla nieistniejącego urządzenia i niepowodzeniu tworzenia użytkownika",
                 "zh-cn": "避免在无效的xy，不存在的设备的设置状态以及用户创建失败时发生崩溃的情况"
-            },
-            "3.5.0": {
-                "en": "use official js-controller regex for replacing forbidden chars (fixes #165)\nuse release-script\nsentry added",
-                "de": "Verwenden Sie den offiziellen regulären Ausdruck für js-controller, um verbotene Zeichen zu ersetzen (Fixes # 165).\nbenutze das Release-Skript\nWachposten hinzugefügt",
-                "ru": "использовать официальное регулярное выражение js-controller для замены запрещенных символов (исправления # 165)\nиспользовать релиз-скрипт\nдобавлен часовой",
-                "pt": "use o regex oficial do js-controller para substituir os caracteres proibidos (correções # 165)\nusar script de lançamento\nsentinela adicionada",
-                "nl": "gebruik officiële js-controller regex voor het vervangen van verboden tekens (fixes # 165)\ngebruik release-script\nsentry toegevoegd",
-                "fr": "utiliser l'expression régulière js-controller pour remplacer les caractères interdits (correctifs # 165)\nutiliser release-script\nsentinelle ajoutée",
-                "it": "usa regex js-controller ufficiale per sostituire i caratteri proibiti (correzioni # 165)\nusa lo script di rilascio\nsentinella aggiunta",
-                "es": "use la expresión regular js-controller oficial para reemplazar caracteres prohibidos (correcciones # 165)\nusar script de lanzamiento\ncentinela agregado",
-                "pl": "użyj oficjalnego wyrażenia regularnego js-controller do zamiany zabronionych znaków (poprawki # 165)\nużyj skryptu wydania\ndodany wartownik",
-                "zh-cn": "使用官方js控制器正则表达式替换禁止的字符（修复＃165）\n使用发布脚本\n哨兵已添加"
             }
         },
         "titleLang": {

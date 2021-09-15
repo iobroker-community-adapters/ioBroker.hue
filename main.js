@@ -1180,6 +1180,10 @@ async function connect() {
                     lobj.common.min = Math.round(1e6 / ctObj.max); // this way, because with higher Kelvin -> smaller Mired
                     lobj.common.max = Math.round(1e6 / ctObj.min);
                     value = Math.round(1e6 / value);
+                    if (isNaN(value)) { // issue #234
+                        // invalid value we cannot determine the meant value, fallback to max
+                        value = lobj.common.max;
+                    }
                     break;
                 }
                 case 'alert':
@@ -1807,6 +1811,13 @@ async function poll() {
                 if (states.ct !== undefined) {
                     // convert color temperature from mired to kelvin
                     states.ct = Math.round(1e6 / states.ct);
+
+                    // some devices send 0 -> infinity (issue #234)
+                    if (isNaN(states.ct)) {
+                        // invalid value we cannot determine the meant value
+                        adapter.log.debug(`Cannot determine ct value of "${light.name}", received value "${states.ct}"`);
+                        delete states.ct;
+                    }
                 }
                 for (const stateB of Object.keys(states)) {
                     values.push({
