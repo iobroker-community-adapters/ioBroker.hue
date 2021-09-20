@@ -32,7 +32,7 @@
     "node-hue-api": "^4.0.10"
   },
   "devDependencies": {
-    "@alcalzone/release-script": "^2.2.1",
+    "@alcalzone/release-script": "^3.3.0",
     "@iobroker/testing": "^2.5.2",
     "axios": "^0.21.4",
     "chai": "^4.3.4",
