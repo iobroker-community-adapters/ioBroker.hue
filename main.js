@@ -684,11 +684,10 @@ async function browse(timeout) {
  * @returns {Promise<object>}
  */
 async function createUser(ip) {
-    const newUserName = null;
-    const userDescription = 'ioBroker.hue';
+    const deviceName = 'ioBroker.hue';
     try {
         const api = adapter.config.ssl ? await v3.api.createLocal(ip, adapter.config.port).connect() : await v3.api.createInsecureLocal(ip, adapter.config.port).connect();
-        const newUser = await api.users.createUser(ip, newUserName, userDescription);
+        const newUser = await api.users.createUser(ip, deviceName);
         adapter.log.info(`created new User: ${newUser.username}`);
         return {error: 0, message: newUser.username};
     } catch (e) {
