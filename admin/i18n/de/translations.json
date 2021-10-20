@@ -1,6 +1,5 @@
 {
     "\"Legacy\" structure": "\"Legacy\"-Struktur",
-    "'Please wait, searching for bridge.'": "Suche Bridge. Bitte warten...",
     "Auto setup": "Auto-Setup",
     "Bridge Address": "Bridge-Adresse",
     "Bridge User": "Bridge-Benutzer",
@@ -17,7 +16,7 @@
     "Native turn off/on behaviour": "Natives Ein- und Ausschaltverhalten",
     "Ok": "Ok",
     "Philips HUE adapter settings": "Philips HUE adapter settings",
-    "Please wait, searching for bridge.": "Bitte warten Sie, auf der Suche nach Bridge.",
+    "Please wait, searching for bridge.": "Bitte warten, suche nach Bridge.",
     "Polling": "Polling",
     "Polling interval (sec)": "Pollintervall(sek)",
     "Select a bridge:": "Wähle eine Bridge aus:",
