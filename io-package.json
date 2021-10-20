@@ -1,9 +1,21 @@
 {
     "common": {
         "name": "hue",
-        "version": "3.5.25",
+        "version": "3.5.26",
         "tier": 2,
         "news": {
+            "3.5.26": {
+                "en": "fixed an issue with the username set in Hue API (fixes 249)\nfixed translation of search popup (fixes #247)",
+                "de": "Ein Problem mit dem in der Hue-API festgelegten Benutzernamen wurde behoben (behebt 249)\nÜbersetzung des Such-Popups korrigiert (Fixes Nr. 247)",
+                "ru": "исправлена проблема с именем пользователя, установленным в Hue API (исправления 249)\nисправлен перевод всплывающего окна поиска (исправления # 247)",
+                "pt": "corrigiu um problema com o nome de usuário definido na API Hue (correções 249)\ntradução corrigida do pop-up de pesquisa (correções # 247)",
+                "nl": "een probleem opgelost met de gebruikersnaam ingesteld in Hue API (fixes 249)\nvaste vertaling van zoekpop-up (fixes #247)",
+                "fr": "correction d'un problème avec le nom d'utilisateur défini dans l'API Hue (corrections 249)\ntraduction fixe de la fenêtre contextuelle de recherche (corrections #247)",
+                "it": "risolto un problema con il nome utente impostato nell'API Hue (correzioni 249)\ncorretta traduzione del popup di ricerca (correzioni #247)",
+                "es": "solucionó un problema con el nombre de usuario establecido en la API de Hue (corrige 249)\ntraducción fija de la ventana emergente de búsqueda (arreglos # 247)",
+                "pl": "naprawiono problem z nazwą użytkownika ustawioną w Hue API (poprawki 249)\npoprawione tłumaczenie wyskakującego okienka wyszukiwania (poprawki #247)",
+                "zh-cn": "修复了 Hue API 中设置的用户名问题（修复 249）\n搜索弹出窗口的固定翻译（修复＃247）"
+            },
             "3.5.25": {
                 "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
                 "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
@@ -231,18 +243,6 @@
                 "es": "arreglando varios choques de la caja del borde",
                 "pl": "naprawianie kilku awarii krawędzi",
                 "zh-cn": "修复多个边缘案例崩溃"
-            },
-            "3.5.2": {
-                "en": "fix crashes if wrong data type or invalid value passed for ct and hue, now logging an error\nfix crashes if rgb where outside allowed range or wrong type\nfix potential crashes on bridge discovery, due to unnecessary stringify/parse logic\nfix graphical issue with the label of bridge user when newly created, due to missing call of updateTextFields",
-                "de": "Behebung von Abstürzen, wenn ein falscher Datentyp oder ein ungültiger Wert für ct und hue übergeben wurde und jetzt ein Fehler protokolliert wird\nBehebung von Abstürzen, wenn RGB außerhalb des zulässigen Bereichs oder des falschen Typs liegt\nBeheben Sie mögliche Abstürze bei der Bridge-Erkennung aufgrund unnötiger Stringify / Parse-Logik\nBehebung eines Grafikproblems mit der Bezeichnung des Bridge-Benutzers bei der Neuerstellung aufgrund eines fehlenden Aufrufs von updateTextFields",
-                "ru": "исправить сбои, если для ct и hue передан неправильный тип данных или недопустимое значение, теперь регистрируется ошибка\nисправить сбои, если rgb находится за пределами допустимого диапазона или неправильного типа\nисправить потенциальные сбои при обнаружении моста из-за ненужной логики преобразования / синтаксического анализа\nисправить графическую проблему с меткой пользователя моста при создании нового из-за отсутствия вызова updateTextFields",
-                "pt": "consertar falhas se o tipo de dado errado ou valor inválido for passado para ct e hue, agora registrando um erro\nconsertar falhas se rgb estiver fora do intervalo permitido ou tipo errado\nconsertar possíveis falhas na descoberta da ponte, devido à lógica de stringify / parse desnecessária\ncorrigir o problema gráfico com o rótulo do usuário ponte quando recém-criado, devido à chamada ausente de updateTextFields",
-                "nl": "fix crasht als er een verkeerd gegevenstype of een ongeldige waarde wordt doorgegeven voor ct en hue, nu een fout wordt geregistreerd\nrepareer crashes als rgb buiten het toegestane bereik valt of het verkeerde type is\nmogelijke crashes bij bridge-detectie oplossen als gevolg van onnodige stringify / parse-logica\nlos grafisch probleem op met het label van de bridge-gebruiker wanneer deze nieuw werd gemaakt, vanwege een ontbrekende aanroep van updateTextFields",
-                "fr": "correction des plantages en cas de type de données incorrect ou de valeur non valide transmise pour ct et hue, consignant maintenant une erreur\ncorrection des plantages si rgb était hors de la plage autorisée ou type incorrect\ncorrection des plantages potentiels lors de la découverte de ponts, en raison d'une logique stringify / parse inutile\ncorrection d'un problème graphique avec l'étiquette de l'utilisateur du pont lors de sa nouvelle création, en raison d'un appel manquant de updateTextFields",
-                "it": "risolve gli arresti anomali se viene passato un tipo di dati errato o un valore non valido per ct e hue, registrando un errore\nrisolve arresti anomali se rgb era al di fuori dell'intervallo consentito o di tipo sbagliato\nrisolvere potenziali arresti anomali durante la scoperta del bridge, a causa di una logica stringify / parse non necessaria\nrisolve il problema grafico con l'etichetta dell'utente bridge quando viene creata di recente, a causa della chiamata mancante di updateTextFields",
-                "es": "corrige fallas si se pasa un tipo de datos incorrecto o un valor no válido para ct y hue, ahora registrando un error\narregla los bloqueos si rgb fuera del rango permitido o del tipo incorrecto\ncorregir posibles bloqueos en el descubrimiento de puentes, debido a una lógica de secuenciación / análisis innecesaria\nSolucione el problema gráfico con la etiqueta del usuario del puente cuando se creó nuevamente, debido a la falta de llamada de updateTextFields",
-                "pl": "naprawa awarie, jeśli nieprawidłowy typ danych lub nieprawidłowa wartość przekazana dla ct i hue, teraz rejestruje błąd\nnaprawić awarie, jeśli rgb jest poza dozwolonym zakresem lub niewłaściwy typ\nnaprawia potencjalne awarie przy wykrywaniu mostów z powodu niepotrzebnej logiki stringify / parse\nnaprawa graficznego problemu z etykietą użytkownika mostka po jego utworzeniu z powodu braku wywołania updateTextFields",
-                "zh-cn": "如果为ct和hue传递了错误的数据类型或无效值，则修复崩溃，现在记录错误\n如果rgb超出允许范围或错误类型，则修复崩溃\n修复由于不必要的字符串化/解析逻辑而可能导致网桥发现崩溃的问题\n由于缺少对updateTextFields的调用，修复了新创建时桥用户标签的图形问题"
             }
         },
         "titleLang": {
