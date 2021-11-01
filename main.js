@@ -1548,9 +1548,11 @@ async function connect() {
                         _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/[\s.]/g, '_').replace(adapter.FORBIDDEN_CHARS, '').toLowerCase()}`,
                         type: 'state',
                         common: {
-                            type: 'boolean',
                             name: `Scene ${scene.name}`,
-                            role: 'button'
+                            role: 'button',
+                            type: 'boolean',
+                            read: false,
+                            write: true
                         },
                         native: {
                             id: sceneId,
@@ -1577,7 +1579,10 @@ async function connect() {
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
-                            role: 'button'
+                            role: 'button',
+                            type: 'boolean',
+                            read: false,
+                            write: true
                         },
                         native: {
                             id: sceneId

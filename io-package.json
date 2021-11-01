@@ -1,342 +1,186 @@
 {
-    "common": {
-        "name": "hue",
-        "version": "3.5.26",
-        "tier": 2,
-        "news": {
-            "3.5.26": {
-                "en": "fixed an issue with the username set in Hue API (fixes 249)\nfixed translation of search popup (fixes #247)",
-                "de": "Ein Problem mit dem in der Hue-API festgelegten Benutzernamen wurde behoben (behebt 249)\nÜbersetzung des Such-Popups korrigiert (Fixes Nr. 247)",
-                "ru": "исправлена проблема с именем пользователя, установленным в Hue API (исправления 249)\nисправлен перевод всплывающего окна поиска (исправления # 247)",
-                "pt": "corrigiu um problema com o nome de usuário definido na API Hue (correções 249)\ntradução corrigida do pop-up de pesquisa (correções # 247)",
-                "nl": "een probleem opgelost met de gebruikersnaam ingesteld in Hue API (fixes 249)\nvaste vertaling van zoekpop-up (fixes #247)",
-                "fr": "correction d'un problème avec le nom d'utilisateur défini dans l'API Hue (corrections 249)\ntraduction fixe de la fenêtre contextuelle de recherche (corrections #247)",
-                "it": "risolto un problema con il nome utente impostato nell'API Hue (correzioni 249)\ncorretta traduzione del popup di ricerca (correzioni #247)",
-                "es": "solucionó un problema con el nombre de usuario establecido en la API de Hue (corrige 249)\ntraducción fija de la ventana emergente de búsqueda (arreglos # 247)",
-                "pl": "naprawiono problem z nazwą użytkownika ustawioną w Hue API (poprawki 249)\npoprawione tłumaczenie wyskakującego okienka wyszukiwania (poprawki #247)",
-                "zh-cn": "修复了 Hue API 中设置的用户名问题（修复 249）\n搜索弹出窗口的固定翻译（修复＃247）"
-            },
-            "3.5.25": {
-                "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
-                "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
-                "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
-                "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
-                "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
-                "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
-                "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
-                "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
-                "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
-                "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
-            },
-            "3.5.24": {
-                "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
-                "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
-                "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
-                "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
-                "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
-                "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
-                "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
-                "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
-                "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
-                "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
-            },
-            "3.5.23": {
-                "en": "fix for third party devices delivering wrong ct values",
-                "de": "Fix für Geräte von Drittanbietern, die falsche ct-Werte liefern",
-                "ru": "исправить для сторонних устройств, доставляющих неправильные значения ct",
-                "pt": "correção para dispositivos de terceiros que fornecem valores CT incorretos",
-                "nl": "oplossing voor apparaten van derden die verkeerde ct-waarden leveren",
-                "fr": "correctif pour les appareils tiers fournissant des valeurs de ct erronées",
-                "it": "correzione per dispositivi di terze parti che forniscono valori ct errati",
-                "es": "corrección para dispositivos de terceros que entregan valores de CT incorrectos",
-                "pl": "poprawka dla urządzeń firm trzecich dostarczających błędne wartości ct",
-                "zh-cn": "修复提供错误 ct 值的第三方设备"
-            },
-            "3.5.22": {
-                "en": "fixed several sentry issues (closes #217, closes #218, closes #219, closes #220)",
-                "de": "Mehrere Wachenprobleme behoben (schließt #217, schließt #218, schließt #219, schließt #220)",
-                "ru": "исправлено несколько проблем с часовой (закрывает # 217, закрывает # 218, закрывает # 219, закрывает # 220)",
-                "pt": "corrigiu vários problemas de sentinela (fecha # 217, fecha # 218, fecha # 219, fecha # 220)",
-                "nl": "verschillende schildwachtproblemen opgelost (sluit #217, sluit #218, sluit #219, sluit #220)",
-                "fr": "correction de plusieurs problèmes de sentinelle (ferme #217, ferme #218, ferme #219, ferme #220)",
-                "it": "risolti diversi problemi di sentinella (chiude #217, chiude #218, chiude #219, chiude #220)",
-                "es": "Se corrigieron varios problemas de centinela (cierra # 217, cierra # 218, cierra # 219, cierra # 220)",
-                "pl": "naprawiono kilka błędów wartowników (zamykanie #217, zamykanie #218, zamykanie #219, zamykanie #220)",
-                "zh-cn": "修复了几个哨兵问题（关闭#217，关闭#218，关闭#219，关闭#220）"
-            },
-            "3.5.20": {
-                "en": "we now define minimum ct of groups to 2000 instead of 2179 (fixes #216)",
-                "de": "wir definieren jetzt die minimale Anzahl von Gruppen auf 2000 statt 2179 (Fixes #216)",
-                "ru": "теперь мы определяем минимальный ct групп равным 2000 вместо 2179 (исправления # 216)",
-                "pt": "agora definimos o ct mínimo de grupos para 2.000 em vez de 2.179 (correções # 216)",
-                "nl": "we definiëren nu minimum ct van groepen tot 2000 in plaats van 2179 (fixes #216)",
-                "fr": "nous définissons maintenant le nombre minimum de groupes à 2000 au lieu de 2179 (corrections #216)",
-                "it": "ora definiamo il ct minimo di gruppi a 2000 invece di 2179 (correzioni #216)",
-                "es": "ahora definimos ct mínimo de grupos a 2000 en lugar de 2179 (arreglos # 216)",
-                "pl": "teraz definiujemy minimalny ct grup do 2000 zamiast 2179 (poprawki #216)",
-                "zh-cn": "我们现在将组的最小 ct 定义为 2000 而不是 2179（修复 #216）"
-            },
-            "3.5.19": {
-                "en": "fix crash case if we cannot get min/max ct values",
-                "de": "Crash-Fall beheben, wenn wir keine Min/Max-CT-Werte erhalten können",
-                "ru": "исправить случай сбоя, если мы не можем получить минимальные / максимальные значения ct",
-                "pt": "consertar o caso de falha se não conseguirmos obter os valores min / max ct",
-                "nl": "crashgeval repareren als we geen min/max ct-waarden kunnen krijgen",
-                "fr": "corriger le cas de plantage si nous ne pouvons pas obtenir les valeurs min/max ct",
-                "it": "risolvere il caso di arresto anomalo se non riusciamo a ottenere i valori ct min/max",
-                "es": "arreglar caso de falla si no podemos obtener valores mínimos / máximos de ct",
-                "pl": "napraw przypadek awarii, jeśli nie możemy uzyskać wartości min/max ct",
-                "zh-cn": "如果我们无法获得最小/最大 ct 值，则修复崩溃案例"
-            },
-            "3.5.18": {
-                "en": "get the correct min/max ct values from api for lights (closes #192)",
-                "de": "Holen Sie sich die richtigen Min / Max-Ct-Werte von der API für Lichter (schließt # 192)",
-                "ru": "получить правильные значения min / max ct из api для источников света (закрывается # 192)",
-                "pt": "obter os valores min / max ct corretos da api para luzes (fecha # 192)",
-                "nl": "verkrijg de juiste min / max ct-waarden van api voor lichten (sluit # 192)",
-                "fr": "obtenir les valeurs correctes min / max ct de l'API pour les lumières (ferme # 192)",
-                "it": "ottenere i valori ct min / max corretti dall'api per le luci (chiude # 192)",
-                "es": "obtenga los valores de ct min / max correctos de api para luces (cierra # 192)",
-                "pl": "pobierz prawidłowe wartości min / max ct z interfejsu API dla świateł (zamyka # 192)",
-                "zh-cn": "从api获取正确的最小/最大ct值（关闭＃192）"
-            },
-            "3.5.17": {
-                "en": "prevent edge case crash (fixes #196)",
-                "de": "Kantenabsturz verhindern (Fixes # 196)",
-                "ru": "предотвращение краха краевого случая (исправления # 196)",
-                "pt": "evita a falha do caso extremo (corrige # 196)",
-                "nl": "voorkomen edge case crash (fixes # 196)",
-                "fr": "empêcher le crash du cas de bord (corrections # 196)",
-                "it": "prevenire l'arresto anomalo del case edge (correzioni # 196)",
-                "es": "prevenir el bloqueo de la caja del borde (arreglos # 196)",
-                "pl": "zapobiegaj awariom Edge Case (poprawki # 196)",
-                "zh-cn": "防止边缘情况崩溃（修复＃196）"
-            },
-            "3.5.16": {
-                "en": "make buttons type `boolean` (closes #189)",
-                "de": "make-Schaltflächen geben \"boolean\" ein (schließt # 189)",
-                "ru": "сделать кнопки типа `boolean` (закрывает # 189)",
-                "pt": "botões de make tipo `boolean` (fecha # 189)",
-                "nl": "laat knoppen 'boolean' typen (sluit # 189)",
-                "fr": "faire des boutons de type `booléen` (ferme # 189)",
-                "it": "fare in modo che i pulsanti digitino `booleano` (chiude # 189)",
-                "es": "hacer botones tipo `boolean` (cierra # 189)",
-                "pl": "uczynić przyciski typu `boolean` (zamyka # 189)",
-                "zh-cn": "使按钮类型为布尔值（关闭＃189）"
-            },
-            "3.5.15": {
-                "en": "fixed some default type values, which produced warnings once",
-                "de": "Einige Standardtypwerte wurden behoben, die einmal zu Warnungen führten",
-                "ru": "исправлены некоторые значения типов по умолчанию, которые один раз выдавали предупреждения",
-                "pt": "corrigiu alguns valores de tipo padrão, que produziram avisos uma vez",
-                "nl": "enkele standaard typewaarden gerepareerd, die eenmaal waarschuwingen produceerden",
-                "fr": "correction de certaines valeurs de type par défaut, qui produisaient des avertissements une fois",
-                "it": "risolti alcuni valori di tipo predefinito, che producevano avvisi una volta",
-                "es": "se corrigieron algunos valores de tipo predeterminados, que producían advertencias una vez",
-                "pl": "naprawiono niektóre domyślne wartości typu, które raz generowały ostrzeżenia",
-                "zh-cn": "修复了一些默认类型值，该默认值一旦产生警告"
-            },
-            "3.5.14": {
-                "en": "protect the user token from access by foreign adapters\nfixed types of default values on groups",
-                "de": "Schützen Sie das Benutzertoken vor dem Zugriff durch fremde Adapter\nFeste Arten von Standardwerten für Gruppen",
-                "ru": "защитить токен пользователя от доступа посторонних адаптеров\nфиксированные типы значений по умолчанию для групп",
-                "pt": "proteger o token do usuário do acesso por adaptadores estrangeiros\ntipos fixos de valores padrão em grupos",
-                "nl": "bescherm het gebruikerstoken tegen toegang door buitenlandse adapters\nvaste soorten standaardwaarden voor groepen",
-                "fr": "protéger le jeton utilisateur contre l'accès par des adaptateurs étrangers\ntypes fixes de valeurs par défaut sur les groupes",
-                "it": "proteggere il token utente dall'accesso da parte di adattatori esterni\ntipi fissi di valori predefiniti sui gruppi",
-                "es": "proteger el token de usuario del acceso de adaptadores externos\ntipos fijos de valores predeterminados en grupos",
-                "pl": "chronić token użytkownika przed dostępem obcych adapterów\nustalone typy wartości domyślnych na grupach",
-                "zh-cn": "保护用户令牌不被外部适配器访问\n固定类型的默认值在组上"
-            },
-            "3.5.13": {
-                "en": "we fixed some more types",
-                "de": "Wir haben einige weitere Typen behoben",
-                "ru": "мы исправили еще несколько типов",
-                "pt": "nós consertamos mais alguns tipos",
-                "nl": "we hebben nog wat meer soorten gerepareerd",
-                "fr": "nous avons corrigé d'autres types",
-                "it": "abbiamo corretto altri tipi",
-                "es": "arreglamos algunos tipos más",
-                "pl": "naprawiliśmy kilka innych typów",
-                "zh-cn": "我们修复了更多类型"
-            },
-            "3.5.12": {
-                "en": "we give skipped switches common.type 'mixed' instead of none\nwe have corrected the min max of color temperature (empirically found)",
-                "de": "Wir geben übersprungene Schalter common.type 'gemischt' anstelle von keiner\nWir haben das minimale Maximum der Farbtemperatur korrigiert (empirisch gefunden).",
-                "ru": "мы указываем пропущенные переключатели common.type 'смешанный' вместо none\nмы скорректировали минимальный максимум цветовой температуры (найденный эмпирическим путем)",
-                "pt": "damos opções ignoradas common.type 'mixed' em vez de nenhuma\ncorrigimos o mínimo máximo de temperatura de cor (encontrado empiricamente)",
-                "nl": "we geven overgeslagen schakelaars common.type 'gemengd' in plaats van geen\nwe hebben de min max van kleurtemperatuur gecorrigeerd (empirisch gevonden)",
-                "fr": "nous donnons des commutateurs sautés common.type 'mixed' au lieu de none\nnous avons corrigé le min max de la température de couleur (trouvé empiriquement)",
-                "it": "diamo interruttori saltati common.type 'misto' invece di nessuno\nabbiamo corretto il min max della temperatura colore (rilevato empiricamente)",
-                "es": "le damos a los interruptores omitidos common.type 'mixed' en lugar de ninguno\nhemos corregido el mínimo máximo de temperatura de color (encontrado empíricamente)",
-                "pl": "dajemy pominięte przełączniki common.type „mieszane” zamiast żadnych\npoprawiliśmy minimalną maksymalną temperaturę barwową (stwierdzono empirycznie)",
-                "zh-cn": "我们给跳过的开关common.type'mixed'而不是none\n我们更正了色温的最小最大值（凭经验发现）"
-            },
-            "3.5.11": {
-                "en": "we now update objects if type has changed",
-                "de": "Wir aktualisieren jetzt Objekte, wenn sich der Typ geändert hat",
-                "ru": "теперь мы обновляем объекты, если тип изменился",
-                "pt": "agora atualizamos objetos se o tipo mudou",
-                "nl": "we werken nu objecten bij als het type is gewijzigd",
-                "fr": "nous mettons maintenant à jour les objets si le type a changé",
-                "it": "ora aggiorniamo gli oggetti se il tipo è cambiato",
-                "es": "ahora actualizamos los objetos si el tipo ha cambiado",
-                "pl": "teraz aktualizujemy obiekty, jeśli zmienił się typ",
-                "zh-cn": "现在，如果类型已更改，我们将更新对象"
-            },
-            "3.5.10": {
-                "en": "we removed the common.max from lightlevel, was 17,000 but can be much higher\nwe added common.type for states where the attribute was missing",
-                "de": "wir haben die common.max von lightlevel entfernt, war 17.000, kann aber viel höher sein\nWir haben common.type für Zustände hinzugefügt, in denen das Attribut fehlte",
-                "ru": "мы удалили common.max из уровня освещенности, было 17000, но может быть намного выше\nмы добавили common.type для состояний, в которых отсутствовал атрибут",
-                "pt": "removemos o common.max do lightlevel, era 17.000, mas pode ser muito maior\nadicionamos common.type para estados em que o atributo estava ausente",
-                "nl": "we hebben de common.max verwijderd van lightlevel, was 17.000 maar kan veel hoger zijn\nwe hebben common.type toegevoegd voor staten waar het attribuut ontbrak",
-                "fr": "nous avons supprimé le common.max du niveau de lumière, était de 17000 mais peut être beaucoup plus élevé\nnous avons ajouté common.type pour les états où l'attribut était manquant",
-                "it": "abbiamo rimosso common.max da lightlevel, era 17.000 ma può essere molto più alto\nabbiamo aggiunto common.type per gli stati in cui l'attributo mancava",
-                "es": "eliminamos el common.max del nivel de luz, era 17,000 pero puede ser mucho más alto\nagregamos common.type para los estados donde faltaba el atributo",
-                "pl": "usunęliśmy common.max z poziomu lightlevel, który wynosił 17 000, ale może być znacznie wyższy\ndodaliśmy common.type dla stanów, w których brakowało atrybutu",
-                "zh-cn": "我们从光水平移除了common.max，它是17,000，但可能更高\n我们为缺少属性的州添加了common.type"
-            },
-            "3.5.9": {
-                "en": "start this adapter in TIER 2",
-                "de": "Starten Sie diesen Adapter in TIER 2",
-                "ru": "запустить этот адаптер на УРОВНЕ 2",
-                "pt": "inicie este adaptador em TIER 2",
-                "nl": "start deze adapter in TIER 2",
-                "fr": "démarrer cet adaptateur au TIER 2",
-                "it": "avviare questo adattatore in TIER 2",
-                "es": "inicie este adaptador en TIER 2",
-                "pl": "uruchom ten adapter w TIER 2",
-                "zh-cn": "在TIER 2中启动此适配器"
-            },
-            "3.5.8": {
-                "en": "minor changes",
-                "de": "kleinere Änderungen",
-                "ru": "небольшие изменения",
-                "pt": "pequenas mudanças",
-                "nl": "kleine veranderingen",
-                "fr": "des changements mineurs",
-                "it": "modifiche minori",
-                "es": "cambios menores",
-                "pl": "drobne zmiany",
-                "zh-cn": "细微的变化"
-            },
-            "3.5.5": {
-                "en": "fixed a bug where an error on user creation crashed the adapter instance",
-                "de": "Es wurde ein Fehler behoben, durch den ein Fehler bei der Benutzererstellung die Adapterinstanz zum Absturz brachte",
-                "ru": "исправлена ошибка, из-за которой ошибка при создании пользователя приводила к сбою экземпляра адаптера",
-                "pt": "corrigiu um bug em que um erro na criação do usuário travava a instância do adaptador",
-                "nl": "een bug verholpen waarbij een fout bij het maken van de gebruiker de adapterinstantie crashte",
-                "fr": "correction d'un bug où une erreur lors de la création de l'utilisateur bloquait l'instance d'adaptateur",
-                "it": "risolto un bug in cui un errore nella creazione dell'utente causava il crash dell'istanza dell'adattatore",
-                "es": "Se corrigió un error en el que un error en la creación del usuario bloqueaba la instancia del adaptador.",
-                "pl": "naprawiono błąd polegający na tym, że błąd podczas tworzenia użytkownika powodował awarię instancji adaptera",
-                "zh-cn": "修复了用户创建错误使适配器实例崩溃的错误"
-            },
-            "3.5.4": {
-                "en": "fixing several edge case crashes",
-                "de": "Beheben mehrerer Abstürze des Randgehäuses",
-                "ru": "исправление нескольких сбоев краевого корпуса",
-                "pt": "consertando várias falhas de casos extremos",
-                "nl": "het oplossen van verschillende crashes aan de rand",
-                "fr": "correction de plusieurs plantages de bordures",
-                "it": "risolvendo diversi crash del case edge",
-                "es": "arreglando varios choques de la caja del borde",
-                "pl": "naprawianie kilku awarii krawędzi",
-                "zh-cn": "修复多个边缘案例崩溃"
-            }
-        },
-        "titleLang": {
-            "en": "Philips Hue Bridge",
-            "de": "Philips Hue-Bridge",
-            "ru": "Philips Hue Bridge",
-            "pt": "Philips Hue Bridge",
-            "nl": "Philips Hue Bridge",
-            "fr": "Philips Hue Bridge",
-            "it": "Philips Hue Bridge",
-            "es": "Philips Hue Bridge",
-            "pl": "Philips Hue Bridge",
-            "zh-cn": "飞利浦 Hue 桥"
-        },
-        "desc": {
-            "en": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges with ioBroker",
-            "de": "Verbinden Sie Philips Hue LED Birnen, Friends of Hue LED Lampen und Streifen und andere SmartLink fähige Geräte (LivingWhites, einige LivingColors) über Philips Hue Bridges mit ioBroker",
-            "ru": "Соединяет светодиодные лампы Philips Hue, светодиодные лампы и ленты Friends of Hue и другие устройства, поддерживающие SmartLink (LivingWhites, некоторые LivingColors) через Philips Hue Bridges",
-            "pt": "Conecta Lâmpadas LED Philips Hue, Lâmpadas LED e Listras Friends of Hue e outros Dispositivos com capacidade para SmartLink (LivingWhites, alguns LivingColors) via Philips Hue Bridges com ioBroker",
-            "nl": "Verbindt Philips Hue LED-lampen, Friends of Hue LED-lampen en -stroken en andere SmartLink-compatibele apparaten (LivingWhites, sommige LivingColors) via Philips Hue Bridges met ioBroker",
-            "fr": "Permet de connecter les ampoules LED Philips Hue, les lampes et les bandes LED Friends of Hue et d'autres périphériques compatibles SmartLink (LivingWhites, certains LivingColors) via Philips Hue Bridges avec ioBroker",
-            "it": "Collega lampadine LED Philips Hue, lampade e strisce LED Friends of Hue e altri dispositivi compatibili SmartLink (LivingWhite, alcuni LivingColors) tramite Philips Hue Bridges con ioBroker",
-            "es": "Conecta bombillas LED Philips Hue, lámparas y rayas LED Friends of Hue y otros dispositivos compatibles con SmartLink (LivingWhites, algunos LivingColors) a través de Philips Hue Bridges con ioBroker",
-            "pl": "Łączy żarówki Philips Hue LED, lampy i paski Friends of Hue oraz inne urządzenia z funkcją SmartLink (LivingWhites, niektóre kolory LivingColors) za pośrednictwem Philips Hue Bridges z ioBroker",
-            "zh-cn": "通过飞利浦 Hue 桥接器与 ioBroker 连接飞利浦 Hue LED 灯泡、Hue LED 灯和条纹之友以及其他支持 SmartLink 的设备（LivingWhites、一些 LivingColors）"
-        },
-        "authors": [
-            "hobbyquaker <hq@ccu.io>",
-            "Pmant <patrickmo@gmx.de>",
-            "Bluefox <dogafox@gmail.com>",
-            "Moritz Heusinger <moritz.heusinger@gmail.com>"
-        ],
-        "license": "Apache-2.0",
-        "platform": "Javascript/Node.js",
-        "mode": "daemon",
-        "messagebox": true,
-        "dependencies": [
-            {
-                "js-controller": ">=3.2.0"
-            }
-        ],
-        "plugins": {
-            "sentry": {
-                "dsn": "https://032355a1870c46b9a3fb6a879412bd2f@sentry.iobroker.net/42",
-                "pathWhitelist": [],
-                "errorBlacklist": [
-                    "SyntaxError"
-                ]
-            }
-        },
-        "enabled": true,
-        "compact": true,
-        "readme": "https://github.com/iobroker-community-adapters/ioBroker.hue/blob/master/README.md",
-        "loglevel": "info",
-        "keywords": [
-            "philips",
-            "hue",
-            "led",
-            "rgb",
-            "smartlink",
-            "zigbee"
-        ],
-        "materialize": true,
-        "icon": "hue.jpeg",
-        "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
-        "type": "lighting",
-        "connectionType": "local",
-        "dataSource": "poll"
+  "common": {
+    "name": "hue",
+    "version": "3.5.27",
+    "tier": 2,
+    "news": {
+      "3.5.27": {
+        "en": "we fixed missing object type of some scenes (closes #255)",
+        "de": "wir haben den fehlenden Objekttyp einiger Szenen behoben (schließt #255)",
+        "ru": "мы исправили отсутствующий тип объекта в некоторых сценах (закрывает # 255)",
+        "pt": "corrigimos o tipo de objeto ausente em algumas cenas (fecha # 255)",
+        "nl": "we hebben het ontbrekende objecttype van sommige scènes gerepareerd (sluit # 255)",
+        "fr": "nous avons corrigé le type d'objet manquant de certaines scènes (ferme #255)",
+        "it": "abbiamo corretto il tipo di oggetto mancante di alcune scene (chiude #255)",
+        "es": "arreglamos el tipo de objeto faltante de algunas escenas (cierra # 255)",
+        "pl": "naprawiliśmy brakujący typ obiektu w niektórych scenach (zamyka #255)",
+        "zh-cn": "我们修复了某些场景中缺少的对象类型（关闭 #255）"
+      },
+      "3.5.26": {
+        "en": "fixed an issue with the username set in Hue API (fixes 249)\nfixed translation of search popup (fixes #247)",
+        "de": "Ein Problem mit dem in der Hue-API festgelegten Benutzernamen wurde behoben (behebt 249)\nÜbersetzung des Such-Popups korrigiert (Fixes Nr. 247)",
+        "ru": "исправлена проблема с именем пользователя, установленным в Hue API (исправления 249)\nисправлен перевод всплывающего окна поиска (исправления # 247)",
+        "pt": "corrigiu um problema com o nome de usuário definido na API Hue (correções 249)\ntradução corrigida do pop-up de pesquisa (correções # 247)",
+        "nl": "een probleem opgelost met de gebruikersnaam ingesteld in Hue API (fixes 249)\nvaste vertaling van zoekpop-up (fixes #247)",
+        "fr": "correction d'un problème avec le nom d'utilisateur défini dans l'API Hue (corrections 249)\ntraduction fixe de la fenêtre contextuelle de recherche (corrections #247)",
+        "it": "risolto un problema con il nome utente impostato nell'API Hue (correzioni 249)\ncorretta traduzione del popup di ricerca (correzioni #247)",
+        "es": "solucionó un problema con el nombre de usuario establecido en la API de Hue (corrige 249)\ntraducción fija de la ventana emergente de búsqueda (arreglos # 247)",
+        "pl": "naprawiono problem z nazwą użytkownika ustawioną w Hue API (poprawki 249)\npoprawione tłumaczenie wyskakującego okienka wyszukiwania (poprawki #247)",
+        "zh-cn": "修复了 Hue API 中设置的用户名问题（修复 249）\n搜索弹出窗口的固定翻译（修复＃247）"
+      },
+      "3.5.25": {
+        "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
+        "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
+        "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
+        "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
+        "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
+        "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
+        "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
+        "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
+        "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
+        "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
+      },
+      "3.5.24": {
+        "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
+        "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
+        "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
+        "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
+        "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
+        "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
+        "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
+        "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
+        "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
+        "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
+      },
+      "3.5.23": {
+        "en": "fix for third party devices delivering wrong ct values",
+        "de": "Fix für Geräte von Drittanbietern, die falsche ct-Werte liefern",
+        "ru": "исправить для сторонних устройств, доставляющих неправильные значения ct",
+        "pt": "correção para dispositivos de terceiros que fornecem valores CT incorretos",
+        "nl": "oplossing voor apparaten van derden die verkeerde ct-waarden leveren",
+        "fr": "correctif pour les appareils tiers fournissant des valeurs de ct erronées",
+        "it": "correzione per dispositivi di terze parti che forniscono valori ct errati",
+        "es": "corrección para dispositivos de terceros que entregan valores de CT incorrectos",
+        "pl": "poprawka dla urządzeń firm trzecich dostarczających błędne wartości ct",
+        "zh-cn": "修复提供错误 ct 值的第三方设备"
+      },
+      "3.5.22": {
+        "en": "fixed several sentry issues (closes #217, closes #218, closes #219, closes #220)",
+        "de": "Mehrere Wachenprobleme behoben (schließt #217, schließt #218, schließt #219, schließt #220)",
+        "ru": "исправлено несколько проблем с часовой (закрывает # 217, закрывает # 218, закрывает # 219, закрывает # 220)",
+        "pt": "corrigiu vários problemas de sentinela (fecha # 217, fecha # 218, fecha # 219, fecha # 220)",
+        "nl": "verschillende schildwachtproblemen opgelost (sluit #217, sluit #218, sluit #219, sluit #220)",
+        "fr": "correction de plusieurs problèmes de sentinelle (ferme #217, ferme #218, ferme #219, ferme #220)",
+        "it": "risolti diversi problemi di sentinella (chiude #217, chiude #218, chiude #219, chiude #220)",
+        "es": "Se corrigieron varios problemas de centinela (cierra # 217, cierra # 218, cierra # 219, cierra # 220)",
+        "pl": "naprawiono kilka błędów wartowników (zamykanie #217, zamykanie #218, zamykanie #219, zamykanie #220)",
+        "zh-cn": "修复了几个哨兵问题（关闭#217，关闭#218，关闭#219，关闭#220）"
+      },
+      "3.5.20": {
+        "en": "we now define minimum ct of groups to 2000 instead of 2179 (fixes #216)",
+        "de": "wir definieren jetzt die minimale Anzahl von Gruppen auf 2000 statt 2179 (Fixes #216)",
+        "ru": "теперь мы определяем минимальный ct групп равным 2000 вместо 2179 (исправления # 216)",
+        "pt": "agora definimos o ct mínimo de grupos para 2.000 em vez de 2.179 (correções # 216)",
+        "nl": "we definiëren nu minimum ct van groepen tot 2000 in plaats van 2179 (fixes #216)",
+        "fr": "nous définissons maintenant le nombre minimum de groupes à 2000 au lieu de 2179 (corrections #216)",
+        "it": "ora definiamo il ct minimo di gruppi a 2000 invece di 2179 (correzioni #216)",
+        "es": "ahora definimos ct mínimo de grupos a 2000 en lugar de 2179 (arreglos # 216)",
+        "pl": "teraz definiujemy minimalny ct grup do 2000 zamiast 2179 (poprawki #216)",
+        "zh-cn": "我们现在将组的最小 ct 定义为 2000 而不是 2179（修复 #216）"
+      }
     },
-    "native": {
-        "bridge": "",
-        "port": 443,
-        "user": "",
-        "polling": true,
-        "pollingInterval": 10,
-        "ignoreGroups": false,
-        "ignoreScenes": false,
-        "useLegacyStructure": false,
-        "nativeTurnOffBehaviour": false,
-        "ssl": true,
-        "syncSoftwareSensors": false
+    "titleLang": {
+      "en": "Philips Hue Bridge",
+      "de": "Philips Hue-Bridge",
+      "ru": "Philips Hue Bridge",
+      "pt": "Philips Hue Bridge",
+      "nl": "Philips Hue Bridge",
+      "fr": "Philips Hue Bridge",
+      "it": "Philips Hue Bridge",
+      "es": "Philips Hue Bridge",
+      "pl": "Philips Hue Bridge",
+      "zh-cn": "飞利浦 Hue 桥"
     },
-    "protectedNative": [
-        "user"
+    "desc": {
+      "en": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges with ioBroker",
+      "de": "Verbinden Sie Philips Hue LED Birnen, Friends of Hue LED Lampen und Streifen und andere SmartLink fähige Geräte (LivingWhites, einige LivingColors) über Philips Hue Bridges mit ioBroker",
+      "ru": "Соединяет светодиодные лампы Philips Hue, светодиодные лампы и ленты Friends of Hue и другие устройства, поддерживающие SmartLink (LivingWhites, некоторые LivingColors) через Philips Hue Bridges",
+      "pt": "Conecta Lâmpadas LED Philips Hue, Lâmpadas LED e Listras Friends of Hue e outros Dispositivos com capacidade para SmartLink (LivingWhites, alguns LivingColors) via Philips Hue Bridges com ioBroker",
+      "nl": "Verbindt Philips Hue LED-lampen, Friends of Hue LED-lampen en -stroken en andere SmartLink-compatibele apparaten (LivingWhites, sommige LivingColors) via Philips Hue Bridges met ioBroker",
+      "fr": "Permet de connecter les ampoules LED Philips Hue, les lampes et les bandes LED Friends of Hue et d'autres périphériques compatibles SmartLink (LivingWhites, certains LivingColors) via Philips Hue Bridges avec ioBroker",
+      "it": "Collega lampadine LED Philips Hue, lampade e strisce LED Friends of Hue e altri dispositivi compatibili SmartLink (LivingWhite, alcuni LivingColors) tramite Philips Hue Bridges con ioBroker",
+      "es": "Conecta bombillas LED Philips Hue, lámparas y rayas LED Friends of Hue y otros dispositivos compatibles con SmartLink (LivingWhites, algunos LivingColors) a través de Philips Hue Bridges con ioBroker",
+      "pl": "Łączy żarówki Philips Hue LED, lampy i paski Friends of Hue oraz inne urządzenia z funkcją SmartLink (LivingWhites, niektóre kolory LivingColors) za pośrednictwem Philips Hue Bridges z ioBroker",
+      "zh-cn": "通过飞利浦 Hue 桥接器与 ioBroker 连接飞利浦 Hue LED 灯泡、Hue LED 灯和条纹之友以及其他支持 SmartLink 的设备（LivingWhites、一些 LivingColors）"
+    },
+    "authors": [
+      "hobbyquaker <hq@ccu.io>",
+      "Pmant <patrickmo@gmx.de>",
+      "Bluefox <dogafox@gmail.com>",
+      "Moritz Heusinger <moritz.heusinger@gmail.com>"
     ],
-    "objects": [
-        {
-            "_id": "enum.functions.color",
-            "common": {
-                "name": "Color",
-                "members": []
-            },
-            "type": "enum",
-            "native": {}
-        }
-    ]
+    "license": "Apache-2.0",
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "messagebox": true,
+    "dependencies": [
+      {
+        "js-controller": ">=3.2.0"
+      }
+    ],
+    "plugins": {
+      "sentry": {
+        "dsn": "https://032355a1870c46b9a3fb6a879412bd2f@sentry.iobroker.net/42",
+        "pathWhitelist": [],
+        "errorBlacklist": [
+          "SyntaxError"
+        ]
+      }
+    },
+    "enabled": true,
+    "compact": true,
+    "readme": "https://github.com/iobroker-community-adapters/ioBroker.hue/blob/master/README.md",
+    "loglevel": "info",
+    "keywords": [
+      "philips",
+      "hue",
+      "led",
+      "rgb",
+      "smartlink",
+      "zigbee"
+    ],
+    "materialize": true,
+    "icon": "hue.jpeg",
+    "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
+    "type": "lighting",
+    "connectionType": "local",
+    "dataSource": "poll"
+  },
+  "native": {
+    "bridge": "",
+    "port": 443,
+    "user": "",
+    "polling": true,
+    "pollingInterval": 10,
+    "ignoreGroups": false,
+    "ignoreScenes": false,
+    "useLegacyStructure": false,
+    "nativeTurnOffBehaviour": false,
+    "ssl": true,
+    "syncSoftwareSensors": false
+  },
+  "protectedNative": [
+    "user"
+  ],
+  "objects": [
+    {
+      "_id": "enum.functions.color",
+      "common": {
+        "name": "Color",
+        "members": []
+      },
+      "type": "enum",
+      "native": {}
+    }
+  ]
 }
