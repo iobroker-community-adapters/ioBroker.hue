@@ -35,7 +35,7 @@
     "@alcalzone/release-script": "^3.4.0",
     "@alcalzone/release-script-plugin-iobroker": "^3.3.0",
     "@iobroker/testing": "^2.5.2",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "chai": "^4.3.4",
     "eslint": "^8.1.0",
     "gulp": "^4.0.2",
