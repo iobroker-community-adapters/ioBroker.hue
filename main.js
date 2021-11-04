@@ -1179,7 +1179,7 @@ async function connect() {
                     lobj.common.min = Math.round(1e6 / ctObj.max); // this way, because with higher Kelvin -> smaller Mired
                     lobj.common.max = Math.round(1e6 / ctObj.min);
                     value = Math.round(1e6 / value);
-                    if (isNaN(value)) { // issue #234
+                    if (!isFinite(value)) { // issue #234
                         // invalid value we cannot determine the meant value, fallback to max
                         value = lobj.common.max;
                     }
@@ -1393,6 +1393,10 @@ async function connect() {
                         gobj.common.max = 6536; // 153
                         // mired to kelvin
                         group.action[action] = Math.round(1e6 / group.action[action]);
+                        if (!isFinite(group.action[action])) { // issue #234
+                            // invalid value we cannot determine the meant value, fallback to max
+                            group.action[action] = gobj.common.max;
+                        }
                         break;
                     case 'alert':
                         gobj.common.type = 'string';
@@ -1817,7 +1821,7 @@ async function poll() {
                     states.ct = Math.round(1e6 / states.ct);
 
                     // some devices send 0 -> infinity (issue #234)
-                    if (isNaN(states.ct)) {
+                    if (!isFinite(states.ct)) {
                         // invalid value we cannot determine the meant value
                         adapter.log.debug(`Cannot determine ct value of "${light.name}", received value "${states.ct}"`);
                         delete states.ct;
@@ -1888,9 +1892,17 @@ async function poll() {
                         if (states.hue !== undefined) {
                             states.hue = Math.round(states.hue / 65535 * 360);
                         }
+
                         if (states.ct !== undefined) {
                             // convert color temperature from mired to kelvin
                             states.ct = Math.round(1e6 / states.ct);
+
+                            // some devices send 0 -> infinity (issue #234)
+                            if (!isFinite(states.ct)) {
+                                // invalid value we cannot determine the meant value
+                                adapter.log.debug(`Cannot determine ct value of "${groupName}", received value "${states.ct}"`);
+                                delete states.ct;
+                            }
                         }
 
                         // Next two are entertainment states
