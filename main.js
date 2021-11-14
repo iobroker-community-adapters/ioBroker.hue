@@ -319,8 +319,12 @@ function startAdapter(options) {
             // create lightState from ls and check values
             let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
             if (parseInt(ls.bri) > 0) {
-                lightState = lightState.bri(Math.min(254, ls.bri));
-                finalLS.bri = Math.min(254, ls.bri);
+                const bri = Math.min(254, ls.bri);
+                if (isNaN(bri)) {
+                    throw new Error(`Error on converting value for bri: ${bri} - ${ls.bri} (${typeof ls.bri})`);
+                }
+                lightState = lightState.bri(bri);
+                finalLS.bri = bri;
                 // if nativeTurnOnOffBehaviour -> only turn group on if no lamp is on yet on brightness change
                 if (!adapter.config.nativeTurnOffBehaviour || !alls['anyOn']) {
                     finalLS.on = true;
@@ -439,9 +443,9 @@ function startAdapter(options) {
 
             // only available in command state
             if ('transitiontime' in ls) {
-                const transitiontime = parseInt(ls.transitiontime);
+                const transitiontime = Math.max(0, Math.min(65535, parseInt(ls.transitiontime)));
                 if (!isNaN(transitiontime)) {
-                    finalLS.transitiontime = Math.max(0, Math.min(65535, transitiontime));
+                    finalLS.transitiontime = transitiontime
                     lightState = lightState.transitiontime(transitiontime);
                 }
             }
@@ -883,7 +887,7 @@ async function connect() {
         });
     } // endCatch
 
-    if (!config) {
+    if (!config || !config.config) {
         adapter.log.warn(`Could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
         await new Promise(resolve => {
             reconnectTimeout = setTimeout(connect, 5000, resolve);
