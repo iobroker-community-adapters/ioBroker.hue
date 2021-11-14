@@ -2,7 +2,7 @@
  *
  *      ioBroker Philips Hue Bridge Adapter
  *
- *      Copyright (c) 2017-2019 Bluefox <dogafox@gmail.com>
+ *      Copyright (c) 2017-2021 Bluefox <dogafox@gmail.com>
  *      Copyright (c) 2014-2016 hobbyquaker *
  *      Apache License
  *
@@ -1274,6 +1274,7 @@ async function connect() {
         if (!config.groups) {
             adapter.log.error(`Could not get groups from API: ${JSON.stringify(config)}`);
             adapter.restart();
+            return;
         }
 
         const groups = config.groups;

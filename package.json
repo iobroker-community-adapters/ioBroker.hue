@@ -34,6 +34,7 @@
   "devDependencies": {
     "@alcalzone/release-script": "^3.4.1",
     "@alcalzone/release-script-plugin-iobroker": "^3.4.1",
+    "@alcalzone/release-script-plugin-license": "^3.4.1",
     "@iobroker/testing": "^2.5.2",
     "axios": "^0.24.0",
     "chai": "^4.3.4",
@@ -46,10 +47,19 @@
     "test:package": "mocha test/packageFiles --exit",
     "test:integration": "mocha test/integrationAdapter --exit",
     "test": "mocha --exit",
-    "release": "release-script -p iobroker"
+    "release": "release-script patch --yes",
+    "release-minor": "release-script minor --yes",
+    "release-major": "release-script major --yes"
   },
   "bugs": {
     "url": "https://github.com/iobroker-community-adapters/ioBroker.hue/issues"
   },
-  "main": "main.js"
+  "main": "main.js",
+  "files": [
+    "admin/",
+    "lib/",
+    "io-package.json",
+    "LICENSE",
+    "main.js"
+  ]
 }
