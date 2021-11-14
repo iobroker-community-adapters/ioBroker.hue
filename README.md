@@ -58,9 +58,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 3.5.29 (2021-11-14)
 * (bluefox) Caught SENTRY error.
- 
+
 ### 3.5.28 (2021-11-04)
 * (foxriver76) another fix for invalid ct values (fixes #234)
 
