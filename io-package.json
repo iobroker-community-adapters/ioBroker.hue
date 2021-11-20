@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.5.30",
+    "version": "3.5.31",
     "tier": 2,
     "news": {
+      "3.5.31": {
+        "en": "ct value fix of #234 ported for 0 (All) group",
+        "de": "ct-Wert-Fix von #234 portiert für 0 (Alle) Gruppe",
+        "ru": "Исправлено значение ct # 234, перенесенное для группы 0 (All)",
+        "pt": "correção do valor ct de # 234 portado para o grupo 0 (todos)",
+        "nl": "ct-waarde fix van #234 geport voor 0 (Alle) groep",
+        "fr": "Correction de la valeur ct de #234 porté pour le groupe 0 (Tous)",
+        "it": "Correzione del valore ct di #234 portato per il gruppo 0 (Tutti)",
+        "es": "Corrección del valor ct de # 234 portado para el grupo 0 (Todos)",
+        "pl": "Ustalona wartość ct z #234 przeniesiona dla grupy 0 (Wszystkie)",
+        "zh-cn": "为 0（所有）组移植的 #234 的 ct 值修复"
+      },
       "3.5.30": {
         "en": "we fixed Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
         "de": "wir reparierten Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
@@ -65,18 +77,6 @@
         "zh-cn": "修复了 Hue API 中设置的用户名问题（修复 249）\n搜索弹出窗口的固定翻译（修复＃247）"
       },
       "3.5.25": {
-        "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
-        "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
-        "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
-        "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
-        "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
-        "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
-        "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
-        "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
-        "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
-        "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
-      },
-      "3.5.24": {
         "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
         "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
         "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",

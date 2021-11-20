@@ -765,6 +765,10 @@ async function updateGroupState(group) {
         if (states.ct !== undefined) {
             // convert color temperature from mired to kelvin
             states.ct = Math.round(1e6 / states.ct);
+            if (!isFinite(states.ct)) { // issue #234
+                // invalid value we cannot determine the meant value, fallback to max
+                states.ct = 6536; // 153
+            }
         }
 
         // Next two are entertainment states
