@@ -250,10 +250,21 @@ function startAdapter(options) {
                 }
                 handleParam(idState, false);
             }
+
+            let sceneId;
             // Handle commands at the end because they overwrite also anything
             if (commandSupported && dp === 'command') {
                 try {
                     const commands = JSON.parse(state.val);
+
+                    if (typeof commands.scene === 'string') {
+                        // we need to get the id of the scene
+                        const sceneObj = await adapter.getObjectAsync(`${channelId}.scene_${commands.scene.toLowerCase()}`);
+
+                        if (sceneObj && sceneObj.native) {
+                            sceneId = sceneObj.native.id;
+                        }
+                    }
 
                     for (const command of Object.keys(commands)) {
                         if (command === 'on') {
@@ -318,6 +329,7 @@ function startAdapter(options) {
 
             // create lightState from ls and check values
             let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+
             if (parseInt(ls.bri) > 0) {
                 const bri = Math.min(254, ls.bri);
                 if (isNaN(bri)) {
@@ -445,7 +457,7 @@ function startAdapter(options) {
             if ('transitiontime' in ls) {
                 const transitiontime = Math.max(0, Math.min(65535, parseInt(ls.transitiontime)));
                 if (!isNaN(transitiontime)) {
-                    finalLS.transitiontime = transitiontime
+                    finalLS.transitiontime = transitiontime;
                     lightState = lightState.transitiontime(transitiontime);
                 }
             }
@@ -535,6 +547,11 @@ function startAdapter(options) {
                 } // endElse
             }
 
+            // this can only happen for cmd - groups
+            if (sceneId !== undefined) {
+                lightState.scene(sceneId);
+            }
+
             blockedIds[id] = true;
 
             if (!adapter.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
@@ -549,8 +566,7 @@ function startAdapter(options) {
                     adapter.log.debug(`updated group state (${groupIds[id]}) after change`);
                 } catch (e) {
                     adapter.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
-                } // endTryCatch
-
+                }
             } else if (obj.common.role === 'switch') {
                 if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
                     finalLS = {on: finalLS.on};

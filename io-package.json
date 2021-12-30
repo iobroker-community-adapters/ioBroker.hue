@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.5.31",
+    "version": "3.6.0",
     "tier": 2,
     "news": {
+      "3.6.0": {
+        "en": "allow to trigger scenes via `command` state, this allows to start a scene with `transitiontime`",
+        "de": "Ermöglicht das Auslösen von Szenen über den 'Befehl'-Zustand, dies ermöglicht das Starten einer Szene mit 'Übergangszeit'",
+        "ru": "позволяют запускать сцены через состояние `command`, это позволяет запускать сцену с` transitiontime`",
+        "pt": "permite acionar cenas via estado `command`, isso permite iniciar uma cena com` tempo de transição`",
+        "nl": "laat toe om scènes te activeren via de status `commando`, dit maakt het mogelijk om een scène te starten met `overgangstijd`",
+        "fr": "permet de déclencher des scènes via l'état \"commande\", cela permet de démarrer une scène avec \"temps de transition\"",
+        "it": "permette di attivare scene tramite lo stato `comando`, questo permette di avviare una scena con `transitiontime`",
+        "es": "permite activar escenas a través del estado `comando`, esto permite iniciar una escena con` tiempo de transición`",
+        "pl": "pozwala na wyzwalanie scen poprzez stan `command`, pozwala to na uruchomienie sceny z `transitiontime`",
+        "zh-cn": "允许通过 `command` 状态触发场景，这允许使用 `transitiontime` 启动场景"
+      },
       "3.5.31": {
         "en": "ct value fix of #234 ported for 0 (All) group",
         "de": "ct-Wert-Fix von #234 portiert für 0 (Alle) Gruppe",
@@ -75,18 +87,6 @@
         "es": "solucionó un problema con el nombre de usuario establecido en la API de Hue (corrige 249)\ntraducción fija de la ventana emergente de búsqueda (arreglos # 247)",
         "pl": "naprawiono problem z nazwą użytkownika ustawioną w Hue API (poprawki 249)\npoprawione tłumaczenie wyskakującego okienka wyszukiwania (poprawki #247)",
         "zh-cn": "修复了 Hue API 中设置的用户名问题（修复 249）\n搜索弹出窗口的固定翻译（修复＃247）"
-      },
-      "3.5.25": {
-        "en": "if we cannot determine correct ct value, we won't set it (fixes #234)",
-        "de": "Wenn wir den korrekten ct-Wert nicht bestimmen können, werden wir ihn nicht festlegen (fixes #234)",
-        "ru": "если мы не можем определить правильное значение ct, мы не будем его устанавливать (исправления # 234)",
-        "pt": "se não pudermos determinar o valor correto de ct, não o definiremos (corrige # 234)",
-        "nl": "als we de juiste ct-waarde niet kunnen bepalen, stellen we deze niet in (fixes #234)",
-        "fr": "si nous ne pouvons pas déterminer la valeur ct correcte, nous ne la définirons pas (corrections #234)",
-        "it": "se non riusciamo a determinare il valore ct corretto, non lo imposteremo (correzioni #234)",
-        "es": "si no podemos determinar el valor de ct correcto, no lo configuraremos (arreglos # 234)",
-        "pl": "jeśli nie możemy określić prawidłowej wartości ct, nie ustawimy jej (poprawki #234)",
-        "zh-cn": "如果我们无法确定正确的 ct 值，我们将不会设置它（修复 #234）"
       }
     },
     "titleLang": {
