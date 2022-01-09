@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.6.1",
+    "version": "3.6.2",
     "tier": 2,
     "news": {
+      "3.6.2": {
+        "en": "added `info.connection` state (closes #268)",
+        "de": "Status `info.connection` hinzugefügt (schließt #268)",
+        "ru": "добавлено состояние `info.connection` (закрывает # 268)",
+        "pt": "adicionado estado `info.connection` (fecha # 268)",
+        "nl": "status 'info.connection' toegevoegd (sluit #268 af)",
+        "fr": "ajout de l'état `info.connection` (ferme #268)",
+        "it": "aggiunto stato `info.connection` (chiude #268)",
+        "es": "agregado estado `info.connection` (cierra # 268)",
+        "pl": "dodany stan `info.connection` (zamyka #268)",
+        "zh-cn": "添加了 `info.connection` 状态（关闭 #268）"
+      },
       "3.6.1": {
         "en": "ct values of groups can be even lower due to third party lights",
         "de": "ct-Werte von Gruppen können durch Fremdlichter noch niedriger sein",
@@ -75,18 +87,6 @@
         "es": "otra corrección para los valores de ivnalid ct (correcciones # 234)",
         "pl": "kolejna poprawka dla wartości ivnalid ct (poprawki #234)",
         "zh-cn": "ivnalid ct 值的另一个修复（修复 #234）"
-      },
-      "3.5.27": {
-        "en": "we fixed missing object type of some scenes (closes #255)",
-        "de": "wir haben den fehlenden Objekttyp einiger Szenen behoben (schließt #255)",
-        "ru": "мы исправили отсутствующий тип объекта в некоторых сценах (закрывает # 255)",
-        "pt": "corrigimos o tipo de objeto ausente em algumas cenas (fecha # 255)",
-        "nl": "we hebben het ontbrekende objecttype van sommige scènes gerepareerd (sluit # 255)",
-        "fr": "nous avons corrigé le type d'objet manquant de certaines scènes (ferme #255)",
-        "it": "abbiamo corretto il tipo di oggetto mancante di alcune scene (chiude #255)",
-        "es": "arreglamos el tipo de objeto faltante de algunas escenas (cierra # 255)",
-        "pl": "naprawiliśmy brakujący typ obiektu w niektórych scenach (zamyka #255)",
-        "zh-cn": "我们修复了某些场景中缺少的对象类型（关闭 #255）"
       }
     },
     "titleLang": {
@@ -180,6 +180,29 @@
         "members": []
       },
       "type": "enum",
+      "native": {}
+    }
+  ],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "If connected to Hue Bridge",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
       "native": {}
     }
   ]

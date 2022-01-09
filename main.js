@@ -631,7 +631,7 @@ function startAdapter(options) {
             }
         },
         ready: main,
-        unload: callback => {
+        unload: async callback => {
             try {
                 if (pollingInterval) {
                     clearTimeout(pollingInterval);
@@ -642,6 +642,9 @@ function startAdapter(options) {
                     clearTimeout(reconnectTimeout);
                     reconnectTimeout = null;
                 }
+
+                await adapter.setState('info.connection', false, true);
+
                 adapter.log.info('cleaned everything up...');
                 callback();
             } catch {
@@ -900,18 +903,13 @@ async function connect() {
         } // endElse
         config = await api.configuration.getAll();
     } catch (e) {
-        adapter.log.warn(`Could not connect to HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
         adapter.log.error(e.message || e);
-        await new Promise(resolve => {
-            reconnectTimeout = setTimeout(connect, 5000, resolve);
-        });
     } // endCatch
 
     if (!config || !config.config) {
         adapter.log.warn(`Could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
-        await new Promise(resolve => {
-            reconnectTimeout = setTimeout(connect, 5000, resolve);
-        });
+        setTimeout(connect, 5000);
+        return;
     } // endIf
 
     // even if useLegacyStructure is false, we check if the structure exists to not create chaos
@@ -931,6 +929,8 @@ async function connect() {
     const sensorsArr = sensors ? Object.keys(sensors) : [];
     const lightsArr = lights ? Object.keys(lights) : [];
     const objs = [];
+
+    await adapter.setState('info.connection', true, true);
 
     noDevices = sensorsArr.length + lightsArr.length;
 
@@ -1726,6 +1726,7 @@ async function poll() {
 
     try {
         const config = await api.configuration.getAll();
+        await adapter.setStateChangedAsync('info.connection', true, true);
 
         if (adapter.log.level === 'debug' || adapter.log.level === 'silly') {
             adapter.log.debug(`Polled config: ${JSON.stringify(config)}`);
@@ -1979,6 +1980,7 @@ async function poll() {
             }
         } // endIf
     } catch (e) {
+        await adapter.setStateChangedAsync('info.connection', false, true);
         adapter.log.error(`Could not poll all: ${e.message || e}`);
     }
 
