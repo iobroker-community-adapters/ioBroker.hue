@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.6.2",
+    "version": "3.6.3",
     "tier": 2,
     "news": {
+      "3.6.3": {
+        "en": "added `info.connection` state (closes #268)",
+        "de": "Status `info.connection` hinzugefügt (schließt #268)",
+        "ru": "добавлено состояние `info.connection` (закрывает # 268)",
+        "pt": "adicionado estado `info.connection` (fecha # 268)",
+        "nl": "status 'info.connection' toegevoegd (sluit #268 af)",
+        "fr": "ajout de l'état `info.connection` (ferme #268)",
+        "it": "aggiunto stato `info.connection` (chiude #268)",
+        "es": "agregado estado `info.connection` (cierra # 268)",
+        "pl": "dodany stan `info.connection` (zamyka #268)",
+        "zh-cn": "添加了 `info.connection` 状态（关闭 #268）"
+      },
       "3.6.2": {
         "en": "added `info.connection` state (closes #268)",
         "de": "Status `info.connection` hinzugefügt (schließt #268)",
@@ -75,18 +87,6 @@
         "es": "Error de SENTRY detectado.",
         "pl": "Wykryto błąd SENTRY.",
         "zh-cn": "发现哨兵错误。"
-      },
-      "3.5.28": {
-        "en": "another fix for ivnalid ct values (fixes #234)",
-        "de": "ein weiterer Fix für ivnalid ct-Werte (Fixes #234)",
-        "ru": "еще одно исправление для значений ct ivnalid (исправления # 234)",
-        "pt": "outra correção para valores ivnalid ct (correções # 234)",
-        "nl": "een andere oplossing voor ivnalid ct-waarden (fixes #234)",
-        "fr": "un autre correctif pour les valeurs ivnalid ct (corrections #234)",
-        "it": "un'altra correzione per i valori ct ivnalid (correzioni #234)",
-        "es": "otra corrección para los valores de ivnalid ct (correcciones # 234)",
-        "pl": "kolejna poprawka dla wartości ivnalid ct (poprawki #234)",
-        "zh-cn": "ivnalid ct 值的另一个修复（修复 #234）"
       }
     },
     "titleLang": {
