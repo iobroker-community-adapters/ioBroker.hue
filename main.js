@@ -1414,7 +1414,7 @@ async function connect() {
                         gobj.common.type = 'number';
                         gobj.common.role = 'level.color.temperature';
                         gobj.common.unit = '°K';
-                        gobj.common.min = 2000; // normally 500 (2179) but some groups have smaller values and we cannot get min via api for groups
+                        gobj.common.min = 1802; // normally 500 (2000) but some groups have smaller values due to third pary lights and we cannot get min via api for groups
                         gobj.common.max = 6536; // 153
                         // mired to kelvin
                         group.action[action] = Math.round(1e6 / group.action[action]);

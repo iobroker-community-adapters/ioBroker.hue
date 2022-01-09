@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.6.0",
+    "version": "3.6.1",
     "tier": 2,
     "news": {
+      "3.6.1": {
+        "en": "ct values of groups can be even lower due to third party lights",
+        "de": "ct-Werte von Gruppen können durch Fremdlichter noch niedriger sein",
+        "ru": "Значения ct групп могут быть еще ниже из-за сторонних источников света",
+        "pt": "os valores ct dos grupos podem ser ainda mais baixos devido às luzes de terceiros",
+        "nl": "ct-waarden van groepen kunnen nog lager zijn vanwege verlichting van derden",
+        "fr": "Les valeurs de ct des groupes peuvent être encore plus faibles en raison des lumières tierces",
+        "it": "i valori ct dei gruppi possono essere anche inferiori a causa di luci di terze parti",
+        "es": "Los valores ct de los grupos pueden ser incluso más bajos debido a las luces de terceros.",
+        "pl": "Wartości ct grup mogą być jeszcze niższe ze względu na oświetlenie innych firm",
+        "zh-cn": "由于第三方灯，组的 ct 值可能更低"
+      },
       "3.6.0": {
         "en": "allow to trigger scenes via `command` state, this allows to start a scene with `transitiontime`",
         "de": "Ermöglicht das Auslösen von Szenen über den 'Befehl'-Zustand, dies ermöglicht das Starten einer Szene mit 'Übergangszeit'",
@@ -75,18 +87,6 @@
         "es": "arreglamos el tipo de objeto faltante de algunas escenas (cierra # 255)",
         "pl": "naprawiliśmy brakujący typ obiektu w niektórych scenach (zamyka #255)",
         "zh-cn": "我们修复了某些场景中缺少的对象类型（关闭 #255）"
-      },
-      "3.5.26": {
-        "en": "fixed an issue with the username set in Hue API (fixes 249)\nfixed translation of search popup (fixes #247)",
-        "de": "Ein Problem mit dem in der Hue-API festgelegten Benutzernamen wurde behoben (behebt 249)\nÜbersetzung des Such-Popups korrigiert (Fixes Nr. 247)",
-        "ru": "исправлена проблема с именем пользователя, установленным в Hue API (исправления 249)\nисправлен перевод всплывающего окна поиска (исправления # 247)",
-        "pt": "corrigiu um problema com o nome de usuário definido na API Hue (correções 249)\ntradução corrigida do pop-up de pesquisa (correções # 247)",
-        "nl": "een probleem opgelost met de gebruikersnaam ingesteld in Hue API (fixes 249)\nvaste vertaling van zoekpop-up (fixes #247)",
-        "fr": "correction d'un problème avec le nom d'utilisateur défini dans l'API Hue (corrections 249)\ntraduction fixe de la fenêtre contextuelle de recherche (corrections #247)",
-        "it": "risolto un problema con il nome utente impostato nell'API Hue (correzioni 249)\ncorretta traduzione del popup di ricerca (correzioni #247)",
-        "es": "solucionó un problema con el nombre de usuario establecido en la API de Hue (corrige 249)\ntraducción fija de la ventana emergente de búsqueda (arreglos # 247)",
-        "pl": "naprawiono problem z nazwą użytkownika ustawioną w Hue API (poprawki 249)\npoprawione tłumaczenie wyskakującego okienka wyszukiwania (poprawki #247)",
-        "zh-cn": "修复了 Hue API 中设置的用户名问题（修复 249）\n搜索弹出窗口的固定翻译（修复＃247）"
       }
     },
     "titleLang": {
