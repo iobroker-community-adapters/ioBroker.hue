@@ -643,7 +643,7 @@ function startAdapter(options) {
                     reconnectTimeout = null;
                 }
 
-                await adapter.setState('info.connection', false, true);
+                await adapter.setStateAsync('info.connection', false, true);
 
                 adapter.log.info('cleaned everything up...');
                 callback();
@@ -930,7 +930,7 @@ async function connect() {
     const lightsArr = lights ? Object.keys(lights) : [];
     const objs = [];
 
-    await adapter.setState('info.connection', true, true);
+    await adapter.setStateAsync('info.connection', true, true);
 
     noDevices = sensorsArr.length + lightsArr.length;
 
