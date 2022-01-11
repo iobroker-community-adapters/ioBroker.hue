@@ -1102,7 +1102,7 @@ async function connect() {
             light.state.b = 0;
         }
 
-        if (light.type.startsWith('On/Off')) {
+        if (!light.type.startsWith('On/Off')) {
             light.state.command = '{}';
             light.state.level = 0;
         }
