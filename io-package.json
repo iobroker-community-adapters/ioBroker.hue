@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.6.3",
+    "version": "3.6.4",
     "tier": 2,
     "news": {
+      "3.6.4": {
+        "en": "correctly identify third party switches (closes #273)",
+        "de": "Schalter von Drittanbietern richtig identifizieren (schließt #273)",
+        "ru": "правильно идентифицировать сторонние переключатели (закрывает # 273)",
+        "pt": "identificar corretamente os switches de terceiros (fecha o nº 273)",
+        "nl": "identificeer schakelaars van derden correct (sluit #273 af)",
+        "fr": "identifier correctement les commutateurs tiers (ferme #273)",
+        "it": "identificare correttamente gli interruttori di terze parti (chiude il n. 273)",
+        "es": "identificar correctamente los interruptores de terceros (cierra #273)",
+        "pl": "poprawnie zidentyfikować przełączniki firm trzecich (zamyka #273)",
+        "zh-cn": "正确识别第三方开关（关闭 #273）"
+      },
       "3.6.3": {
         "en": "added `info.connection` state (closes #268)",
         "de": "Status `info.connection` hinzugefügt (schließt #268)",
@@ -75,18 +87,6 @@
         "es": "arreglamos Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
         "pl": "naprawiliśmy Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
         "zh-cn": "我们修复了 Sentry IOBROKER-HUE-1K、IOBROKER-HUE-A、IOBROKER-HUE-1J"
-      },
-      "3.5.29": {
-        "en": "Caught SENTRY error.",
-        "de": "SENTRY-Fehler abgefangen.",
-        "ru": "Обнаружена ошибка SENTRY.",
-        "pt": "Erro SENTRY detectado.",
-        "nl": "SENTRY-fout gedetecteerd.",
-        "fr": "Erreur SENTRY détectée.",
-        "it": "Rilevato errore SENTRY.",
-        "es": "Error de SENTRY detectado.",
-        "pl": "Wykryto błąd SENTRY.",
-        "zh-cn": "发现哨兵错误。"
       }
     },
     "titleLang": {

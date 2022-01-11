@@ -1102,7 +1102,7 @@ async function connect() {
             light.state.b = 0;
         }
 
-        if (light.type !== 'On/Off plug-in unit') {
+        if (light.type.startsWith('On/Off')) {
             light.state.command = '{}';
             light.state.level = 0;
         }
@@ -1269,7 +1269,7 @@ async function connect() {
         let role = 'light.color';
         if (light.type === 'Dimmable light' || light.type === 'Dimmable plug-in unit') {
             role = 'light.dimmer';
-        } else if (light.type === 'On/Off plug-in unit') {
+        } else if (light.type.startsWith('On/Off')) {
             role = 'switch';
         }
 
