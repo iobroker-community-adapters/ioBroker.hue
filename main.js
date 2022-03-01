@@ -13,7 +13,7 @@
 /* jslint node: true */
 'use strict';
 
-const {v3} = require('node-hue-api');
+const { v3 } = require('node-hue-api');
 const utils = require('@iobroker/adapter-core');
 const hueHelper = require('./lib/hueHelper');
 const tools = require('./lib/tools');
@@ -24,14 +24,7 @@ let adapter;
 let pollingInterval;
 let reconnectTimeout;
 
-const supportedSensors = [
-    'ZLLSwitch',
-    'ZGPSwitch',
-    'Daylight',
-    'ZLLTemperature',
-    'ZLLPresence',
-    'ZLLLightLevel'
-];
+const supportedSensors = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 
 function startAdapter(options) {
     options = options || {};
@@ -77,7 +70,7 @@ function startAdapter(options) {
                 try {
                     if (dp === 'on') {
                         const sensor = await api.sensors.get(channelObj.native.id);
-                        sensor._data.config = {on: state.val};
+                        sensor._data.config = { on: state.val };
                         await api.sensors.updateSensorConfig(sensor);
                         adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                     } else if (dp === 'status') {
@@ -86,7 +79,9 @@ function startAdapter(options) {
                         await api.sensors.updateSensorState(sensor);
                         adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                     } else {
-                        adapter.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
+                        adapter.log.warn(
+                            `Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`
+                        );
                     } // endElse
                 } catch (e) {
                     adapter.log.error(`Cannot update sensor ${channelObj.native.id}: ${e.message}`);
@@ -119,15 +114,19 @@ function startAdapter(options) {
 
             // if .on changed instead change .bri to 254 or 0, except it is a switch which has no brightness
             let bri = 0;
-            if (dp === 'on' && !adapter.config.nativeTurnOffBehaviour && !(channelObj && channelObj.common && channelObj.common.role === 'switch')) {
+            if (
+                dp === 'on' &&
+                !adapter.config.nativeTurnOffBehaviour &&
+                !(channelObj && channelObj.common && channelObj.common.role === 'switch')
+            ) {
                 bri = state.val ? 254 : 0;
-                adapter.setState([id, 'bri'].join('.'), {val: bri, ack: false});
+                adapter.setState([id, 'bri'].join('.'), { val: bri, ack: false });
                 return;
             }
             // if .level changed instead change .bri to level.val*254
             if (dp === 'level') {
                 bri = Math.max(Math.min(Math.round(state.val * 2.54), 254), 0);
-                adapter.setState([id, 'bri'].join('.'), {val: bri, ack: false});
+                adapter.setState([id, 'bri'].join('.'), { val: bri, ack: false });
                 return;
             }
             // get lamp states
@@ -259,7 +258,9 @@ function startAdapter(options) {
 
                     if (typeof commands.scene === 'string') {
                         // we need to get the id of the scene
-                        const sceneObj = await adapter.getObjectAsync(`${channelId}.scene_${commands.scene.toLowerCase()}`);
+                        const sceneObj = await adapter.getObjectAsync(
+                            `${channelId}.scene_${commands.scene.toLowerCase()}`
+                        );
 
                         if (sceneObj && sceneObj.native) {
                             sceneId = sceneObj.native.id;
@@ -322,13 +323,20 @@ function startAdapter(options) {
                 if (!('b' in ls) || ls.b > 255 || ls.b < 0 || typeof ls.b !== 'number') {
                     ls.b = 0;
                 }
-                const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, (Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'));
+                const xyb = hueHelper.RgbToXYB(
+                    ls.r / 255,
+                    ls.g / 255,
+                    ls.b / 255,
+                    Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
+                );
                 ls.bri = xyb.b;
                 ls.xy = `${xyb.x},${xyb.y}`;
             }
 
             // create lightState from ls and check values
-            let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+            let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
+                ? new v3.lightStates.GroupLightState()
+                : new v3.lightStates.LightState();
 
             if (parseInt(ls.bri) > 0) {
                 const bri = Math.min(254, ls.bri);
@@ -358,8 +366,12 @@ function startAdapter(options) {
                 }
 
                 let xy = ls.xy.toString().split(',');
-                xy = {'x': xy[0], 'y': xy[1]};
-                xy = hueHelper.GamutXYforModel(xy.x, xy.y, Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default');
+                xy = { x: xy[0], y: xy[1] };
+                xy = hueHelper.GamutXYforModel(
+                    xy.x,
+                    xy.y,
+                    Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
+                );
                 if (!xy) {
                     adapter.log.error(`Invalid "xy" value "${state.val}" for id "${id}"`);
                     return;
@@ -375,7 +387,7 @@ function startAdapter(options) {
                     finalLS.bri = 254;
                     finalLS.on = true;
                 }
-                const rgb = hueHelper.XYBtoRGB(xy.x, xy.y, (finalLS.bri / 254));
+                const rgb = hueHelper.XYBtoRGB(xy.x, xy.y, finalLS.bri / 254);
                 finalLS.r = Math.round(rgb.Red * 254);
                 finalLS.g = Math.round(rgb.Green * 254);
                 finalLS.b = Math.round(rgb.Blue * 254);
@@ -409,9 +421,10 @@ function startAdapter(options) {
                     finalLS.hue = 360;
                 }
                 // Convert 360° into 0-65535 value
-                finalLS.hue = Math.round(finalLS.hue / 360 * 65535);
+                finalLS.hue = Math.round((finalLS.hue / 360) * 65535);
 
-                if (finalLS.hue > 65535) { // may be round error
+                if (finalLS.hue > 65535) {
+                    // may be round error
                     finalLS.hue = 65535;
                 }
 
@@ -445,7 +458,7 @@ function startAdapter(options) {
                 finalLS.effect = ls.effect ? 'colorloop' : 'none';
 
                 lightState = lightState.effect(finalLS.effect);
-                if (!lampOn && (finalLS.effect !== 'none' && !('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && ((finalLS.effect !== 'none' && !('bri' in ls)) || ls.bri === 0)) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -477,9 +490,10 @@ function startAdapter(options) {
                     alls.hue += 360;
                 }
                 // Convert 360° into 0-65535 value
-                alls.hue = alls.hue / 360 * 65535;
+                alls.hue = (alls.hue / 360) * 65535;
 
-                if (alls.hue > 65535) { // may be round error
+                if (alls.hue > 65535) {
+                    // may be round error
                     alls.hue = 65535;
                 }
 
@@ -494,9 +508,9 @@ function startAdapter(options) {
                 lightState = lightState.hue(finalLS.hue);
             }
             if ('ct_inc' in ls && !('ct' in finalLS) && 'ct' in alls) {
-                alls.ct = (500 - 153) - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
+                alls.ct = 500 - 153 - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
 
-                finalLS.ct = (((((alls.ct - 153) + ls.ct_inc) % 348) + 348) % 348) + 153;
+                finalLS.ct = ((((alls.ct - 153 + ls.ct_inc) % 348) + 348) % 348) + 153;
                 if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
@@ -512,7 +526,7 @@ function startAdapter(options) {
                         lightState = lightState.on(false);
                         finalLS.on = false;
                     } else {
-                        adapter.setState([id, 'bri'].join('.'), {val: 0, ack: false});
+                        adapter.setState([id, 'bri'].join('.'), { val: 0, ack: false });
                         return;
                     }
                 } else {
@@ -539,7 +553,9 @@ function startAdapter(options) {
             // if dp is on and we use native turn off behaviour only set the lightState
             if (dp === 'on' && adapter.config.nativeTurnOffBehaviour) {
                 // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
-                lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role) ? new v3.lightStates.GroupLightState() : new v3.lightStates.LightState();
+                lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
+                    ? new v3.lightStates.GroupLightState()
+                    : new v3.lightStates.LightState();
                 if (state.val) {
                     lightState.on();
                 } else {
@@ -569,7 +585,7 @@ function startAdapter(options) {
                 }
             } else if (obj.common.role === 'switch') {
                 if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
-                    finalLS = {on: finalLS.on};
+                    finalLS = { on: finalLS.on };
                     // log final changes / states
                     adapter.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
@@ -709,10 +725,12 @@ async function browse(timeout) {
 async function createUser(ip) {
     const deviceName = 'ioBroker.hue';
     try {
-        const api = adapter.config.ssl ? await v3.api.createLocal(ip, adapter.config.port).connect() : await v3.api.createInsecureLocal(ip, adapter.config.port).connect();
+        const api = adapter.config.ssl
+            ? await v3.api.createLocal(ip, adapter.config.port).connect()
+            : await v3.api.createInsecureLocal(ip, adapter.config.port).connect();
         const newUser = await api.users.createUser(ip, deviceName);
         adapter.log.info(`created new User: ${newUser.username}`);
-        return {error: 0, message: newUser.username};
+        return { error: 0, message: newUser.username };
     } catch (e) {
         // 101 is bridge button not pressed
         if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
@@ -769,7 +787,7 @@ async function updateGroupState(group) {
         if (states.xy !== undefined) {
             const xy = states.xy.toString().split(',');
             states.xy = states.xy.toString();
-            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], states.bri / 254);
             states.r = Math.round(rgb.Red * 254);
             states.g = Math.round(rgb.Green * 254);
             states.b = Math.round(rgb.Blue * 254);
@@ -779,12 +797,13 @@ async function updateGroupState(group) {
         }
 
         if (states.hue !== undefined) {
-            states.hue = Math.round(states.hue / 65535 * 360);
+            states.hue = Math.round((states.hue / 65535) * 360);
         }
         if (states.ct !== undefined) {
             // convert color temperature from mired to kelvin
             states.ct = Math.round(1e6 / states.ct);
-            if (!isFinite(states.ct)) { // issue #234
+            if (!isFinite(states.ct)) {
+                // issue #234
                 // invalid value we cannot determine the meant value, fallback to max
                 states.ct = 6536; // 153
             }
@@ -800,7 +819,7 @@ async function updateGroupState(group) {
         } // endIf
 
         for (const stateB of Object.keys(states)) {
-            values.push({id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB]});
+            values.push({ id: `${adapter.namespace}.${group.name}.${stateB}`, val: states[stateB] });
         }
     } catch (e) {
         adapter.log.error(`Cannot update group state of ${group.name} (${group.id}): ${e.message || e}`);
@@ -833,7 +852,7 @@ async function updateLightState(light) {
         result = result['_data'];
 
         if (result.swupdate && result.swupdate.state) {
-            values.push({id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state});
+            values.push({ id: `${adapter.namespace}.${light.name}.updateable`, val: result.swupdate.state });
         } // endIf
 
         for (const stateA of Object.keys(result.state)) {
@@ -853,7 +872,7 @@ async function updateLightState(light) {
         if (states.xy !== undefined) {
             const xy = states.xy.toString().split(',');
             states.xy = states.xy.toString();
-            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], states.bri / 254);
             states.r = Math.round(rgb.Red * 254);
             states.g = Math.round(rgb.Green * 254);
             states.b = Math.round(rgb.Blue * 254);
@@ -863,14 +882,14 @@ async function updateLightState(light) {
         }
 
         if (states.hue !== undefined) {
-            states.hue = Math.round(states.hue / 65535 * 360);
+            states.hue = Math.round((states.hue / 65535) * 360);
         }
         if (states.ct !== undefined) {
             // convert color temperature from mired to kelvin
             states.ct = Math.round(1e6 / states.ct);
         }
         for (const stateB of Object.keys(states)) {
-            values.push({id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB]});
+            values.push({ id: `${adapter.namespace}.${light.name}.${stateB}`, val: states[stateB] });
         }
     } catch (e) {
         adapter.log.error(`Cannot update light state ${light.name} (${light.id}): ${e.message}`);
@@ -899,7 +918,9 @@ async function connect() {
             api = await v3.api.createLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
         } else {
             adapter.log.debug(`Using insecure http to connect to ${adapter.config.bridge}:${adapter.config.port}`);
-            api = await v3.api.createInsecureLocal(adapter.config.bridge, adapter.config.port).connect(adapter.config.user);
+            api = await v3.api
+                .createInsecureLocal(adapter.config.bridge, adapter.config.port)
+                .connect(adapter.config.user);
         } // endElse
         config = await api.configuration.getAll();
     } catch (e) {
@@ -907,14 +928,18 @@ async function connect() {
     } // endCatch
 
     if (!config || !config.config) {
-        adapter.log.warn(`Could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`);
+        adapter.log.warn(
+            `Could not get configuration from HUE bridge (${adapter.config.bridge}:${adapter.config.port})`
+        );
         setTimeout(connect, 5000);
         return;
     } // endIf
 
     // even if useLegacyStructure is false, we check if the structure exists to not create chaos
     if (!adapter.config.useLegacyStructure) {
-        const legacyObj = await adapter.getObjectAsync(`${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`);
+        const legacyObj = await adapter.getObjectAsync(
+            `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`
+        );
         if (legacyObj) {
             adapter.config.useLegacyStructure = true;
             adapter.log.info('Use legacy structure, because existing');
@@ -938,7 +963,9 @@ async function connect() {
         const sensor = sensors[sid];
 
         if (supportedSensors.includes(sensor.type)) {
-            let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(adapter.FORBIDDEN_CHARS, '')}` : sensor.name.replace(adapter.FORBIDDEN_CHARS, '');
+            let channelName = adapter.config.useLegacyStructure
+                ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(adapter.FORBIDDEN_CHARS, '')}`
+                : sensor.name.replace(adapter.FORBIDDEN_CHARS, '');
             let existingChObj;
             try {
                 existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
@@ -947,13 +974,29 @@ async function connect() {
             }
 
             // if channel name already taken or channel object already exists with another role, we have to adjust name
-            if (channelNames.indexOf(channelName) !== -1 || (existingChObj && existingChObj.common && existingChObj.common.role !== sensor.type)) {
+            if (
+                channelNames.indexOf(channelName) !== -1 ||
+                (existingChObj && existingChObj.common && existingChObj.common.role !== sensor.type)
+            ) {
                 const newChannelName = `${channelName} ${sensor.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
-                    adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
+                    adapter.log.error(
+                        `channel "${channelName.replace(
+                            /\s/g,
+                            '_'
+                        )}" already exists, could not use "${newChannelName.replace(
+                            /\s/g,
+                            '_'
+                        )}" as well, skipping sensor ${sid}`
+                    );
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
+                    adapter.log.warn(
+                        `channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(
+                            /\s/g,
+                            '_'
+                        )}" for sensor ${sid}`
+                    );
                     channelName = newChannelName;
                 }
             } else {
@@ -962,9 +1005,9 @@ async function connect() {
 
             const sensorName = sensor.name.replace(/[\s.]/g, '');
 
-            pollSensors.push({id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName});
+            pollSensors.push({ id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName });
 
-            const sensorCopy = {...sensor.state, ...sensor.config};
+            const sensorCopy = { ...sensor.state, ...sensor.config };
             for (const state of Object.keys(sensorCopy)) {
                 const objId = `${channelName}.${state}`;
 
@@ -1071,7 +1114,9 @@ async function connect() {
     for (const lid of lightsArr) {
         const light = lights[lid];
 
-        let channelName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}` : light.name.replace(/\./g, '_');
+        let channelName = adapter.config.useLegacyStructure
+            ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}`
+            : light.name.replace(/\./g, '_');
         let existingChObj;
         try {
             existingChObj = await adapter.getObjectAsync(channelName.replace(/\s/g, '_'));
@@ -1080,21 +1125,40 @@ async function connect() {
         }
 
         // if channel name already taken or channel object already exists with another role, we have to adjust name
-        if (channelNames.indexOf(channelName) !== -1 || (existingChObj && existingChObj.common && existingChObj.common.role &&
-            !existingChObj.common.role.startsWith('light') && existingChObj.common.role !== 'switch')) {
+        if (
+            channelNames.indexOf(channelName) !== -1 ||
+            (existingChObj &&
+                existingChObj.common &&
+                existingChObj.common.role &&
+                !existingChObj.common.role.startsWith('light') &&
+                existingChObj.common.role !== 'switch')
+        ) {
             const newChannelName = `${channelName} ${light.type}`;
             if (channelNames.indexOf(newChannelName) !== -1) {
-                adapter.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
+                adapter.log.error(
+                    `channel "${channelName.replace(
+                        /\s/g,
+                        '_'
+                    )}" already exists, could not use "${newChannelName.replace(
+                        /\s/g,
+                        '_'
+                    )}" as well, skipping light ${lid}`
+                );
                 continue;
             } else {
-                adapter.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
+                adapter.log.warn(
+                    `channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(
+                        /\s/g,
+                        '_'
+                    )}" for light ${lid}`
+                );
                 channelName = newChannelName;
             }
         } else {
             channelNames.push(channelName);
         }
         channelIds[channelName.replace(/\s/g, '_')] = lid;
-        pollLights.push({id: lid, name: channelName.replace(/\s/g, '_')});
+        pollLights.push({ id: lid, name: channelName.replace(/\s/g, '_') });
 
         if (light.type === 'Extended color light' || light.type === 'Color light') {
             light.state.r = 0;
@@ -1169,7 +1233,7 @@ async function connect() {
                     lobj.common.unit = '°';
                     lobj.common.min = 0;
                     lobj.common.max = 360;
-                    value = Math.round(value / 65535 * 360);
+                    value = Math.round((value / 65535) * 360);
                     break;
                 case 'sat':
                     lobj.common.type = 'number';
@@ -1182,7 +1246,7 @@ async function connect() {
                     lobj.common.role = 'level.color.xy';
                     break;
                 case 'ct': {
-                    let ctObj = {min: 153, max: 500}; // fallback object
+                    let ctObj = { min: 153, max: 500 }; // fallback object
                     try {
                         const light = await api.lights.getLight(parseInt(lid));
                         // often max: 454 or 500, min: 153
@@ -1203,7 +1267,8 @@ async function connect() {
                     lobj.common.min = Math.round(1e6 / ctObj.max); // this way, because with higher Kelvin -> smaller Mired
                     lobj.common.max = Math.round(1e6 / ctObj.min);
                     value = Math.round(1e6 / value);
-                    if (!isFinite(value)) { // issue #234
+                    if (!isFinite(value)) {
+                        // issue #234
                         // invalid value we cannot determine the meant value, fallback to max
                         value = lobj.common.max;
                     }
@@ -1303,7 +1368,7 @@ async function connect() {
 
         const groups = config.groups;
         groups[0] = {
-            name: 'All',   // "Lightset 0"
+            name: 'All', // "Lightset 0"
             type: 'LightGroup',
             id: 0,
             action: {
@@ -1325,7 +1390,9 @@ async function connect() {
         for (const gid of groupsArr) {
             const group = groups[gid];
 
-            let groupName = adapter.config.useLegacyStructure ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}` : group.name.replace(/\./g, '_');
+            let groupName = adapter.config.useLegacyStructure
+                ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}`
+                : group.name.replace(/\./g, '_');
             let existingChObj;
             try {
                 existingChObj = await adapter.getObjectAsync(groupName.replace(/\s/g, '_'));
@@ -1334,20 +1401,38 @@ async function connect() {
             }
 
             // if group name already taken or channel object already exists with another role, we have to adjust name
-            if (channelNames.indexOf(groupName) !== -1 || (existingChObj && existingChObj.common && !['Entertainment', 'LightGroup', 'Room', 'Zone'].includes(existingChObj.common.role))) {
+            if (
+                channelNames.indexOf(groupName) !== -1 ||
+                (existingChObj &&
+                    existingChObj.common &&
+                    !['Entertainment', 'LightGroup', 'Room', 'Zone'].includes(existingChObj.common.role))
+            ) {
                 const newGroupName = `${groupName} ${group.type}`;
                 if (channelNames.indexOf(newGroupName) !== -1) {
-                    adapter.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
+                    adapter.log.error(
+                        `channel "${groupName.replace(
+                            /\s/g,
+                            '_'
+                        )}" already exists, could not use "${newGroupName.replace(
+                            /\s/g,
+                            '_'
+                        )}" as well, skipping group ${gid}`
+                    );
                     continue;
                 } else {
-                    adapter.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
+                    adapter.log.warn(
+                        `channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(
+                            /\s/g,
+                            '_'
+                        )}" for group ${gid}`
+                    );
                     groupName = newGroupName;
                 }
             } else {
                 channelNames.push(groupName);
             }
             groupIds[groupName.replace(/\s/g, '_')] = gid;
-            pollGroups.push({id: gid, name: groupName.replace(/\s/g, '_')});
+            pollGroups.push({ id: gid, name: groupName.replace(/\s/g, '_') });
 
             group.action.r = 0;
             group.action.g = 0;
@@ -1398,7 +1483,7 @@ async function connect() {
                         gobj.common.min = 0;
                         gobj.common.max = 360;
                         // rescale to max of 360 instead of max 65535
-                        group.action[action] = Math.round(group.action[action] / 65535 * 360);
+                        group.action[action] = Math.round((group.action[action] / 65535) * 360);
                         break;
                     case 'sat':
                         gobj.common.type = 'number';
@@ -1418,7 +1503,8 @@ async function connect() {
                         gobj.common.max = 6536; // 153
                         // mired to kelvin
                         group.action[action] = Math.round(1e6 / group.action[action]);
-                        if (!isFinite(group.action[action])) { // issue #234
+                        if (!isFinite(group.action[action])) {
+                            // issue #234
                             // invalid value we cannot determine the meant value, fallback to max
                             group.action[action] = gobj.common.max;
                         }
@@ -1466,7 +1552,10 @@ async function connect() {
                         adapter.log.info(`skip group: ${gobjId}`);
                         continue;
                 }
-                gobj.common.def = group.action[action] && typeof group.action[action] === 'object' ? JSON.stringify(group.action[action]): group.action[action];
+                gobj.common.def =
+                    group.action[action] && typeof group.action[action] === 'object'
+                        ? JSON.stringify(group.action[action])
+                        : group.action[action];
                 objs.push(gobj);
             } // endFor
 
@@ -1565,7 +1654,9 @@ async function connect() {
             let sceneChannelCreated = false;
 
             let sceneCounter = 0;
-            const sceneNamespace = adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}` : `${adapter.namespace}`;
+            const sceneNamespace = adapter.config.useLegacyStructure
+                ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`
+                : `${adapter.namespace}`;
             for (const sceneId of Object.keys(scenes)) {
                 const scene = scenes[sceneId];
                 if (scene.type === 'GroupScene') {
@@ -1574,7 +1665,10 @@ async function connect() {
                     }
                     adapter.log.debug(`Create ${scene.name} in ${groupNames[scene.group]}`);
                     objs.push({
-                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name.replace(/[\s.]/g, '_').replace(adapter.FORBIDDEN_CHARS, '').toLowerCase()}`,
+                        _id: `${adapter.namespace}.${groupNames[scene.group]}.scene_${scene.name
+                            .replace(/[\s.]/g, '_')
+                            .replace(adapter.FORBIDDEN_CHARS, '')
+                            .toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
@@ -1604,7 +1698,10 @@ async function connect() {
 
                     adapter.log.debug(`Create ${scene.name}`);
                     objs.push({
-                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name.replace(/[\s.]/g, '_').replace(adapter.FORBIDDEN_CHARS, '').toLowerCase()}`,
+                        _id: `${sceneNamespace}.lightScenes.scene_${scene.name
+                            .replace(/[\s.]/g, '_')
+                            .replace(adapter.FORBIDDEN_CHARS, '')
+                            .toLowerCase()}`,
                         type: 'state',
                         common: {
                             name: `Scene ${scene.name}`,
@@ -1624,13 +1721,14 @@ async function connect() {
         } catch (e) {
             adapter.log.error(`Error syncing scenes: ${e.message}`);
         } // endCatch
-
     } // endIf
 
     // Create/update device
     adapter.log.info('creating/updating bridge device');
     objs.push({
-        _id: adapter.config.useLegacyStructure ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}` : adapter.namespace,
+        _id: adapter.config.useLegacyStructure
+            ? `${adapter.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`
+            : adapter.namespace,
         type: 'device',
         common: {
             name: config.config.name
@@ -1700,7 +1798,11 @@ async function syncStates(states) {
         const nameId = task.id.split('.')[adapter.config.useLegacyStructure ? 3 : 2];
         if (blockedIds[nameId] !== true) {
             try {
-                await adapter.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val && typeof task.val === 'object' ? JSON.stringify(task.val) : task.val, true);
+                await adapter.setForeignStateChangedAsync(
+                    task.id.replace(/\s/g, '_'),
+                    task.val && typeof task.val === 'object' ? JSON.stringify(task.val) : task.val,
+                    true
+                );
             } catch (e) {
                 adapter.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e.message}`);
             }
@@ -1751,21 +1853,41 @@ async function poll() {
                     // detect removed sensors
                     adapter.log.info(`Sensor ${sensorName} has been removed from bridge`);
                     noDevices--;
-                    pollSensors.splice(pollSensors.findIndex(item => item.id === sensor.id), 1);
+                    pollSensors.splice(
+                        pollSensors.findIndex(item => item.id === sensor.id),
+                        1
+                    );
                     // if recursive deletion is supported we delete the object
                     if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName}`);
-                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName}`, {recursive: true});
+                        adapter.log.info(
+                            `Deleting ${adapter.namespace}.${
+                                adapter.config.useLegacyStructure
+                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                    : sensorName
+                            }`
+                        );
+                        adapter.delObject(
+                            `${
+                                adapter.config.useLegacyStructure
+                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                    : sensorName
+                            }`,
+                            { recursive: true }
+                        );
                     } else {
                         adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}` : sensorName} manually`);
+                        ${adapter.namespace}.${
+                            adapter.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                : sensorName
+                        } manually`);
                     } // endElse
                     continue;
                 } // endElse
 
                 sensor.name = sensorName;
 
-                const sensorStates = {...sensor.config, ...sensor.state};
+                const sensorStates = { ...sensor.config, ...sensor.state };
                 for (const stateA of Object.keys(sensorStates)) {
                     states[stateA] = sensorStates[stateA];
                 }
@@ -1792,14 +1914,34 @@ async function poll() {
                     // detect removed lights
                     adapter.log.info(`Light ${lightName} has been removed from bridge`);
                     noDevices--;
-                    pollLights.splice(pollLights.findIndex(item => item.id === light.id), 1);
+                    pollLights.splice(
+                        pollLights.findIndex(item => item.id === light.id),
+                        1
+                    );
                     // if recursive deletion is supported we delete the object
                     if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                        adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName}`);
-                        adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName}`, {recursive: true});
+                        adapter.log.info(
+                            `Deleting ${adapter.namespace}.${
+                                adapter.config.useLegacyStructure
+                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                    : lightName
+                            }`
+                        );
+                        adapter.delObject(
+                            `${
+                                adapter.config.useLegacyStructure
+                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                    : lightName
+                            }`,
+                            { recursive: true }
+                        );
                     } else {
                         adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                        ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}` : lightName} manually`);
+                        ${adapter.namespace}.${
+                            adapter.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                : lightName
+                        } manually`);
                     } // endElse
                     continue;
                 } // endElse
@@ -1830,7 +1972,7 @@ async function poll() {
                 if (states.xy !== undefined) {
                     const xy = states.xy.toString().split(',');
                     states.xy = states.xy.toString();
-                    const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                    const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], states.bri / 254);
                     states.r = Math.round(rgb.Red * 254);
                     states.g = Math.round(rgb.Green * 254);
                     states.b = Math.round(rgb.Blue * 254);
@@ -1840,7 +1982,7 @@ async function poll() {
                 }
 
                 if (states.hue !== undefined) {
-                    states.hue = Math.round(states.hue / 65535 * 360);
+                    states.hue = Math.round((states.hue / 65535) * 360);
                 }
                 if (states.ct !== undefined) {
                     // convert color temperature from mired to kelvin
@@ -1849,7 +1991,9 @@ async function poll() {
                     // some devices send 0 -> infinity (issue #234)
                     if (!isFinite(states.ct)) {
                         // invalid value we cannot determine the meant value
-                        adapter.log.debug(`Cannot determine ct value of "${light.name}", received value "${states.ct}"`);
+                        adapter.log.debug(
+                            `Cannot determine ct value of "${light.name}", received value "${states.ct}"`
+                        );
                         delete states.ct;
                     }
                 }
@@ -1880,14 +2024,35 @@ async function poll() {
                             noDevices--;
                             // if recursive deletion is supported we delete the object
                             if (adapter.supportsFeature && adapter.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                                adapter.log.info(`Deleting ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name}`);
-                                adapter.delObject(`${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name}`, {recursive: true});
+                                adapter.log.info(
+                                    `Deleting ${adapter.namespace}.${
+                                        adapter.config.useLegacyStructure
+                                            ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}`
+                                            : group.name
+                                    }`
+                                );
+                                adapter.delObject(
+                                    `${
+                                        adapter.config.useLegacyStructure
+                                            ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}`
+                                            : group.name
+                                    }`,
+                                    { recursive: true }
+                                );
                             } else {
-                                adapter.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                                ${adapter.namespace}.${adapter.config.useLegacyStructure ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}` : group.name} manually`);
+                                adapter.log
+                                    .info(`Recursive deletion not supported by your js-controller, please delete \
+                                ${adapter.namespace}.${
+                                    adapter.config.useLegacyStructure
+                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}`
+                                        : group.name
+                                } manually`);
                             } // endElse
 
-                            pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
+                            pollGroups.splice(
+                                pollGroups.findIndex(item => item.id === group.id),
+                                1
+                            );
                             continue;
                         } // endElse
 
@@ -1906,7 +2071,7 @@ async function poll() {
                         if (states.xy !== undefined) {
                             const xy = states.xy.toString().split(',');
                             states.xy = states.xy.toString();
-                            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], (states.bri / 254));
+                            const rgb = hueHelper.XYBtoRGB(xy[0], xy[1], states.bri / 254);
                             states.r = Math.round(rgb.Red * 254);
                             states.g = Math.round(rgb.Green * 254);
                             states.b = Math.round(rgb.Blue * 254);
@@ -1916,7 +2081,7 @@ async function poll() {
                         }
 
                         if (states.hue !== undefined) {
-                            states.hue = Math.round(states.hue / 65535 * 360);
+                            states.hue = Math.round((states.hue / 65535) * 360);
                         }
 
                         if (states.ct !== undefined) {
@@ -1926,7 +2091,9 @@ async function poll() {
                             // some devices send 0 -> infinity (issue #234)
                             if (!isFinite(states.ct)) {
                                 // invalid value we cannot determine the meant value
-                                adapter.log.debug(`Cannot determine ct value of "${groupName}", received value "${states.ct}"`);
+                                adapter.log.debug(
+                                    `Cannot determine ct value of "${groupName}", received value "${states.ct}"`
+                                );
                                 delete states.ct;
                             }
                         }
@@ -1998,7 +2165,8 @@ async function main() {
     } // endIf
 
     // polling interval has to be greater equal 1
-    adapter.config.pollingInterval = parseInt(adapter.config.pollingInterval, 10) < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
+    adapter.config.pollingInterval =
+        parseInt(adapter.config.pollingInterval, 10) < 2 ? 2 : parseInt(adapter.config.pollingInterval, 10);
 
     if (!adapter.config.bridge) {
         adapter.log.warn(`No bridge configured yet - please configure the adapter first`);
