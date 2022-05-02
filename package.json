@@ -36,7 +36,7 @@
     "@alcalzone/release-script-plugin-iobroker": "^3.5.9",
     "@alcalzone/release-script-plugin-license": "^3.5.3",
     "@iobroker/testing": "^2.6.0",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "chai": "^4.3.6",
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
