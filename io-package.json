@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.6.5",
+    "version": "3.7.0",
     "tier": 2,
     "news": {
+      "3.7.0": {
+        "en": "support software sensor `CLIPGenericFlag` (closes #328)",
+        "de": "Support-Software-Sensor `CLIPGenericFlag` (schließt #328)",
+        "ru": "датчик поддержки программного обеспечения `CLIPGenericFlag` (закрывает #328)",
+        "pt": "sensor de software de suporte `CLIPGenericFlag` (fecha #328)",
+        "nl": "ondersteuningssoftware sensor `CLIPGenericFlag` (sluit #328)",
+        "fr": "prend en charge le capteur logiciel `CLIPGenericFlag` (ferme #328)",
+        "it": "supporto software sensore `CLIPGenericFlag` (chiude #328)",
+        "es": "sensor de software de soporte `CLIPGenericFlag` (cierra #328)",
+        "pl": "obsługa czujnika oprogramowania `CLIPGenericFlag` (zamyka #328)",
+        "zh-cn": "支持软件传感器“CLIPGenericFlag”（关闭#328）"
+      },
       "3.6.5": {
         "en": "correctly identify third party switches (closes #273)",
         "de": "Schalter von Drittanbietern richtig identifizieren (schließt #273)",
@@ -75,18 +87,6 @@
         "es": "Corrección del valor ct de # 234 portado para el grupo 0 (Todos)",
         "pl": "Ustalona wartość ct z #234 przeniesiona dla grupy 0 (Wszystkie)",
         "zh-cn": "为 0（所有）组移植的 #234 的 ct 值修复"
-      },
-      "3.5.30": {
-        "en": "we fixed Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "de": "wir reparierten Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "ru": "мы исправили Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "pt": "consertamos Sentinela IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "nl": "we hebben Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J gerepareerd",
-        "fr": "nous avons corrigé Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "it": "abbiamo riparato Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "es": "arreglamos Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "pl": "naprawiliśmy Sentry IOBROKER-HUE-1K, IOBROKER-HUE-A, IOBROKER-HUE-1J",
-        "zh-cn": "我们修复了 Sentry IOBROKER-HUE-1K、IOBROKER-HUE-A、IOBROKER-HUE-1J"
       }
     },
     "titleLang": {

@@ -24,7 +24,8 @@ let adapter;
 let pollingInterval;
 let reconnectTimeout;
 
-const supportedSensors = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
+const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
+const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 function startAdapter(options) {
     options = options || {};
@@ -65,7 +66,7 @@ function startAdapter(options) {
                 return;
             }
 
-            if (channelObj && channelObj.common && supportedSensors.includes(channelObj.common.role)) {
+            if (channelObj && channelObj.common && SUPPORTED_SENSORS.includes(channelObj.common.role)) {
                 // its a sensor - we support turning it on and off
                 try {
                     if (dp === 'on') {
@@ -962,7 +963,7 @@ async function connect() {
     for (const sid of sensorsArr) {
         const sensor = sensors[sid];
 
-        if (supportedSensors.includes(sensor.type)) {
+        if (SUPPORTED_SENSORS.includes(sensor.type)) {
             let channelName = adapter.config.useLegacyStructure
                 ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(adapter.FORBIDDEN_CHARS, '')}`
                 : sensor.name.replace(adapter.FORBIDDEN_CHARS, '');
@@ -2161,7 +2162,9 @@ async function main() {
     adapter.config.port = adapter.config.port ? parseInt(adapter.config.port, 10) : 80;
 
     if (adapter.config.syncSoftwareSensors) {
-        supportedSensors.push('CLIPGenericStatus');
+        for (const softwareSensor of SOFTWARE_SENSORS) {
+            SUPPORTED_SENSORS.push(softwareSensor);
+        }
     } // endIf
 
     // polling interval has to be greater equal 1
