@@ -79,6 +79,11 @@ function startAdapter(options) {
                         sensor.status = parseInt(state.val);
                         await api.sensors.updateSensorState(sensor);
                         adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
+                    } else if (dp === 'flag') {
+                        const sensor = await api.sensors.get(channelObj.native.id);
+                        sensor.flag = state.val;
+                        await api.sensors.updateSensorState(sensor);
+                        adapter.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                     } else {
                         adapter.log.warn(
                             `Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`
