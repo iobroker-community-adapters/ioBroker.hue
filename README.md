@@ -73,6 +73,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (Eistee82) also update state for `CLIPGenericFlag` sensors
+
 ### 3.7.0 (2022-05-30)
 * (foxriver76) support software sensor `CLIPGenericFlag` (closes #328)
 
