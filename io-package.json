@@ -1,9 +1,21 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.7.0",
+    "version": "3.7.1",
     "tier": 2,
     "news": {
+      "3.7.1": {
+        "en": "also update state for `CLIPGenericFlag` sensors",
+        "de": "auch Zustand für CLIPGenericFlag Sensoren aktualisieren",
+        "ru": "также обновить состояние для датчиков CLIPGenericFlag",
+        "pt": "também atualizar estado para sensores CLIPGenericFlag",
+        "nl": "ook updates voor CLIPGenericFlag sensoren",
+        "fr": "également mettre à jour l'état pour les capteurs CLIPGenericFlag",
+        "it": "anche aggiornare lo stato per i sensori CLIPGenericFlag",
+        "es": "también actualización estado para sensores CLIPGenericFlag",
+        "pl": "zaktualizowano również stan CLIPGenericFlag",
+        "zh-cn": "还更新了克里米尔的传感器状况"
+      },
       "3.7.0": {
         "en": "support software sensor `CLIPGenericFlag` (closes #328)",
         "de": "Support-Software-Sensor `CLIPGenericFlag` (schließt #328)",
@@ -75,18 +87,6 @@
         "es": "permite activar escenas a través del estado `comando`, esto permite iniciar una escena con` tiempo de transición`",
         "pl": "pozwala na wyzwalanie scen poprzez stan `command`, pozwala to na uruchomienie sceny z `transitiontime`",
         "zh-cn": "允许通过 `command` 状态触发场景，这允许使用 `transitiontime` 启动场景"
-      },
-      "3.5.31": {
-        "en": "ct value fix of #234 ported for 0 (All) group",
-        "de": "ct-Wert-Fix von #234 portiert für 0 (Alle) Gruppe",
-        "ru": "Исправлено значение ct # 234, перенесенное для группы 0 (All)",
-        "pt": "correção do valor ct de # 234 portado para o grupo 0 (todos)",
-        "nl": "ct-waarde fix van #234 geport voor 0 (Alle) groep",
-        "fr": "Correction de la valeur ct de #234 porté pour le groupe 0 (Tous)",
-        "it": "Correzione del valore ct di #234 portato per il gruppo 0 (Tutti)",
-        "es": "Corrección del valor ct de # 234 portado para el grupo 0 (Todos)",
-        "pl": "Ustalona wartość ct z #234 przeniesiona dla grupy 0 (Wszystkie)",
-        "zh-cn": "为 0（所有）组移植的 #234 的 ct 值修复"
       }
     },
     "titleLang": {
