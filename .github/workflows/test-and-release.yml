@@ -53,11 +53,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-<<<<<<< HEAD
         node-version: [16.x, 18.x, 20.x]
-=======
-        node-version: [16.x, 18.x]
->>>>>>> 5ef5931 (Update tests node-version and min js controller)
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
