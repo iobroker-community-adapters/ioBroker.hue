@@ -42,6 +42,7 @@ Please note: Adapter settings button "Find Bridge" will be inactive if field "Br
 |__"Legacy" structure__|To support backwards compatibility, it is possible to hold an old object structure in ioBroker. This old structure is `hue.<instance_number>.<bridge_name_channel>.<light_or_group_channel>.<state>`. The new structure removes `<bridge_name_channel>` and thus makes it necessary to adapt old scripts, etc. If an existing old structure is detected by the adapter, the structure will be used without checking the checkbox. However, if migration from old to new structure is desired, delete the whole `hue.<instance_number>` namespace once.
 |__Native turn off/on behaviour__|If checked, the adapter will turn on/off lights in the same fashion as the native Hue app does. Otherwise, lamps will be set to a level of 100 % when switched on. Additionally when a group is already turned on, setting the brightness level will affect only the already turned on lamps and will not turn the lamps on, which are currently turned off.|
 |__Sync software sensors__|Also sync software sensors. These are virtual sensors, e.g. created by Hue Labs scenes. By controlling the `status` datapoint of such a sensor you can start/stop scenes which follow this logic. In most cases `0` turns scene off and `1` turns it on.|
+|__Turn on with others__| Turn on lights also with ct state, color state, ... Set to `false` and turn on only with power and brightness state.| 
 |__Polling__|If checked, the adapter will poll state changes, otherwise it can only be used to control lamps, not to show their status.|
 |__Polling interval__|Defines how often the states will be polled, and thus updated in ioBroker. Low polling intervals can cause performance issues in some settings. Hence, the minimum allowed polling interval is 2 seconds. If polling interval is set to less than 2 seconds it will be set to 2 seconds during runtime.|
 
@@ -73,6 +74,8 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (Schmakus) Possibility to disable turn on lights with states other than `on` and `brightness`
 ### 3.7.1 (2022-07-12)
 * (Eistee82) also update state for `CLIPGenericFlag` sensors
 
