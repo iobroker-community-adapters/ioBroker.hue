@@ -75,7 +75,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	### __WORK IN PROGRESS__
 -->
 ### __WORK IN PROGRESS__
-* (Schmakus) Possibility to disable turn on lights with states other than `on` and `brightness`
+* (Schmakus) Possibility to disable turn on lights with states other than `on` and `brightness` [#386]
 ### 3.7.1 (2022-07-12)
 * (Eistee82) also update state for `CLIPGenericFlag` sensors
 
