@@ -167,7 +167,8 @@
     "useLegacyStructure": false,
     "nativeTurnOffBehaviour": false,
     "ssl": true,
-    "syncSoftwareSensors": false
+    "syncSoftwareSensors": false,
+    "turnOnWithOthers": true
   },
   "protectedNative": [
     "user"

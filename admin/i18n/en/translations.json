@@ -26,5 +26,6 @@
     "error finding bridge": "error finding bridge",
     "ignoreOsram": "ignore Osram",
     "link button not pressed": "link button not pressed",
-    "polling_warning": "Notice: Adapter may send only 10 commands in 1 second."
+    "polling_warning": "Notice: Adapter may send only 10 commands in 1 second.",
+    "Turn on with others": "Turn on with others than power and brightness"
 }

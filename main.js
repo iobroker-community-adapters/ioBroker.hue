@@ -409,7 +409,7 @@ function startAdapter(options) {
                 finalLS.ct = Math.round(1e6 / finalLS.ct);
 
                 lightState = lightState.ct(finalLS.ct);
-                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -435,7 +435,7 @@ function startAdapter(options) {
                 }
 
                 lightState = lightState.hue(finalLS.hue);
-                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -445,7 +445,7 @@ function startAdapter(options) {
             if ('sat' in ls) {
                 finalLS.sat = Math.max(0, Math.min(254, ls.sat)) || 0;
                 lightState = lightState.sat(finalLS.sat);
-                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -464,7 +464,7 @@ function startAdapter(options) {
                 finalLS.effect = ls.effect ? 'colorloop' : 'none';
 
                 lightState = lightState.effect(finalLS.effect);
-                if (!lampOn && ((finalLS.effect !== 'none' && !('bri' in ls)) || ls.bri === 0)) {
+                if (!lampOn && ((finalLS.effect !== 'none' && !('bri' in ls)) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -482,7 +482,7 @@ function startAdapter(options) {
             }
             if ('sat_inc' in ls && !('sat' in finalLS) && 'sat' in alls) {
                 finalLS.sat = (((ls.sat_inc + alls.sat) % 255) + 255) % 255;
-                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -505,7 +505,7 @@ function startAdapter(options) {
 
                 finalLS.hue = (((ls.hue_inc + alls.hue) % 65536) + 65536) % 65536;
 
-                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -517,7 +517,7 @@ function startAdapter(options) {
                 alls.ct = 500 - 153 - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
 
                 finalLS.ct = ((((alls.ct - 153 + ls.ct_inc) % 348) + 348) % 348) + 153;
-                if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
+                if (!lampOn && (!('bri' in ls) || ls.bri === 0) && adapter.config.turnOnWithOthers) {
                     lightState = lightState.on();
                     lightState = lightState.bri(254);
                     finalLS.bri = 254;
@@ -1328,6 +1328,13 @@ async function connect() {
                     lobj.common.type = 'string';
                     lobj.common.role = 'text';
                     break;
+                case 'transitiontime':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level';
+                    lobj.common.min = 0;
+                    lobj.common.max = 64000;
+                    lobj.common.unit = 'ds';
+                    break;
                 default:
                     adapter.log.info(`skip light: ${objId}`);
                     break;
@@ -1553,6 +1560,13 @@ async function connect() {
                     case 'status':
                         gobj.common.type = 'number';
                         gobj.common.role = 'indicator.status';
+                        break;
+                    case 'transitiontime':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'level';
+                        lobj.common.min = 0;
+                        lobj.common.max = 64000;
+                        lobj.common.unit = 'ds';
                         break;
                     default:
                         adapter.log.info(`skip group: ${gobjId}`);
