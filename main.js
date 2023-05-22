@@ -1328,6 +1328,13 @@ async function connect() {
                     lobj.common.type = 'string';
                     lobj.common.role = 'text';
                     break;
+                case 'transmitiontime':
+                    lobj.common.type = 'number';
+                    lobj.common.role = 'level';
+                    lobj.common.min = 0;
+                    lobj.common.max = 64000;
+                    lobj.common.unit = 'ds';
+                    break;
                 default:
                     adapter.log.info(`skip light: ${objId}`);
                     break;
@@ -1553,6 +1560,13 @@ async function connect() {
                     case 'status':
                         gobj.common.type = 'number';
                         gobj.common.role = 'indicator.status';
+                        break;
+                    case 'transmitiontime':
+                        lobj.common.type = 'number';
+                        lobj.common.role = 'level';
+                        lobj.common.min = 0;
+                        lobj.common.max = 64000;
+                        lobj.common.unit = 'ds';
                         break;
                     default:
                         adapter.log.info(`skip group: ${gobjId}`);
