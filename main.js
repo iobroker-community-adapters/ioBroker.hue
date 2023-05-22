@@ -1328,7 +1328,7 @@ async function connect() {
                     lobj.common.type = 'string';
                     lobj.common.role = 'text';
                     break;
-                case 'transmitiontime':
+                case 'transitiontime':
                     lobj.common.type = 'number';
                     lobj.common.role = 'level';
                     lobj.common.min = 0;
@@ -1561,7 +1561,7 @@ async function connect() {
                         gobj.common.type = 'number';
                         gobj.common.role = 'indicator.status';
                         break;
-                    case 'transmitiontime':
+                    case 'transitiontime':
                         lobj.common.type = 'number';
                         lobj.common.role = 'level';
                         lobj.common.min = 0;
