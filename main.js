@@ -224,12 +224,6 @@ function startAdapter(options) {
                         commandSupported = true;
                         alls[iddp] = idStates[idState].val;
                         break;
-                    case 'sat':
-                        alls[iddp] = idStates[idState].val;
-                        if (dp === 'transitiontime') {
-                            ls[iddp] = idStates[idState].val;
-                        }
-                        break;
                     default:
                         alls[iddp] = idStates[idState].val;
                         break;
@@ -1334,13 +1328,6 @@ async function connect() {
                     lobj.common.type = 'string';
                     lobj.common.role = 'text';
                     break;
-                case 'transitiontime':
-                    lobj.common.type = 'number';
-                    lobj.common.role = 'level';
-                    lobj.common.min = 0;
-                    lobj.common.max = 64000;
-                    lobj.common.unit = 'ds';
-                    break;
                 default:
                     adapter.log.info(`skip light: ${objId}`);
                     break;
@@ -1566,13 +1553,6 @@ async function connect() {
                     case 'status':
                         gobj.common.type = 'number';
                         gobj.common.role = 'indicator.status';
-                        break;
-                    case 'transitiontime':
-                        lobj.common.type = 'number';
-                        lobj.common.role = 'level';
-                        lobj.common.min = 0;
-                        lobj.common.max = 64000;
-                        lobj.common.unit = 'ds';
                         break;
                     default:
                         adapter.log.info(`skip group: ${gobjId}`);
