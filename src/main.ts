@@ -2,42 +2,56 @@
  *
  *      ioBroker Philips Hue Bridge Adapter
  *
- *      Copyright (c) 2017-2021 Bluefox <dogafox@gmail.com>
- *      Copyright (c) 2014-2016 hobbyquaker *
+ *      Copyright (c) 2017-2023 Bluefox <dogafox@gmail.com>
+ *      Copyright (c) 2014-2016 hobbyquaker
  *      Apache License
  *
  */
-/* jshint -W097 */
-/* jshint strict: false */
-/* jshint esversion: 6  */
-/* jslint node: true */
-'use strict';
+import { v3 } from 'node-hue-api';
+import utils from '@iobroker/adapter-core';
+import * as hueHelper from './lib/hueHelper';
+import * as tools from './lib/tools';
+import Api from 'node-hue-api/lib/api/Api';
 
-const { v3 } = require('node-hue-api');
-const utils = require('@iobroker/adapter-core');
-const hueHelper = require('./lib/hueHelper');
-const tools = require('./lib/tools');
+interface PollSensor {
+    /** Sensor id in Hue */
+    id: number;
+    /** ioBroker channel name */
+    name: string;
+    /** Sensor name */
+    sname: string;
+}
 
-const blockedIds = [];
-const channelIds = {};
+interface PollLight {
+    /** Light id in Hue */
+    id: number;
+    /** ioBroker channel name */
+    name: string;
+}
+
+/** IDs currently blocked from polling */
+const blockedIds: string[] = [];
+/** Map ioBroker channel to light id */
+const channelIds: Record<string, string> = {};
+/** Map ioBroker group name to group id */
 const groupIds = {};
-const pollLights = [];
-const pollSensors = [];
-const pollGroups = [];
+/** Existing lights on API */
+const pollLights: PollLight[] = [];
+/** Existing sensors on API */
+const pollSensors: PollSensor[] = [];
+/** Existing groups on API */
+const pollGroups: string[] = [];
 
-let api;
-let noDevices;
-let pollingInterval;
-let reconnectTimeout;
+let api: Api;
+let noDevices: number;
+let pollingInterval: NodeJS.Timeout | undefined;
+let reconnectTimeout: NodeJS.Timeout | undefined;
 
 const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 class Hue extends utils.Adapter {
-    /**
-     * @param {Partial<utils.AdapterOptions>} [options={}]
-     */
-    constructor(options) {
+    constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'hue' });
 
         this.on('ready', this.onReady.bind(this));
@@ -49,9 +63,9 @@ class Hue extends utils.Adapter {
     /**
      * Is called when databases are connected and adapter received configuration.
      */
-    async onReady() {
+    async onReady(): Promise<void> {
         this.subscribeStates('*');
-        this.config.port = this.config.port ? parseInt(this.config.port, 10) : 80;
+        this.config.port = this.config.port ? Math.round(this.config.port) : 80;
 
         if (this.config.syncSoftwareSensors) {
             for (const softwareSensor of SOFTWARE_SENSORS) {
@@ -59,9 +73,9 @@ class Hue extends utils.Adapter {
             }
         }
 
-        // polling interval has to be greater equal 1
+        // polling interval has to be greater equal 2
         this.config.pollingInterval =
-            parseInt(this.config.pollingInterval, 10) < 2 ? 2 : parseInt(this.config.pollingInterval, 10);
+            Math.round(this.config.pollingInterval) < 2 ? 2 : Math.round(this.config.pollingInterval);
 
         if (!this.config.bridge) {
             this.log.warn(`No bridge configured yet - please configure the adapter first`);
@@ -77,18 +91,18 @@ class Hue extends utils.Adapter {
 
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
-     * @param {() => void} callback
+     * @param callback
      */
-    async onUnload(callback) {
+    async onUnload(callback: () => void): Promise<void> {
         try {
             if (pollingInterval) {
                 clearTimeout(pollingInterval);
-                pollingInterval = null;
+                pollingInterval = undefined;
             }
 
             if (reconnectTimeout) {
                 clearTimeout(reconnectTimeout);
-                reconnectTimeout = null;
+                reconnectTimeout = undefined;
             }
 
             await this.setStateAsync('info.connection', false, true);
@@ -103,20 +117,20 @@ class Hue extends utils.Adapter {
     /**
      * Handle messages from frontend
      *
-     * @param {ioBroker.Message} obj the received message
+     * @param obj the received message
      */
-    async onMessage(obj) {
+    async onMessage(obj: ioBroker.Message): Promise<void> {
         if (obj) {
             switch (obj.command) {
                 case 'browse': {
-                    const res = await this.browse(obj.message);
+                    const res = await this.browse(obj.message as number);
                     if (obj.callback) {
                         await this.sendToAsync(obj.from, obj.command, res, obj.callback);
                     }
                     break;
                 }
                 case 'createUser': {
-                    const res = await this.createUser(obj.message);
+                    const res = await this.createUser(obj.message as string);
                     if (obj.callback) {
                         await this.sendToAsync(obj.from, obj.command, res, obj.callback);
                     }
@@ -134,21 +148,21 @@ class Hue extends utils.Adapter {
 
     /**
      * Is called if a subscribed state changes
-     * @param {string} id
-     * @param {ioBroker.State | null | undefined} state
+     * @param id
+     * @param state
      */
-    async onStateChange(id, state) {
+    async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
         if (!id || !state || state.ack) {
             return;
         }
 
         this.log.debug(`stateChange ${id} ${JSON.stringify(state)}`);
         const tmp = id.split('.');
-        let dp = tmp.pop();
+        let dp = tmp.pop()!;
 
         if (dp.startsWith('scene_')) {
             try {
-                // its a scene -> get scene id to start it
+                // it's a scene -> get scene id to start it
                 const obj = await this.getForeignObjectAsync(id);
                 const groupState = new v3.lightStates.GroupLightState();
                 groupState.scene(obj.native.id);
@@ -157,9 +171,9 @@ class Hue extends utils.Adapter {
                 this.log.info(`Started scene: ${obj.common.name}`);
             } catch (e) {
                 this.log.error(`Could not start scene: ${e.message || e}`);
-            } // endCatch
+            }
             return;
-        } // endIf
+        }
 
         // check if its a sensor
         const channelId = id.substring(0, id.lastIndexOf('.'));
@@ -194,12 +208,12 @@ class Hue extends utils.Adapter {
                     this.log.warn(
                         `Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`
                     );
-                } // endElse
+                }
             } catch (e) {
                 this.log.error(`Cannot update sensor ${channelObj.native.id}: ${e.message}`);
-            } // endCatch
+            }
             return;
-        } // endIf
+        }
 
         id = tmp.slice(2).join('.');
 
@@ -213,9 +227,9 @@ class Hue extends utils.Adapter {
                 //turn streaming off
                 this.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
                 api.groups.disableStreaming(groupIds[id]);
-            } // endElse
+            }
             return;
-        } // endIf
+        }
 
         // anyOn and allOn will just act like on dp
         if (dp === 'anyOn' || dp === 'allOn') {
@@ -259,10 +273,10 @@ class Hue extends utils.Adapter {
 
         /**
          * Sets the light states and all light states according to the current state values
-         * @param {string} idState - state id
-         * @param {boolean} prefill - prefill requires ack of state to be true else it returns immediately
+         * @param idState - state id
+         * @param prefill - prefill requires ack of state to be true else it returns immediately
          */
-        const handleParam = (idState, prefill) => {
+        const handleParam: () => void = (idState: string, prefill: boolean) => {
             if (!idStates[idState]) {
                 return;
             }
@@ -674,7 +688,7 @@ class Hue extends utils.Adapter {
                 lightState.on();
             } else {
                 lightState.off();
-            } // endElse
+            }
         }
 
         // this can only happen for cmd - groups
@@ -738,11 +752,9 @@ class Hue extends utils.Adapter {
     /**
      * Search for bridges via upnp and nupnp
      *
-     * @param {number} timeout - timeout to abort the search
-     * @returns {Promise<Record<string, any>[]>}
+     * @param timeout - timeout to abort the search
      */
-    async browse(timeout) {
-        timeout = parseInt(timeout);
+    async browse(timeout: number): Promise<Record<string, any>[]> {
         if (isNaN(timeout)) {
             timeout = 5_000;
         }
@@ -763,7 +775,7 @@ class Hue extends utils.Adapter {
         }
         const bridges = res1.concat(res2);
 
-        const ips = [];
+        const ips: string[] = [];
 
         // rm duplicates - reverse because splicing
         for (let i = bridges.length - 1; i >= 0; i--) {
@@ -780,10 +792,9 @@ class Hue extends utils.Adapter {
     /**
      * Create user on the bridge by given Ip
      *
-     * @param {string} ip - ip address of the bridge
-     * @returns {Promise<Record<string, any>>}
+     * @param ip - ip address of the bridge
      */
-    async createUser(ip) {
+    async createUser(ip: string): Promise<Record<string, any>> {
         const deviceName = 'ioBroker.hue';
         try {
             const api = this.config.ssl
@@ -809,10 +820,9 @@ class Hue extends utils.Adapter {
     /**
      * polls the given group and sets states accordingly
      *
-     * @param {object} group group object containing id and name of the group
-     * @returns {Promise<void>}
+     * @param group group object containing id and name of the group
      */
-    async updateGroupState(group) {
+    async updateGroupState(group: Record<string, any>): Promise<void> {
         this.log.debug(`polling group ${group.name} (${group.id})`);
         const values = [];
 
@@ -865,11 +875,11 @@ class Hue extends utils.Adapter {
             // Next two are entertainment states
             if (result.class) {
                 states.class = result.class;
-            } // endIf
+            }
 
             if (result.stream && result.stream.active !== undefined) {
                 states.activeStream = result.stream.active;
-            } // endIf
+            }
 
             for (const stateB of Object.keys(states)) {
                 values.push({ id: `${this.namespace}.${group.name}.${stateB}`, val: states[stateB] });
@@ -891,10 +901,9 @@ class Hue extends utils.Adapter {
     /**
      * poll the given light and sets states accordingly
      *
-     * @param {object} light object containing the light id and the name
-     * @returns {Promise<void>}
+     * @param light object containing the light id and the name
      */
-    async updateLightState(light) {
+    async updateLightState(light: Record<string, any>): Promise<void> {
         this.log.debug(`polling light ${light.name} (${light.id})`);
         const values = [];
 
@@ -906,7 +915,7 @@ class Hue extends utils.Adapter {
 
             if (result.swupdate && result.swupdate.state) {
                 values.push({ id: `${this.namespace}.${light.name}.updateable`, val: result.swupdate.state });
-            } // endIf
+            }
 
             for (const stateA of Object.keys(result.state)) {
                 states[stateA] = result.state[stateA];
@@ -960,10 +969,8 @@ class Hue extends utils.Adapter {
 
     /**
      * Connects to the bridge and creates the initial objects
-     *
-     * @return {Promise<void>}
      */
-    async connect() {
+    async connect(): Promise<void> {
         let config;
         try {
             if (this.config.ssl) {
@@ -1240,7 +1247,7 @@ class Hue extends utils.Adapter {
                     }
                 };
                 objs.push(lobj);
-            } // endIf
+            }
 
             for (const state of Object.keys(light.state)) {
                 let value = light.state[state];
@@ -1620,7 +1627,7 @@ class Hue extends utils.Adapter {
                             ? JSON.stringify(group.action[action])
                             : group.action[action];
                     objs.push(gobj);
-                } // endFor
+                }
 
                 // Create anyOn state
                 objs.push({
@@ -1667,7 +1674,7 @@ class Hue extends utils.Adapter {
                         },
                         native: {}
                     });
-                } // endIf
+                }
 
                 if (group.stream && group.stream.active !== undefined) {
                     objs.push({
@@ -1683,7 +1690,7 @@ class Hue extends utils.Adapter {
                         },
                         native: {}
                     });
-                } // endIf
+                }
 
                 objs.push({
                     _id: `${this.namespace}.${groupName.replace(/\s/g, '_')}`,
@@ -1699,9 +1706,9 @@ class Hue extends utils.Adapter {
                         lights: group.lights
                     }
                 });
-            } // endFor
+            }
             this.log.info(`created/updated ${pollGroups.length} groups channels`);
-        } // endIf
+        }
 
         // create scene states
         if (!this.config.ignoreScenes) {
@@ -1712,7 +1719,7 @@ class Hue extends utils.Adapter {
                 const groupNames = {};
                 for (const key in groupIds) {
                     groupNames[groupIds[key]] = key;
-                } // endFor
+                }
 
                 let sceneChannelCreated = false;
 
@@ -1757,7 +1764,7 @@ class Hue extends utils.Adapter {
                                 native: {}
                             });
                             sceneChannelCreated = true;
-                        } // endIf
+                        }
 
                         this.log.debug(`Create ${scene.name}`);
                         objs.push({
@@ -1779,12 +1786,12 @@ class Hue extends utils.Adapter {
                         });
                         sceneCounter++;
                     } // edElse
-                } // endFor
+                }
                 this.log.info(`created/updated ${sceneCounter} scenes`);
             } catch (e) {
                 this.log.error(`Error syncing scenes: ${e.message}`);
-            } // endCatch
-        } // endIf
+            }
+        }
 
         // Create/update device
         this.log.info('creating/updating bridge device');
@@ -1805,10 +1812,9 @@ class Hue extends utils.Adapter {
     /**
      * Create/Extend given objects
      *
-     * @param {string[]} objs objects which will be created
-     * @returns {Promise<void>}
+     * @param objs objects which will be created
      */
-    async syncObjects(objs) {
+    async syncObjects(objs: string[]): Promise<void> {
         for (const task of objs) {
             try {
                 const obj = await this.getForeignObjectAsync(task._id);
@@ -1853,10 +1859,9 @@ class Hue extends utils.Adapter {
     /**
      * Set given states in db if changed
      *
-     * @param {string[]|object[]} states states to set in db
-     * @returns {Promise<void>}
+     * @param states states to set in db
      */
-    async syncStates(states) {
+    async syncStates(states: string[] | object[]): Promise<void> {
         for (const task of states) {
             if (typeof task.val === 'object' && task.val !== null) {
                 task.val = task.val.toString();
@@ -1882,15 +1887,13 @@ class Hue extends utils.Adapter {
 
     /**
      * Polls all lights from bridge, creates new groups/lights/sensors and deletes removed ones
-     *
-     * @return {Promise<void>}
      */
-    async poll() {
+    async poll(): Promise<void> {
         // clear polling interval
         if (pollingInterval) {
             clearTimeout(pollingInterval);
-            pollingInterval = null;
-        } // endIf
+            pollingInterval = undefined;
+        }
 
         this.log.debug('Poll all states');
 
@@ -1949,9 +1952,9 @@ class Hue extends utils.Adapter {
                                     ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
                                     : sensorName
                             } manually`);
-                        } // endElse
+                        }
                         continue;
-                    } // endElse
+                    }
 
                     sensor.name = sensorName;
 
@@ -2010,9 +2013,9 @@ class Hue extends utils.Adapter {
                                     ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
                                     : lightName
                             } manually`);
-                        } // endElse
+                        }
                         continue;
-                    } // endElse
+                    }
 
                     light.name = lightName;
 
@@ -2021,7 +2024,7 @@ class Hue extends utils.Adapter {
                             id: `${this.namespace}.${light.name}.updateable`,
                             val: light.swupdate.state
                         });
-                    } // endIf
+                    }
 
                     for (const stateA of Object.keys(light.state)) {
                         states[stateA] = light.state[stateA];
@@ -2115,14 +2118,14 @@ class Hue extends utils.Adapter {
                                             ? `${config.config.name.replace(/[\s.]/g, '_')}.${group.name}`
                                             : group.name
                                     } manually`);
-                                } // endElse
+                                }
 
                                 pollGroups.splice(
                                     pollGroups.findIndex(item => item.id === group.id),
                                     1
                                 );
                                 continue;
-                            } // endElse
+                            }
 
                             group.name = groupName;
 
@@ -2169,18 +2172,18 @@ class Hue extends utils.Adapter {
                             // Next two are entertainment states
                             if (group.class) {
                                 states.class = group.class;
-                            } // endIf
+                            }
 
                             if (group.stream && group.stream.active !== undefined) {
                                 states.activeStream = group.stream.active;
-                            } // endIf
+                            }
 
                             for (const stateB of Object.keys(states)) {
                                 values.push({
                                     id: `${this.namespace}.${group.name}.${stateB}`,
                                     val: states[stateB]
                                 });
-                            } // endFor
+                            }
 
                             // set anyOn state
                             values.push({
@@ -2198,7 +2201,7 @@ class Hue extends utils.Adapter {
                             this.updateGroupState(group);
                         }
                     }
-                } // endIf
+                }
                 await this.syncStates(values);
 
                 // check if new devices detected
@@ -2213,7 +2216,7 @@ class Hue extends utils.Adapter {
                 } else {
                     noDevices = noCurrentDevices;
                 }
-            } // endIf
+            }
         } catch (e) {
             await this.setStateChangedAsync('info.connection', false, true);
             this.log.error(`Could not poll all: ${e.message || e}`);
@@ -2227,10 +2230,9 @@ class Hue extends utils.Adapter {
     /**
      * Convert the temperature reading
      *
-     * @param {any} value read temperature
-     * @return {number}
+     * @param value read temperature
      */
-    convertTemperature(value) {
+    convertTemperature(value: any): number {
         if (value !== null) {
             value = value.toString();
             const sign = value.startsWith('-') ? '-' : '+';
