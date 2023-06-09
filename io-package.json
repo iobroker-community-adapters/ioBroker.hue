@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.7.1",
+    "version": "3.8.0",
     "tier": 2,
     "news": {
+      "3.8.0": {
+        "en": "Possibility to disable turn on lights with states other than `on` and `brightness` [#386]",
+        "de": "Möglichkeit, Lichter mit anderen Zuständen als auf und Helligkeit zu deaktivieren #[386]",
+        "ru": "Возможность отключить поворот на свет с другими государствами и яркостью #[386]",
+        "pt": "Possibilidade de desativar acender luzes com estados diferentes de ligar e brilho #[386]",
+        "nl": "Mogelijkheden om lichten uit te schakelen met andere staten dan aan en helderheid 8686:",
+        "fr": "Possibilité de désactiver les feux avec des états autres que sur et luminosité #[386]",
+        "it": "Possibilità di disattivare l'accensione delle luci con stati diversi dall'accensione e dalla luminosità #[386]",
+        "es": "Posibilidad de desactivar encender las luces con estados distintos al encendido y el brillo #[386]",
+        "pl": "Odpowiedzialność za niemożliwą zmianę na światło z innymi stanami niż na i jasności #386",
+        "uk": "Можливість відключення повороту на вогні з державами, відмінною від яскравості #[386]",
+        "zh-cn": "与“第[386]号行动”以外的国家相反的照明"
+      },
       "3.7.1": {
         "en": "also update state for `CLIPGenericFlag` sensors",
         "de": "auch Zustand für CLIPGenericFlag Sensoren aktualisieren",
@@ -75,18 +88,6 @@
         "es": "Los valores ct de los grupos pueden ser incluso más bajos debido a las luces de terceros.",
         "pl": "Wartości ct grup mogą być jeszcze niższe ze względu na oświetlenie innych firm",
         "zh-cn": "由于第三方灯，组的 ct 值可能更低"
-      },
-      "3.6.0": {
-        "en": "allow to trigger scenes via `command` state, this allows to start a scene with `transitiontime`",
-        "de": "Ermöglicht das Auslösen von Szenen über den 'Befehl'-Zustand, dies ermöglicht das Starten einer Szene mit 'Übergangszeit'",
-        "ru": "позволяют запускать сцены через состояние `command`, это позволяет запускать сцену с` transitiontime`",
-        "pt": "permite acionar cenas via estado `command`, isso permite iniciar uma cena com` tempo de transição`",
-        "nl": "laat toe om scènes te activeren via de status `commando`, dit maakt het mogelijk om een scène te starten met `overgangstijd`",
-        "fr": "permet de déclencher des scènes via l'état \"commande\", cela permet de démarrer une scène avec \"temps de transition\"",
-        "it": "permette di attivare scene tramite lo stato `comando`, questo permette di avviare una scena con `transitiontime`",
-        "es": "permite activar escenas a través del estado `comando`, esto permite iniciar una escena con` tiempo de transición`",
-        "pl": "pozwala na wyzwalanie scen poprzez stan `command`, pozwala to na uruchomienie sceny z `transitiontime`",
-        "zh-cn": "允许通过 `command` 状态触发场景，这允许使用 `transitiontime` 启动场景"
       }
     },
     "titleLang": {

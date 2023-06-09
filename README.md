@@ -74,7 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 3.8.0 (2023-06-09)
 * (Schmakus) Possibility to disable turn on lights with states other than `on` and `brightness` [#386]
 
 ### 3.7.1 (2022-07-12)
@@ -467,5 +467,5 @@ __ATTENTION: Remove all objects once, ids have changed__
 
 Apache 2.0
 
-Copyright (c) 2017-2022 Bluefox <dogafox@gmail.com>
+Copyright (c) 2017-2023 Bluefox <dogafox@gmail.com>
 Copyright (c) 2014-2016 hobbyquaker
