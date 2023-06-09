@@ -91,6 +91,6 @@
     "no-unneeded-ternary": "error"
   },
   "parserOptions": {
-    "ecmaVersion": 2019
+    "ecmaVersion": 2021
   }
 }
