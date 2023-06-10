@@ -1,3 +1,31 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  *
  *      ioBroker Philips Hue Bridge Adapter
@@ -7,120 +35,88 @@
  *      Apache License
  *
  */
-import { v3 } from 'node-hue-api';
-import utils from '@iobroker/adapter-core';
-import * as hueHelper from './lib/hueHelper';
-import * as tools from './lib/tools';
-import Api from 'node-hue-api/lib/api/Api';
-import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
-
-interface PollSensor {
-    /** Sensor id in Hue */
-    id: string;
-    /** ioBroker channel name */
-    name: string;
-    /** Sensor name */
-    sname: string;
-}
-
-interface PollLight {
-    /** Light id in Hue */
-    id: string;
-    /** ioBroker channel name */
-    name: string;
-}
-
+const node_hue_api_1 = require("node-hue-api");
+const adapter_core_1 = __importDefault(require("@iobroker/adapter-core"));
+const hueHelper = __importStar(require("./lib/hueHelper"));
+const tools = __importStar(require("./lib/tools"));
+const GroupState_1 = __importDefault(require("node-hue-api/lib/model/lightstate/GroupState"));
 /** IDs currently blocked from polling */
-const blockedIds: Record<string, boolean> = {};
+const blockedIds = {};
 /** Map ioBroker channel to light id */
-const channelIds: Record<string, string> = {};
+const channelIds = {};
 /** Map ioBroker group name to group id */
-const groupIds: Record<string, string> = {};
+const groupIds = {};
 /** Existing lights on API */
-const pollLights: PollLight[] = [];
+const pollLights = [];
 /** Existing sensors on API */
-const pollSensors: PollSensor[] = [];
+const pollSensors = [];
 /** Existing groups on API */
-const pollGroups: PollLight[] = [];
-
-let api: Api;
-let noDevices: number;
-let pollingInterval: NodeJS.Timeout | undefined;
-let reconnectTimeout: NodeJS.Timeout | undefined;
-
+const pollGroups = [];
+let api;
+let noDevices;
+let pollingInterval;
+let reconnectTimeout;
 const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
-
-class Hue extends utils.Adapter {
-    constructor(options: Partial<utils.AdapterOptions> = {}) {
+class Hue extends adapter_core_1.default.Adapter {
+    constructor(options = {}) {
         super({ ...options, name: 'hue' });
-
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
-
     /**
      * Is called when databases are connected and adapter received configuration.
      */
-    async onReady(): Promise<void> {
+    async onReady() {
         this.subscribeStates('*');
         this.config.port = this.config.port ? Math.round(this.config.port) : 80;
-
         if (this.config.syncSoftwareSensors) {
             for (const softwareSensor of SOFTWARE_SENSORS) {
                 SUPPORTED_SENSORS.push(softwareSensor);
             }
         }
-
         // polling interval has to be greater equal 2
         this.config.pollingInterval =
             Math.round(this.config.pollingInterval) < 2 ? 2 : Math.round(this.config.pollingInterval);
-
         if (!this.config.bridge) {
             this.log.warn(`No bridge configured yet - please configure the adapter first`);
             return;
         }
-
         await this.connect();
-
         if (this.config.polling) {
             this.poll();
         }
     }
-
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      * @param callback
      */
-    async onUnload(callback: () => void): Promise<void> {
+    async onUnload(callback) {
         try {
             if (pollingInterval) {
                 clearTimeout(pollingInterval);
                 pollingInterval = undefined;
             }
-
             if (reconnectTimeout) {
                 clearTimeout(reconnectTimeout);
                 reconnectTimeout = undefined;
             }
-
             await this.setStateAsync('info.connection', false, true);
-
             this.log.info('cleaned everything up...');
             callback();
-        } catch {
+        }
+        catch (_a) {
             callback();
         }
     }
-
     /**
      * Handle messages from frontend
      *
      * @param obj the received message
      */
-    async onMessage(obj: ioBroker.Message): Promise<void> {
+    async onMessage(obj) {
         if (obj) {
             switch (obj.command) {
                 case 'browse': {
@@ -133,7 +129,7 @@ class Hue extends utils.Adapter {
                     break;
                 }
                 case 'createUser': {
-                    const res = await this.createUser(obj.message as string);
+                    const res = await this.createUser(obj.message);
                     if (obj.callback) {
                         // @ts-expect-error need to check
                         await this.sendToAsync(obj.from, obj.command, res, obj.callback);
@@ -150,53 +146,47 @@ class Hue extends utils.Adapter {
             }
         }
     }
-
     /**
      * Is called if a subscribed state changes
      * @param id
      * @param state
      */
-    async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
+    async onStateChange(id, state) {
+        var _a, _b;
         if (!id || !state || state.ack) {
             return;
         }
-
         this.log.debug(`stateChange ${id} ${JSON.stringify(state)}`);
         const tmp = id.split('.');
-        let dp = tmp.pop()!;
-
+        let dp = tmp.pop();
         if (dp.startsWith('scene_')) {
             try {
                 // it's a scene -> get scene id to start it
                 const obj = await this.getForeignObjectAsync(id);
-                const groupState = new v3.lightStates.GroupLightState();
-
+                const groupState = new node_hue_api_1.v3.lightStates.GroupLightState();
                 if (!obj) {
                     throw new Error(`Object "${id}" is not existing`);
                 }
-
                 groupState.scene(obj.native.id);
-
                 await api.groups.setGroupState(0, groupState);
                 this.log.info(`Started scene: ${obj.common.name}`);
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.error(`Could not start scene: ${e.message || e}`);
             }
             return;
         }
-
         // check if its a sensor
         const channelId = id.substring(0, id.lastIndexOf('.'));
-
         let channelObj;
         try {
             channelObj = await this.getForeignObjectAsync(channelId);
-        } catch (e: any) {
+        }
+        catch (e) {
             this.log.error(`Cannot get channelObj on stateChange for id "${id}" (${channelId}): ${e.message}`);
             return;
         }
-
-        if (channelObj?.common?.role && SUPPORTED_SENSORS.includes(channelObj.common.role)) {
+        if (((_a = channelObj === null || channelObj === void 0 ? void 0 : channelObj.common) === null || _a === void 0 ? void 0 : _a.role) && SUPPORTED_SENSORS.includes(channelObj.common.role)) {
             // it's a sensor - we support turning it on and off
             try {
                 if (dp === 'on') {
@@ -205,61 +195,57 @@ class Hue extends utils.Adapter {
                     sensor._data.config = { on: state.val };
                     await api.sensors.updateSensorConfig(sensor);
                     this.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
-                } else if (dp === 'status') {
+                }
+                else if (dp === 'status') {
                     const sensor = await api.sensors.get(channelObj.native.id);
                     // @ts-expect-error types are suboptimal
                     sensor.status = parseInt(state.val);
                     // @ts-expect-error types are suboptimal
                     await api.sensors.updateSensorState(sensor);
                     this.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
-                } else if (dp === 'flag') {
+                }
+                else if (dp === 'flag') {
                     const sensor = await api.sensors.get(channelObj.native.id);
                     // @ts-expect-error types are suboptimal
                     sensor.flag = state.val;
                     // @ts-expect-error types are suboptimal
                     await api.sensors.updateSensorState(sensor);
                     this.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
-                } else {
-                    this.log.warn(
-                        `Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`
-                    );
                 }
-            } catch (e: any) {
+                else {
+                    this.log.warn(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val} - currently not supported`);
+                }
+            }
+            catch (e) {
                 this.log.error(`Cannot update sensor ${channelObj.native.id}: ${e.message}`);
             }
             return;
         }
-
         id = tmp.slice(2).join('.');
-
         // Enable/Disable streaming of Entertainment
         if (dp === 'activeStream') {
             if (state.val) {
                 // turn streaming on
                 this.log.debug(`Enable streaming of ${id} (${groupIds[id]})`);
                 api.groups.enableStreaming(groupIds[id]);
-            } else {
+            }
+            else {
                 //turn streaming off
                 this.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
                 api.groups.disableStreaming(groupIds[id]);
             }
             return;
         }
-
         // anyOn and allOn will just act like on dp
         if (dp === 'anyOn' || dp === 'allOn') {
             dp = 'on';
         }
-
         const fullIdBase = `${tmp.join('.')}.`;
-
         // if .on changed instead change .bri to 254 or 0, except it is a switch which has no brightness
         let bri = 0;
-        if (
-            dp === 'on' &&
+        if (dp === 'on' &&
             !this.config.nativeTurnOffBehaviour &&
-            !(channelObj && channelObj.common && channelObj.common.role === 'switch')
-        ) {
+            !(channelObj && channelObj.common && channelObj.common.role === 'switch')) {
             bri = state.val ? 254 : 0;
             this.setState([id, 'bri'].join('.'), { val: bri, ack: false });
             return;
@@ -271,34 +257,32 @@ class Hue extends utils.Adapter {
             return;
         }
         // get lamp states
-        let idStates: Record<string, ioBroker.State & { handled?: boolean }>;
+        let idStates;
         try {
             idStates = await this.getStatesAsync(`${id}.*`);
-        } catch (e: any) {
+        }
+        catch (e) {
             this.log.error(e);
             return;
         }
-
         // gather states that need to be changed
-        const ls: Record<string, any> = {};
-        const alls: Record<string, any> = {};
-        let finalLS: Record<string, any> = {};
+        const ls = {};
+        const alls = {};
+        let finalLS = {};
         let lampOn = false;
         let commandSupported = false;
-
         /**
          * Sets the light states and all light states according to the current state values
          * @param idState - state id
          * @param prefill - prefill requires ack of state to be true else it returns immediately
          */
-        const handleParam: (idState: string, prefill: boolean) => void = (idState: string, prefill: boolean) => {
+        const handleParam = (idState, prefill) => {
             if (!idStates[idState]) {
                 return;
             }
             if (prefill && !idStates[idState].ack) {
                 return;
             }
-
             const idtmp = idState.split('.');
             const iddp = idtmp.pop();
             switch (iddp) {
@@ -361,12 +345,11 @@ class Hue extends utils.Adapter {
                     alls[iddp] = idStates[idState].val;
                     break;
                 default:
-                    alls[iddp as string] = idStates[idState].val;
+                    alls[iddp] = idStates[idState].val;
                     break;
             }
             idStates[idState].handled = true;
         };
-
         // work through the relevant states in the correct order for the logic to work
         // but only if ack=true - so real values from device
         handleParam(`${fullIdBase}on`, true);
@@ -383,7 +366,6 @@ class Hue extends utils.Adapter {
         handleParam(`${fullIdBase}xy`, true);
         handleParam(`${fullIdBase}command`, true);
         handleParam(`${fullIdBase}level`, true);
-
         // Walk through the rest or ack=false (=to be changed) values
         for (const idState in idStates) {
             if (!idStates[idState] || idStates[idState].val === null || idStates[idState].handled) {
@@ -391,67 +373,67 @@ class Hue extends utils.Adapter {
             }
             handleParam(idState, false);
         }
-
         let sceneId;
         // Handle commands at the end because they overwrite also anything
         if (commandSupported && dp === 'command') {
             try {
-                const commands = JSON.parse(state.val as string);
-
+                const commands = JSON.parse(state.val);
                 if (typeof commands.scene === 'string') {
                     // we need to get the id of the scene
                     const sceneObj = await this.getObjectAsync(`${channelId}.scene_${commands.scene.toLowerCase()}`);
-
-                    if (sceneObj?.native) {
+                    if (sceneObj === null || sceneObj === void 0 ? void 0 : sceneObj.native) {
                         sceneId = sceneObj.native.id;
                     }
                 }
-
                 for (const command of Object.keys(commands)) {
                     if (command === 'on') {
                         // if on is the only command and nativeTurnOn is activated
                         if (Object.keys(commands).length === 1 && this.config.nativeTurnOffBehaviour) {
                             finalLS.on = !!commands[command]; // we can set finalLs directly
-                        } else {
+                        }
+                        else {
                             // convert on to bri
                             if (commands[command] && !Object.prototype.hasOwnProperty.call(commands, 'bri')) {
                                 ls.bri = 254;
-                            } else {
+                            }
+                            else {
                                 ls.bri = 0;
                             }
                         }
-                    } else if (command === 'level') {
+                    }
+                    else if (command === 'level') {
                         //convert level to bri
                         if (!Object.prototype.hasOwnProperty.call(commands, 'bri')) {
                             ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
-                        } else {
+                        }
+                        else {
                             ls.bri = 254;
                         }
-                    } else {
+                    }
+                    else {
                         ls[command] = commands[command];
                     }
                 }
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.error(e.message);
                 return;
             }
         }
-
         // get lightState
         let obj;
         try {
             obj = await this.getObjectAsync(id);
-        } catch (e: any) {
+        }
+        catch (e) {
             this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
             return;
         }
-
         // maybe someone emitted a state change for a non-existing device via script
-        if (!obj?.common?.role) {
+        if (!((_b = obj === null || obj === void 0 ? void 0 : obj.common) === null || _b === void 0 ? void 0 : _b.role)) {
             this.log.error(`Object "${id}" on stateChange is null, undefined or corrupted`);
             return;
         }
-
         // apply rgb to xy with modelId
         if ('r' in ls || 'g' in ls || 'b' in ls) {
             if (!('r' in ls) || ls.r > 255 || ls.r < 0 || typeof ls.r !== 'number') {
@@ -463,21 +445,14 @@ class Hue extends utils.Adapter {
             if (!('b' in ls) || ls.b > 255 || ls.b < 0 || typeof ls.b !== 'number') {
                 ls.b = 0;
             }
-            const xyb = hueHelper.RgbToXYB(
-                ls.r / 255,
-                ls.g / 255,
-                ls.b / 255,
-                Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
-            );
+            const xyb = hueHelper.RgbToXYB(ls.r / 255, ls.g / 255, ls.b / 255, Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default');
             ls.bri = xyb.b;
             ls.xy = `${xyb.x},${xyb.y}`;
         }
-
         // create lightState from ls and check values
         let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
-            ? new v3.lightStates.GroupLightState()
-            : new v3.lightStates.LightState();
-
+            ? new node_hue_api_1.v3.lightStates.GroupLightState()
+            : new node_hue_api_1.v3.lightStates.LightState();
         if (parseInt(ls.bri) > 0) {
             const bri = Math.min(254, ls.bri);
             if (isNaN(bri)) {
@@ -490,7 +465,8 @@ class Hue extends utils.Adapter {
                 finalLS.on = true;
                 lightState = lightState.on(true);
             }
-        } else {
+        }
+        else {
             lightState = lightState.off();
             finalLS.bri = 0;
             finalLS.on = false;
@@ -499,28 +475,21 @@ class Hue extends utils.Adapter {
             if (typeof ls.xy !== 'string') {
                 if (ls.xy) {
                     ls.xy = ls.xy.toString();
-                } else {
+                }
+                else {
                     this.log.warn(`Invalid xy value: "${ls.xy}"`);
                     ls.xy = '0,0';
                 }
             }
-
             let xy = ls.xy.toString().split(',');
             xy = { x: xy[0], y: xy[1] };
-            xy = hueHelper.GamutXYforModel(
-                xy.x,
-                xy.y,
-                Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
-            );
+            xy = hueHelper.GamutXYforModel(xy.x, xy.y, Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default');
             if (!xy) {
                 this.log.error(`Invalid "xy" value "${state.val}" for id "${id}"`);
                 return;
             }
-
             finalLS.xy = `${xy.x},${xy.y}`;
-
             lightState = lightState.xy(parseFloat(xy.x), parseFloat(xy.y));
-
             if (!lampOn && (!('bri' in ls) || ls.bri === 0)) {
                 lightState = lightState.on(true);
                 lightState = lightState.bri(254);
@@ -537,11 +506,9 @@ class Hue extends utils.Adapter {
                 this.log.error(`Invalid "ct" value "${state.val}" (type: ${typeof ls.ct}) for id "${id}"`);
                 return;
             }
-
             finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
             // convert kelvin to mired
             finalLS.ct = Math.round(1e6 / finalLS.ct);
-
             lightState = lightState.ct(finalLS.ct);
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
                 lightState = lightState.on(true);
@@ -555,19 +522,16 @@ class Hue extends utils.Adapter {
                 this.log.error(`Invalid "hue" value "${state.val}" (type: ${typeof ls.hue}) for id "${id}"`);
                 return;
             }
-
             finalLS.hue = Math.min(ls.hue, 360);
             if (finalLS.hue < 0) {
                 finalLS.hue = 360;
             }
             // Convert 360° into 0-65535 value
             finalLS.hue = Math.round((finalLS.hue / 360) * 65535);
-
             if (finalLS.hue > 65535) {
                 // may be round error
                 finalLS.hue = 65535;
             }
-
             lightState = lightState.hue(finalLS.hue);
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
                 lightState = lightState.on(true);
@@ -589,27 +553,24 @@ class Hue extends utils.Adapter {
         if ('alert' in ls) {
             if (['select', 'lselect'].indexOf(ls.alert) === -1) {
                 finalLS.alert = 'none';
-            } else {
+            }
+            else {
                 finalLS.alert = ls.alert;
             }
             lightState = lightState.alert(finalLS.alert);
         }
         if ('effect' in ls) {
             finalLS.effect = ls.effect ? 'colorloop' : 'none';
-
             lightState = lightState.effect(finalLS.effect);
-            if (
-                !lampOn &&
+            if (!lampOn &&
                 ((finalLS.effect !== 'none' && !('bri' in ls)) || ls.bri === 0) &&
-                this.config.turnOnWithOthers
-            ) {
+                this.config.turnOnWithOthers) {
                 lightState = lightState.on(true);
                 lightState = lightState.bri(254);
                 finalLS.bri = 254;
                 finalLS.on = true;
             }
         }
-
         // only available in command state
         if ('transitiontime' in ls) {
             const transitiontime = Math.max(0, Math.min(65535, parseInt(ls.transitiontime)));
@@ -635,14 +596,11 @@ class Hue extends utils.Adapter {
             }
             // Convert 360° into 0-65535 value
             alls.hue = (alls.hue / 360) * 65535;
-
             if (alls.hue > 65535) {
                 // may be round error
                 alls.hue = 65535;
             }
-
             finalLS.hue = (((ls.hue_inc + alls.hue) % 65536) + 65536) % 65536;
-
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
                 lightState = lightState.on(true);
                 lightState = lightState.bri(254);
@@ -653,7 +611,6 @@ class Hue extends utils.Adapter {
         }
         if ('ct_inc' in ls && !('ct' in finalLS) && 'ct' in alls) {
             alls.ct = 500 - 153 - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
-
             finalLS.ct = ((((alls.ct - 153 + ls.ct_inc) % 348) + 348) % 348) + 153;
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
                 lightState = lightState.on(true);
@@ -669,51 +626,50 @@ class Hue extends utils.Adapter {
                 if (lampOn) {
                     lightState = lightState.on(false);
                     finalLS.on = false;
-                } else {
+                }
+                else {
                     this.setState([id, 'bri'].join('.'), { val: 0, ack: false });
                     return;
                 }
-            } else {
+            }
+            else {
                 finalLS.on = true;
                 lightState = lightState.on(true);
             }
             lightState = lightState.bri(finalLS.bri);
         }
-
         // change colormode
         if ('xy' in finalLS) {
             finalLS.colormode = 'xy';
-        } else if ('ct' in finalLS) {
+        }
+        else if ('ct' in finalLS) {
             finalLS.colormode = 'ct';
-        } else if ('hue' in finalLS || 'sat' in finalLS) {
+        }
+        else if ('hue' in finalLS || 'sat' in finalLS) {
             finalLS.colormode = 'hs';
         }
-
         // set level to final bri / 2.54
         if ('bri' in finalLS) {
             finalLS.level = Math.max(Math.min(Math.round(finalLS.bri / 2.54), 100), 0);
         }
-
         // if dp is on, and we use native turn off behaviour only set the lightState
         if (dp === 'on' && this.config.nativeTurnOffBehaviour) {
             // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
             lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
-                ? new v3.lightStates.GroupLightState()
-                : new v3.lightStates.LightState();
+                ? new node_hue_api_1.v3.lightStates.GroupLightState()
+                : new node_hue_api_1.v3.lightStates.LightState();
             if (state.val) {
                 lightState.on(true);
-            } else {
+            }
+            else {
                 lightState.off();
             }
         }
-
         // this can only happen for cmd - groups
-        if (sceneId !== undefined && lightState instanceof GroupState) {
+        if (sceneId !== undefined && lightState instanceof GroupState_1.default) {
             lightState.scene(sceneId);
         }
-
         blockedIds[id] = true;
-
         if (!this.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
             // log final changes / states
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
@@ -724,16 +680,17 @@ class Hue extends utils.Adapter {
                     name: obj._id.substr(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
             }
-        } else if (obj.common.role === 'switch') {
+        }
+        else if (obj.common.role === 'switch') {
             if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
                 finalLS = { on: finalLS.on };
                 // log final changes / states
                 this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
-
-                lightState = new v3.lightStates.LightState();
+                lightState = new node_hue_api_1.v3.lightStates.LightState();
                 lightState.on(finalLS.on);
                 try {
                     await api.lights.setLightState(channelIds[id], lightState);
@@ -742,16 +699,18 @@ class Hue extends utils.Adapter {
                         name: obj._id.substr(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
-                } catch (e: any) {
+                }
+                catch (e) {
                     this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
                 }
-            } else {
+            }
+            else {
                 this.log.warn('invalid switch operation');
             }
-        } else {
+        }
+        else {
             // log final changes / states
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
-
             try {
                 await api.lights.setLightState(channelIds[id], lightState);
                 await this.updateLightState({
@@ -759,68 +718,66 @@ class Hue extends utils.Adapter {
                     name: obj._id.substr(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
             }
         }
     }
-
     /**
      * Search for bridges via upnp and nupnp
      *
      * @param timeout - timeout to abort the search
      */
-    async browse(timeout: number): Promise<Record<string, any>[]> {
+    async browse(timeout) {
         if (isNaN(timeout)) {
-            timeout = 5_000;
+            timeout = 5000;
         }
-
         let res1 = [];
         let res2 = [];
         // methods can throw timeout error
         try {
-            res1 = await v3.discovery.upnpSearch(timeout);
-        } catch (e: any) {
+            res1 = await node_hue_api_1.v3.discovery.upnpSearch(timeout);
+        }
+        catch (e) {
             this.log.error(`Error on browsing via UPNP: ${e.message}`);
         }
-
         try {
-            res2 = await v3.discovery.nupnpSearch();
-        } catch (e: any) {
+            res2 = await node_hue_api_1.v3.discovery.nupnpSearch();
+        }
+        catch (e) {
             this.log.error(`Error on browsing via NUPNP: ${e.message}`);
         }
         const bridges = res1.concat(res2);
-
-        const ips: string[] = [];
-
+        const ips = [];
         // rm duplicates - reverse because splicing
         for (let i = bridges.length - 1; i >= 0; i--) {
             if (ips.includes(bridges[i].ipaddress)) {
                 bridges.splice(i, 1);
-            } else {
+            }
+            else {
                 ips.push(bridges[i].ipaddress);
             }
         }
-
         return bridges;
     }
-
     /**
      * Create user on the bridge by given Ip
      *
      * @param ip - ip address of the bridge
      */
-    async createUser(ip: string): Promise<Record<string, any>> {
+    async createUser(ip) {
         const deviceName = 'ioBroker.hue';
         try {
             const api = this.config.ssl
-                ? await v3.api.createLocal(ip, this.config.port).connect()
+                ? await node_hue_api_1.v3.api.createLocal(ip, this.config.port).connect()
                 : // @ts-expect-error third party types are incorrect
-                  await v3.api.createInsecureLocal(ip, this.config.port).connect();
+                    await node_hue_api_1.v3.api.createInsecureLocal(ip, this.config.port).connect();
             const newUser = await api.users.createUser(ip, deviceName);
             this.log.info(`created new User: ${newUser.username}`);
             return { error: 0, message: newUser.username };
-        } catch (e: any) {
+        }
+        catch (e) {
             // 101 is bridge button not pressed
             if (!e.getHueErrorType || e.getHueErrorType() !== 101) {
                 this.log.error(e.message);
@@ -833,30 +790,24 @@ class Hue extends utils.Adapter {
             };
         }
     }
-
     /**
      * polls the given group and sets states accordingly
      *
      * @param group group object containing id and name of the group
      */
-    async updateGroupState(group: Record<string, any>): Promise<void> {
+    async updateGroupState(group) {
         this.log.debug(`polling group ${group.name} (${group.id})`);
-        const values: { id: string; val: any }[] = [];
-
+        const values = [];
         try {
-            let result: Record<string, any> = await api.groups.getGroup(group.id);
-            const states: Record<string, any> = {};
-
+            let result = await api.groups.getGroup(group.id);
+            const states = {};
             result = result['_data'];
-
             for (const stateA of Object.keys(result.action)) {
                 states[stateA] = result.action[stateA];
             }
-
             // add the anyOn State
             states.anyOn = result.state['any_on'];
             states.allOn = result.state['all_on'];
-
             if (states.reachable === false && states.bri !== undefined) {
                 states.bri = 0;
                 states.on = false;
@@ -875,7 +826,6 @@ class Hue extends utils.Adapter {
             if (states.bri !== undefined) {
                 states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
             }
-
             if (states.hue !== undefined) {
                 states.hue = Math.round((states.hue / 65535) * 360);
             }
@@ -888,63 +838,52 @@ class Hue extends utils.Adapter {
                     states.ct = 6536; // 153
                 }
             }
-
             // Next two are entertainment states
             if (result.class) {
                 states.class = result.class;
             }
-
             if (result.stream && result.stream.active !== undefined) {
                 states.activeStream = result.stream.active;
             }
-
             for (const stateB of Object.keys(states)) {
                 values.push({ id: `${this.namespace}.${group.name}.${stateB}`, val: states[stateB] });
             }
-        } catch (e: any) {
+        }
+        catch (e) {
             this.log.error(`Cannot update group state of ${group.name} (${group.id}): ${e.message || e}`);
         }
-
         // poll guard to prevent too fast polling of recently changed id
         const blockableId = group.name.replace(/[\s.]/g, '_');
         if (blockedIds[blockableId] === true) {
             this.log.debug(`Unblock ${blockableId}`);
             blockedIds[blockableId] = false;
         }
-
         await this.syncStates(values);
     }
-
     /**
      * poll the given light and sets states accordingly
      *
      * @param light object containing the light id and the name
      */
-    async updateLightState(light: Record<string, any>): Promise<void> {
+    async updateLightState(light) {
         this.log.debug(`polling light ${light.name} (${light.id})`);
-        const values: { id: string; val: any }[] = [];
-
+        const values = [];
         try {
             let result = await api.lights.getLight(parseInt(light.id));
-            const states: Record<string, any> = {};
-
+            const states = {};
             result = result['_data'];
-
             if (result.swupdate && result.swupdate.state) {
                 values.push({ id: `${this.namespace}.${light.name}.updateable`, val: result.swupdate.state });
             }
-
             for (const stateA of Object.keys(result.state)) {
                 states[stateA] = result.state[stateA];
             }
-
             if (!this.config.ignoreOsram) {
                 if (states.reachable === false && states.bri !== undefined) {
                     states.bri = 0;
                     states.on = false;
                 }
             }
-
             if (states.on === false && states.bri !== undefined) {
                 states.bri = 0;
             }
@@ -959,7 +898,6 @@ class Hue extends utils.Adapter {
             if (states.bri !== undefined) {
                 states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
             }
-
             if (states.hue !== undefined) {
                 states.hue = Math.round((states.hue / 65535) * 360);
             }
@@ -970,72 +908,63 @@ class Hue extends utils.Adapter {
             for (const stateB of Object.keys(states)) {
                 values.push({ id: `${this.namespace}.${light.name}.${stateB}`, val: states[stateB] });
             }
-        } catch (e: any) {
+        }
+        catch (e) {
             this.log.error(`Cannot update light state ${light.name} (${light.id}): ${e.message}`);
         }
-
         // poll guard to prevent too fast polling of recently changed id
         const blockableId = light.name.replace(/[\s.]/g, '_');
         if (blockedIds[blockableId] === true) {
             this.log.debug(`Unblock ${blockableId}`);
             blockedIds[blockableId] = false;
         }
-
         await this.syncStates(values);
     }
-
     /**
      * Connects to the bridge and creates the initial objects
      */
-    async connect(): Promise<void> {
+    async connect() {
+        var _a;
         let config;
         try {
             if (this.config.ssl) {
                 this.log.debug(`Using https to connect to ${this.config.bridge}:${this.config.port}`);
-                api = await v3.api.createLocal(this.config.bridge, this.config.port).connect(this.config.user);
-            } else {
+                api = await node_hue_api_1.v3.api.createLocal(this.config.bridge, this.config.port).connect(this.config.user);
+            }
+            else {
                 this.log.debug(`Using insecure http to connect to ${this.config.bridge}:${this.config.port}`);
                 // @ts-expect-error should be correct -> third party types wrong
-                api = await v3.api.createInsecureLocal(this.config.bridge, this.config.port).connect(this.config.user);
+                api = await node_hue_api_1.v3.api.createInsecureLocal(this.config.bridge, this.config.port).connect(this.config.user);
             }
             config = await api.configuration.getAll();
-        } catch (e: any) {
+        }
+        catch (e) {
             this.log.error(e.message || e);
         }
-
         if (!config || !config.config) {
             this.log.warn(`Could not get configuration from HUE bridge (${this.config.bridge}:${this.config.port})`);
-            setTimeout(() => this.connect(), 5_000);
+            setTimeout(() => this.connect(), 5000);
             return;
         }
-
         // even if useLegacyStructure is false, we check if the structure exists to not create chaos
         if (!this.config.useLegacyStructure) {
-            const legacyObj = await this.getObjectAsync(
-                `${this.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`
-            );
+            const legacyObj = await this.getObjectAsync(`${this.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`);
             if (legacyObj) {
                 this.config.useLegacyStructure = true;
                 this.log.info('Use legacy structure, because existing');
             }
         }
-
         const channelNames = [];
-
         // Create/update lamps
         const lights = config.lights;
         const sensors = config.sensors;
         const sensorsArr = sensors ? Object.keys(sensors) : [];
         const lightsArr = lights ? Object.keys(lights) : [];
-        const objs: ioBroker.SettableObject[] = [];
-
+        const objs = [];
         await this.setStateAsync('info.connection', true, true);
-
         noDevices = sensorsArr.length + lightsArr.length;
-
         for (const sid of sensorsArr) {
             const sensor = sensors[sid];
-
             if (SUPPORTED_SENSORS.includes(sensor.type)) {
                 let channelName = this.config.useLegacyStructure
                     ? `${config.config.name.replace(/\./g, '_')}.${sensor.name.replace(this.FORBIDDEN_CHARS, '')}`
@@ -1043,49 +972,32 @@ class Hue extends utils.Adapter {
                 let existingChObj;
                 try {
                     existingChObj = await this.getObjectAsync(channelName.replace(/\s/g, '_'));
-                } catch (e: any) {
+                }
+                catch (e) {
                     this.log.warn(`Could not check channel existence: ${e.message}`);
                 }
-
                 // if channel name already taken or channel object already exists with another role, we have to adjust name
-                if (
-                    channelNames.indexOf(channelName) !== -1 ||
-                    (existingChObj && existingChObj.common && existingChObj.common.role !== sensor.type)
-                ) {
+                if (channelNames.indexOf(channelName) !== -1 ||
+                    (existingChObj && existingChObj.common && existingChObj.common.role !== sensor.type)) {
                     const newChannelName = `${channelName} ${sensor.type}`;
                     if (channelNames.indexOf(newChannelName) !== -1) {
-                        this.log.error(
-                            `channel "${channelName.replace(
-                                /\s/g,
-                                '_'
-                            )}" already exists, could not use "${newChannelName.replace(
-                                /\s/g,
-                                '_'
-                            )}" as well, skipping sensor ${sid}`
-                        );
+                        this.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping sensor ${sid}`);
                         continue;
-                    } else {
-                        this.log.warn(
-                            `channel "${channelName.replace(
-                                /\s/g,
-                                '_'
-                            )}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`
-                        );
+                    }
+                    else {
+                        this.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for sensor ${sid}`);
                         channelName = newChannelName;
                     }
-                } else {
+                }
+                else {
                     channelNames.push(channelName);
                 }
-
                 const sensorName = sensor.name.replace(/[\s.]/g, '');
-
                 pollSensors.push({ id: sid, name: channelName.replace(/\s/g, '_'), sname: sensorName });
-
                 const sensorCopy = { ...sensor.state, ...sensor.config };
                 for (const state of Object.keys(sensorCopy)) {
                     const objId = `${channelName}.${state}`;
-
-                    const lobj: ioBroker.SettableStateObject = {
+                    const lobj = {
                         _id: `${this.namespace}.${objId.replace(/\s/g, '_')}`,
                         type: 'state',
                         common: {
@@ -1098,9 +1010,7 @@ class Hue extends utils.Adapter {
                             id: sid
                         }
                     };
-
                     let value = sensorCopy[state];
-
                     switch (state) {
                         case 'on':
                             lobj.common.type = 'boolean';
@@ -1161,11 +1071,9 @@ class Hue extends utils.Adapter {
                             this.log.info(`skip switch: ${objId}`);
                             break;
                     }
-
                     lobj.common.def = value && typeof value === 'object' ? JSON.stringify(value) : value;
                     objs.push(lobj);
                 }
-
                 objs.push({
                     _id: `${this.namespace}.${channelName.replace(/\s/g, '_')}`,
                     type: 'channel',
@@ -1183,74 +1091,54 @@ class Hue extends utils.Adapter {
                 });
             }
         }
-
         this.log.info(`created/updated ${pollSensors.length} sensor channels`);
-
         for (const lid of lightsArr) {
             const light = lights[lid];
-
             let channelName = this.config.useLegacyStructure
                 ? `${config.config.name.replace(/\./g, '_')}.${light.name.replace(/\./g, '_')}`
                 : light.name.replace(/\./g, '_');
             let existingChObj;
             try {
                 existingChObj = await this.getObjectAsync(channelName.replace(/\s/g, '_'));
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.warn(`Could not check channel existence: ${e.message}`);
             }
-
             // if channel name already taken or channel object already exists with another role, we have to adjust name
-            if (
-                channelNames.indexOf(channelName) !== -1 ||
+            if (channelNames.indexOf(channelName) !== -1 ||
                 (existingChObj &&
                     existingChObj.common &&
                     existingChObj.common.role &&
                     !existingChObj.common.role.startsWith('light') &&
-                    existingChObj.common.role !== 'switch')
-            ) {
+                    existingChObj.common.role !== 'switch')) {
                 const newChannelName = `${channelName} ${light.type}`;
                 if (channelNames.indexOf(newChannelName) !== -1) {
-                    this.log.error(
-                        `channel "${channelName.replace(
-                            /\s/g,
-                            '_'
-                        )}" already exists, could not use "${newChannelName.replace(
-                            /\s/g,
-                            '_'
-                        )}" as well, skipping light ${lid}`
-                    );
+                    this.log.error(`channel "${channelName.replace(/\s/g, '_')}" already exists, could not use "${newChannelName.replace(/\s/g, '_')}" as well, skipping light ${lid}`);
                     continue;
-                } else {
-                    this.log.warn(
-                        `channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(
-                            /\s/g,
-                            '_'
-                        )}" for light ${lid}`
-                    );
+                }
+                else {
+                    this.log.warn(`channel "${channelName.replace(/\s/g, '_')}" already exists, using "${newChannelName.replace(/\s/g, '_')}" for light ${lid}`);
                     channelName = newChannelName;
                 }
-            } else {
+            }
+            else {
                 channelNames.push(channelName);
             }
             channelIds[channelName.replace(/\s/g, '_')] = lid;
             pollLights.push({ id: lid, name: channelName.replace(/\s/g, '_') });
-
             if (light.type === 'Extended color light' || light.type === 'Color light') {
                 light.state.r = 0;
                 light.state.g = 0;
                 light.state.b = 0;
             }
-
             if (!light.type.startsWith('On/Off')) {
                 light.state.command = '{}';
                 light.state.level = 0;
             }
-
             // Create swUpdate state for every light
             if (light.swupdate && light.swupdate.state) {
                 const objId = `${channelName}.updateable`;
-
-                const lobj: ioBroker.SettableStateObject = {
+                const lobj = {
                     _id: `${this.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
@@ -1267,12 +1155,10 @@ class Hue extends utils.Adapter {
                 };
                 objs.push(lobj);
             }
-
             for (const state of Object.keys(light.state)) {
                 let value = light.state[state];
                 const objId = `${channelName}.${state}`;
-
-                const lobj: ioBroker.SettableStateObject = {
+                const lobj = {
                     _id: `${this.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
@@ -1285,7 +1171,6 @@ class Hue extends utils.Adapter {
                         id: lid
                     }
                 };
-
                 switch (state) {
                     case 'on':
                         lobj.common.type = 'boolean';
@@ -1334,7 +1219,8 @@ class Hue extends utils.Adapter {
                             if (ctObj.max === 65535 || ctObj.max === 0) {
                                 ctObj.max = 500;
                             }
-                        } catch {
+                        }
+                        catch (_b) {
                             // ignore
                         }
                         lobj.common.type = 'number';
@@ -1409,18 +1295,16 @@ class Hue extends utils.Adapter {
                         this.log.info(`skip light: ${objId}`);
                         break;
                 }
-
                 lobj.common.def = value && typeof value === 'object' ? JSON.stringify(value) : value;
                 objs.push(lobj);
             }
-
             let role = 'light.color';
             if (light.type === 'Dimmable light' || light.type === 'Dimmable plug-in unit') {
                 role = 'light.dimmer';
-            } else if (light.type.startsWith('On/Off')) {
+            }
+            else if (light.type.startsWith('On/Off')) {
                 role = 'switch';
             }
-
             objs.push({
                 _id: `${this.namespace}.${channelName.replace(/\s/g, '_')}`,
                 type: 'channel',
@@ -1438,9 +1322,7 @@ class Hue extends utils.Adapter {
                 }
             });
         }
-
         this.log.info(`created/updated ${pollLights.length} light channels`);
-
         // Create/update groups
         if (!this.config.ignoreGroups) {
             if (!config.groups) {
@@ -1448,17 +1330,16 @@ class Hue extends utils.Adapter {
                 this.restart();
                 return;
             }
-
             const groups = config.groups;
             groups[0] = {
-                name: 'All', // "Lightset 0"
+                name: 'All',
                 type: 'LightGroup',
                 id: 0,
                 action: {
                     alert: 'select',
                     bri: 0,
                     colormode: '',
-                    ct: 454, // min value, else it gets inf
+                    ct: 454,
                     effect: 'none',
                     hue: 0,
                     on: false,
@@ -1466,66 +1347,47 @@ class Hue extends utils.Adapter {
                     xy: '0,0'
                 }
             };
-
             const groupsArr = Object.keys(groups);
             noDevices += groupsArr.length;
-
             for (const gid of groupsArr) {
                 const group = groups[gid];
-
                 let groupName = this.config.useLegacyStructure
                     ? `${config.config.name.replace(/\./g, '_')}.${group.name.replace(/\./g, '_')}`
                     : group.name.replace(/\./g, '_');
                 let existingChObj;
                 try {
                     existingChObj = await this.getObjectAsync(groupName.replace(/\s/g, '_'));
-                } catch (e: any) {
+                }
+                catch (e) {
                     this.log.warn(`Could not check channel existence: ${e.message}`);
                 }
-
                 // if group name already taken or channel object already exists with another role, we have to adjust name
-                if (
-                    channelNames.indexOf(groupName) !== -1 ||
-                    (existingChObj?.common?.role &&
-                        !['Entertainment', 'LightGroup', 'Room', 'Zone'].includes(existingChObj.common.role))
-                ) {
+                if (channelNames.indexOf(groupName) !== -1 ||
+                    (((_a = existingChObj === null || existingChObj === void 0 ? void 0 : existingChObj.common) === null || _a === void 0 ? void 0 : _a.role) &&
+                        !['Entertainment', 'LightGroup', 'Room', 'Zone'].includes(existingChObj.common.role))) {
                     const newGroupName = `${groupName} ${group.type}`;
                     if (channelNames.indexOf(newGroupName) !== -1) {
-                        this.log.error(
-                            `channel "${groupName.replace(
-                                /\s/g,
-                                '_'
-                            )}" already exists, could not use "${newGroupName.replace(
-                                /\s/g,
-                                '_'
-                            )}" as well, skipping group ${gid}`
-                        );
+                        this.log.error(`channel "${groupName.replace(/\s/g, '_')}" already exists, could not use "${newGroupName.replace(/\s/g, '_')}" as well, skipping group ${gid}`);
                         continue;
-                    } else {
-                        this.log.warn(
-                            `channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(
-                                /\s/g,
-                                '_'
-                            )}" for group ${gid}`
-                        );
+                    }
+                    else {
+                        this.log.warn(`channel "${groupName.replace(/\s/g, '_')}" already exists, using "${newGroupName.replace(/\s/g, '_')}" for group ${gid}`);
                         groupName = newGroupName;
                     }
-                } else {
+                }
+                else {
                     channelNames.push(groupName);
                 }
                 groupIds[groupName.replace(/\s/g, '_')] = gid;
                 pollGroups.push({ id: gid, name: groupName.replace(/\s/g, '_') });
-
                 group.action.r = 0;
                 group.action.g = 0;
                 group.action.b = 0;
                 group.action.command = '{}';
                 group.action.level = 0;
-
                 for (const action of Object.keys(group.action)) {
                     const gobjId = `${groupName}.${action}`;
-
-                    const gobj: ioBroker.SettableStateObject = {
+                    const gobj = {
                         _id: `${this.namespace}.${gobjId.replace(/\s/g, '_')}`,
                         type: 'state',
                         common: {
@@ -1541,7 +1403,6 @@ class Hue extends utils.Adapter {
                     if (tools.isObject(group.action[action])) {
                         group.action[action] = group.action[action].toString();
                     }
-
                     switch (action) {
                         case 'on':
                             gobj.common.type = 'boolean';
@@ -1648,7 +1509,6 @@ class Hue extends utils.Adapter {
                             : group.action[action];
                     objs.push(gobj);
                 }
-
                 // Create anyOn state
                 objs.push({
                     _id: `${this.namespace}.${groupName.replace(/\s/g, '_')}.anyOn`,
@@ -1663,7 +1523,6 @@ class Hue extends utils.Adapter {
                     },
                     native: {}
                 });
-
                 // Create allOn state
                 objs.push({
                     _id: `${this.namespace}.${groupName.replace(/\s/g, '_')}.allOn`,
@@ -1678,7 +1537,6 @@ class Hue extends utils.Adapter {
                     },
                     native: {}
                 });
-
                 // Create entertainment states
                 if (group.class) {
                     objs.push({
@@ -1695,7 +1553,6 @@ class Hue extends utils.Adapter {
                         native: {}
                     });
                 }
-
                 if (group.stream && group.stream.active !== undefined) {
                     objs.push({
                         _id: `${this.namespace}.${groupName.replace(/\s/g, '_')}.activeStream`,
@@ -1711,7 +1568,6 @@ class Hue extends utils.Adapter {
                         native: {}
                     });
                 }
-
                 objs.push({
                     _id: `${this.namespace}.${groupName.replace(/\s/g, '_')}`,
                     type: 'channel',
@@ -1729,20 +1585,16 @@ class Hue extends utils.Adapter {
             }
             this.log.info(`created/updated ${pollGroups.length} groups channels`);
         }
-
         // create scene states
         if (!this.config.ignoreScenes) {
             try {
                 const scenes = config.scenes;
-
                 // Create obj to get groupname in constant time
-                const groupNames: Record<string, any> = {};
+                const groupNames = {};
                 for (const key in groupIds) {
                     groupNames[groupIds[key]] = key;
                 }
-
                 let sceneChannelCreated = false;
-
                 let sceneCounter = 0;
                 const sceneNamespace = this.config.useLegacyStructure
                     ? `${this.namespace}.${config.config.name.replace(/[\s.]/g, '_')}`
@@ -1773,7 +1625,8 @@ class Hue extends utils.Adapter {
                             }
                         });
                         sceneCounter++;
-                    } else {
+                    }
+                    else {
                         if (!sceneChannelCreated) {
                             objs.push({
                                 _id: `${sceneNamespace}.lightScenes`,
@@ -1785,7 +1638,6 @@ class Hue extends utils.Adapter {
                             });
                             sceneChannelCreated = true;
                         }
-
                         this.log.debug(`Create ${scene.name}`);
                         objs.push({
                             _id: `${sceneNamespace}.lightScenes.scene_${scene.name
@@ -1808,11 +1660,11 @@ class Hue extends utils.Adapter {
                     } // edElse
                 }
                 this.log.info(`created/updated ${sceneCounter} scenes`);
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.error(`Error syncing scenes: ${e.message}`);
             }
         }
-
         // Create/update device
         this.log.info('creating/updating bridge device');
         objs.push({
@@ -1825,162 +1677,138 @@ class Hue extends utils.Adapter {
             },
             native: config.config
         });
-
         await this.syncObjects(objs);
     }
-
     /**
      * Create/Extend given objects
      *
      * @param objs objects which will be created
      */
-    async syncObjects(objs: ioBroker.SettableObject[]): Promise<void> {
+    async syncObjects(objs) {
+        var _a, _b;
         for (const task of objs) {
             try {
-                const id = task._id!;
+                const id = task._id;
                 const obj = await this.getForeignObjectAsync(id);
-
                 // add saturation into enum.functions.color
                 if (task.common.role === 'level.color.saturation') {
                     const _enum = await this.getForeignObjectAsync('enum.functions.color');
-                    if (_enum?.common?.members?.indexOf(id) === -1) {
+                    if (((_b = (_a = _enum === null || _enum === void 0 ? void 0 : _enum.common) === null || _a === void 0 ? void 0 : _a.members) === null || _b === void 0 ? void 0 : _b.indexOf(id)) === -1) {
                         _enum.common.members.push(id);
                         await this.setForeignObjectNotExists(_enum._id, _enum);
                         if (!obj) {
                             await this.setForeignObjectAsync(id, task);
-                        } else {
+                        }
+                        else {
                             obj.native = task.native;
                             await this.extendForeignObjectAsync(id, obj);
                         }
-                    } else if (!obj) {
+                    }
+                    else if (!obj) {
                         await this.setForeignObjectAsync(id, task);
-                    } else {
+                    }
+                    else {
                         obj.native = task.native;
                         await this.extendForeignObjectAsync(obj._id, obj);
                     }
-                } else {
+                }
+                else {
                     // we have deleted common.max so extend will not remove it
-                    if (obj?.common) {
+                    if (obj === null || obj === void 0 ? void 0 : obj.common) {
                         // preserve the name
                         task.common.name = obj.common.name;
                     }
                     await this.setForeignObjectAsync(id, task);
                 }
-            } catch (e: any) {
+            }
+            catch (e) {
                 this.log.error(`Could not sync object ${task._id}: ${e.message}`);
             }
         }
     }
-
     /**
      * Set given states in db if changed
      *
      * @param states states to set in db
      */
-    async syncStates(states: { id: string; val: any }[]): Promise<void> {
+    async syncStates(states) {
         for (const task of states) {
             if (typeof task.val === 'object' && task.val !== null) {
                 task.val = task.val.toString();
             }
-
             // poll guard to prevent too fast polling of recently changed id
             const nameId = task.id.split('.')[this.config.useLegacyStructure ? 3 : 2];
             if (blockedIds[nameId] !== true) {
                 try {
-                    await this.setForeignStateChangedAsync(
-                        task.id.replace(/\s/g, '_'),
-                        task.val && typeof task.val === 'object' ? JSON.stringify(task.val) : task.val,
-                        true
-                    );
-                } catch (e: any) {
+                    await this.setForeignStateChangedAsync(task.id.replace(/\s/g, '_'), task.val && typeof task.val === 'object' ? JSON.stringify(task.val) : task.val, true);
+                }
+                catch (e) {
                     this.log.warn(`Error on syncing state of ${task.id.replace(/\\s/g, '_')}: ${e.message}`);
                 }
-            } else {
+            }
+            else {
                 this.log.debug(`Syncing state of ${nameId} blocked`);
             }
         }
     }
-
     /**
      * Polls all lights from bridge, creates new groups/lights/sensors and deletes removed ones
      */
-    async poll(): Promise<void> {
+    async poll() {
+        var _a;
         // clear polling interval
         if (pollingInterval) {
             clearTimeout(pollingInterval);
             pollingInterval = undefined;
         }
-
         this.log.debug('Poll all states');
-
         try {
             const config = await api.configuration.getAll();
             await this.setStateChangedAsync('info.connection', true, true);
-
             if (this.log.level === 'debug' || this.log.level === 'silly') {
                 this.log.debug(`Polled config: ${JSON.stringify(config)}`);
             }
-
             if (config) {
-                const values: { id: string; val: any }[] = [];
+                const values = [];
                 const lights = config.lights;
                 const sensors = config.sensors;
                 const groups = config.groups;
-
                 let noCurrentDevices = Object.keys(lights).length + Object.keys(sensors).length;
-
                 // update sensors
                 for (const pollSensor of pollSensors) {
-                    const states: Record<string, any> = {};
+                    const states = {};
                     const sensorName = pollSensor.name;
-
-                    let sensor: Record<string, any>;
-
+                    let sensor;
                     if (sensors[pollSensor.id] !== undefined) {
                         sensor = sensors[pollSensor.id];
-                    } else {
+                    }
+                    else {
                         // detect removed sensors
                         this.log.info(`Sensor ${sensorName} has been removed from bridge`);
                         noDevices--;
-                        pollSensors.splice(
-                            pollSensors.findIndex(item => item.id === pollSensor.id),
-                            1
-                        );
+                        pollSensors.splice(pollSensors.findIndex(item => item.id === pollSensor.id), 1);
                         // if recursive deletion is supported we delete the object
                         if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                            this.log.info(
-                                `Deleting ${this.namespace}.${
-                                    this.config.useLegacyStructure
-                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
-                                        : sensorName
-                                }`
-                            );
-                            this.delObject(
-                                `${
-                                    this.config.useLegacyStructure
-                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
-                                        : sensorName
-                                }`,
-                                { recursive: true }
-                            );
-                        } else {
+                            this.log.info(`Deleting ${this.namespace}.${this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                : sensorName}`);
+                            this.delObject(`${this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                : sensorName}`, { recursive: true });
+                        }
+                        else {
                             this.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                        ${this.namespace}.${
-                                this.config.useLegacyStructure
-                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
-                                    : sensorName
-                            } manually`);
+                        ${this.namespace}.${this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                : sensorName} manually`);
                         }
                         continue;
                     }
-
                     sensor.name = sensorName;
-
                     const sensorStates = { ...sensor.config, ...sensor.state };
                     for (const stateA of Object.keys(sensorStates)) {
                         states[stateA] = sensorStates[stateA];
                     }
-
                     if (states.temperature !== undefined) {
                         states.temperature = this.convertTemperature(states.temperature);
                     }
@@ -1991,72 +1819,52 @@ class Hue extends utils.Adapter {
                         });
                     }
                 }
-
                 // LIGHTS
                 for (const pollLight of pollLights) {
-                    const states: Record<string, any> = {};
+                    const states = {};
                     const lightName = pollLight.name;
-
-                    let light: Record<string, any>;
-
+                    let light;
                     if (lights[pollLight.id] !== undefined) {
                         light = lights[pollLight.id];
-                    } else {
+                    }
+                    else {
                         // detect removed lights
                         this.log.info(`Light ${lightName} has been removed from bridge`);
                         noDevices--;
-                        pollLights.splice(
-                            pollLights.findIndex(item => item.id === pollLight.id),
-                            1
-                        );
+                        pollLights.splice(pollLights.findIndex(item => item.id === pollLight.id), 1);
                         // if recursive deletion is supported we delete the object
                         if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                            this.log.info(
-                                `Deleting ${this.namespace}.${
-                                    this.config.useLegacyStructure
-                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
-                                        : lightName
-                                }`
-                            );
-                            this.delObject(
-                                `${
-                                    this.config.useLegacyStructure
-                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
-                                        : lightName
-                                }`,
-                                { recursive: true }
-                            );
-                        } else {
+                            this.log.info(`Deleting ${this.namespace}.${this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                : lightName}`);
+                            this.delObject(`${this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                : lightName}`, { recursive: true });
+                        }
+                        else {
                             this.log.info(`Recursive deletion not supported by your js-controller, please delete \
-                        ${this.namespace}.${
-                                this.config.useLegacyStructure
-                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
-                                    : lightName
-                            } manually`);
+                        ${this.namespace}.${this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                : lightName} manually`);
                         }
                         continue;
                     }
-
                     light.name = lightName;
-
-                    if (light.swupdate?.state) {
+                    if ((_a = light.swupdate) === null || _a === void 0 ? void 0 : _a.state) {
                         values.push({
                             id: `${this.namespace}.${light.name}.updateable`,
                             val: light.swupdate.state
                         });
                     }
-
                     for (const stateA of Object.keys(light.state)) {
                         states[stateA] = light.state[stateA];
                     }
-
                     if (!this.config.ignoreOsram) {
                         if (states.reachable === false && states.bri !== undefined) {
                             states.bri = 0;
                             states.on = false;
                         }
                     }
-
                     if (states.on === false && states.bri !== undefined) {
                         states.bri = 0;
                     }
@@ -2071,20 +1879,16 @@ class Hue extends utils.Adapter {
                     if (states.bri !== undefined) {
                         states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
                     }
-
                     if (states.hue !== undefined) {
                         states.hue = Math.round((states.hue / 65535) * 360);
                     }
                     if (states.ct !== undefined) {
                         // convert color temperature from mired to kelvin
                         states.ct = Math.round(1e6 / states.ct);
-
                         // some devices send 0 -> infinity (issue #234)
                         if (!isFinite(states.ct)) {
                             // invalid value we cannot determine the meant value
-                            this.log.debug(
-                                `Cannot determine ct value of "${light.name}", received value "${states.ct}"`
-                            );
+                            this.log.debug(`Cannot determine ct value of "${light.name}", received value "${states.ct}"`);
                             delete states.ct;
                         }
                     }
@@ -2095,62 +1899,43 @@ class Hue extends utils.Adapter {
                         });
                     }
                 }
-
                 // Create/update groups
                 if (!this.config.ignoreGroups) {
                     noCurrentDevices += Object.keys(groups).length;
                     for (const pollGroup of pollGroups) {
-                        let group: Record<string, any>;
-
+                        let group;
                         // Group 0 needs extra polling
                         if (pollGroup.id !== '0') {
-                            const states: Record<string, any> = {};
-
+                            const states = {};
                             // save name before changing group
                             const groupName = pollGroup.name;
-
                             if (groups[pollGroup.id] !== undefined) {
                                 group = groups[pollGroup.id];
-                            } else {
+                            }
+                            else {
                                 // detect removed groups
                                 this.log.info(`Group ${pollGroup.name} has been removed from bridge`);
                                 noDevices--;
                                 // if recursive deletion is supported we delete the object
                                 if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
-                                    this.log.info(
-                                        `Deleting ${this.namespace}.${
-                                            this.config.useLegacyStructure
-                                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
-                                                : pollGroup.name
-                                        }`
-                                    );
-                                    this.delObject(
-                                        `${
-                                            this.config.useLegacyStructure
-                                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
-                                                : pollGroup.name
-                                        }`,
-                                        { recursive: true }
-                                    );
-                                } else {
+                                    this.log.info(`Deleting ${this.namespace}.${this.config.useLegacyStructure
+                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
+                                        : pollGroup.name}`);
+                                    this.delObject(`${this.config.useLegacyStructure
+                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
+                                        : pollGroup.name}`, { recursive: true });
+                                }
+                                else {
                                     this.log
                                         .info(`Recursive deletion not supported by your js-controller, please delete \
-                                ${this.namespace}.${
-                                        this.config.useLegacyStructure
-                                            ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
-                                            : pollGroup.name
-                                    } manually`);
+                                ${this.namespace}.${this.config.useLegacyStructure
+                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
+                                        : pollGroup.name} manually`);
                                 }
-
-                                pollGroups.splice(
-                                    pollGroups.findIndex(item => item.id === group.id),
-                                    1
-                                );
+                                pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
                                 continue;
                             }
-
                             group.name = groupName;
-
                             for (const stateA of Object.keys(group.action)) {
                                 states[stateA] = group.action[stateA];
                             }
@@ -2172,60 +1957,50 @@ class Hue extends utils.Adapter {
                             if (states.bri !== undefined) {
                                 states.level = Math.max(Math.min(Math.round(states.bri / 2.54), 100), 0);
                             }
-
                             if (states.hue !== undefined) {
                                 states.hue = Math.round((states.hue / 65535) * 360);
                             }
-
                             if (states.ct !== undefined) {
                                 // convert color temperature from mired to kelvin
                                 states.ct = Math.round(1e6 / states.ct);
-
                                 // some devices send 0 -> infinity (issue #234)
                                 if (!isFinite(states.ct)) {
                                     // invalid value we cannot determine the meant value
-                                    this.log.debug(
-                                        `Cannot determine ct value of "${groupName}", received value "${states.ct}"`
-                                    );
+                                    this.log.debug(`Cannot determine ct value of "${groupName}", received value "${states.ct}"`);
                                     delete states.ct;
                                 }
                             }
-
                             // Next two are entertainment states
                             if (group.class) {
                                 states.class = group.class;
                             }
-
                             if (group.stream && group.stream.active !== undefined) {
                                 states.activeStream = group.stream.active;
                             }
-
                             for (const stateB of Object.keys(states)) {
                                 values.push({
                                     id: `${this.namespace}.${group.name}.${stateB}`,
                                     val: states[stateB]
                                 });
                             }
-
                             // set anyOn state
                             values.push({
                                 id: `${this.namespace}.${group.name}.anyOn`,
                                 val: group.state['any_on']
                             });
-
                             // set allOn state
                             values.push({
                                 id: `${this.namespace}.${group.name}.allOn`,
                                 val: group.state['all_on']
                             });
-                        } else {
+                        }
+                        else {
                             // poll the 0 - ALL group
                             this.updateGroupState(pollGroup);
                         }
                     }
                 }
                 await this.syncStates(values);
-
                 // check if new devices detected
                 if (noCurrentDevices > noDevices) {
                     // we have more devices then expected (no of devices at start - deleted ones)
@@ -2235,26 +2010,26 @@ class Hue extends utils.Adapter {
                     // for now we restart - TODO: split up connect and object creation function and call w/o restart
                     this.log.info('New devices detected - initializing restart');
                     return void this.restart();
-                } else {
+                }
+                else {
                     noDevices = noCurrentDevices;
                 }
             }
-        } catch (e: any) {
+        }
+        catch (e) {
             await this.setStateChangedAsync('info.connection', false, true);
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
-
         if (!pollingInterval) {
-            pollingInterval = setTimeout(() => this.poll, this.config.pollingInterval * 1_000);
+            pollingInterval = setTimeout(() => this.poll, this.config.pollingInterval * 1000);
         }
     }
-
     /**
      * Convert the temperature reading
      *
      * @param value read temperature
      */
-    convertTemperature(value: any): number {
+    convertTemperature(value) {
         if (value !== null) {
             value = value.toString();
             const sign = value.startsWith('-') ? '-' : '+';
@@ -2262,17 +2037,19 @@ class Hue extends utils.Adapter {
             const last = value.substring(value.length - 2, value.length);
             const first = value.substring(0, value.length - 2);
             value = `${sign}${first}.${last}`;
-        } else {
+        }
+        else {
             value = '0';
         }
         return parseFloat(value);
     }
 }
-
 // Export the constructor in compact mode
 if (require.main !== module) {
-    module.exports = (options: Partial<utils.AdapterOptions>) => new Hue(options);
-} else {
+    module.exports = (options) => new Hue(options);
+}
+else {
     // otherwise start the instance directly
     new Hue();
 }
+//# sourceMappingURL=main.js.map
