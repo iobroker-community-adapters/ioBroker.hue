@@ -86,6 +86,7 @@ class Hue extends utils.Adapter {
     private api!: Api;
     /** Instance of the Hue push client */
     private pushClient: any;
+
     constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'hue' });
 
@@ -214,6 +215,7 @@ class Hue extends utils.Adapter {
                 groupState.scene(obj.native.id);
 
                 await this.api.groups.setGroupState(0, groupState);
+
                 this.log.info(`Started scene: ${obj.common.name}`);
             } catch (e: any) {
                 this.log.error(`Could not start scene: ${e.message || e}`);
@@ -1022,6 +1024,7 @@ class Hue extends utils.Adapter {
     }
 
     /**
+<<<<<<< HEAD
      * Create a push connection to the Hue bridge, to listen to updates in near real-time
      */
     createPushConnection(): void {
@@ -1177,6 +1180,8 @@ class Hue extends utils.Adapter {
     }
 
     /**
+=======
+>>>>>>> 7dcd9eb0021aff8763a97d55e0f82468f6fcc8a5
      * Connects to the bridge and creates the initial objects
      */
     async connect(): Promise<void> {

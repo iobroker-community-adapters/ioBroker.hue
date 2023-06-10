@@ -920,6 +920,7 @@ class Hue extends utils.Adapter {
         await this.syncStates(values);
     }
     /**
+<<<<<<< HEAD
      * Create a push connection to the Hue bridge, to listen to updates in near real-time
      */
     createPushConnection() {
@@ -1049,6 +1050,8 @@ class Hue extends utils.Adapter {
         return Object.keys(groupIds)[idx];
     }
     /**
+=======
+>>>>>>> 7dcd9eb0021aff8763a97d55e0f82468f6fcc8a5
      * Connects to the bridge and creates the initial objects
      */
     async connect() {
