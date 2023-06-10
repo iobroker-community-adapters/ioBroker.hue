@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *
  */
 const node_hue_api_1 = require("node-hue-api");
-const adapter_core_1 = __importDefault(require("@iobroker/adapter-core"));
+const utils = __importStar(require("@iobroker/adapter-core"));
 const hueHelper = __importStar(require("./lib/hueHelper"));
 const tools = __importStar(require("./lib/tools"));
 const GroupState_1 = __importDefault(require("node-hue-api/lib/model/lightstate/GroupState"));
@@ -58,7 +58,7 @@ let pollingInterval;
 let reconnectTimeout;
 const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
-class Hue extends adapter_core_1.default.Adapter {
+class Hue extends utils.Adapter {
     constructor(options = {}) {
         super({ ...options, name: 'hue' });
         this.on('ready', this.onReady.bind(this));

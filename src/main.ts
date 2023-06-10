@@ -8,7 +8,7 @@
  *
  */
 import { v3 } from 'node-hue-api';
-import utils from '@iobroker/adapter-core';
+import * as utils from '@iobroker/adapter-core';
 import * as hueHelper from './lib/hueHelper';
 import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
