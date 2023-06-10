@@ -1,34 +1,47 @@
 {
-  "env": {
-    "es6": true,
-    "node": true
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
   "extends": [
-    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
   "plugins": [],
-  "ignorePatterns": [
-    "**/doc",
-    "**/build"
-  ],
-  "reportUnusedDisableDirectives": true,
   "rules": {
-    /* pretier takes care of these two rules
-    indent: [
-        'error',
-        4,
-        {
-            SwitchCase: 1
-        }
+    "@typescript-eslint/no-parameter-properties": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "typedefs": false,
+        "classes": false
+      }
     ],
-    'array-element-newline': [
-        'error',
-        {
-            ArrayExpression: 'consistent',
-            ArrayPattern: { minItems: 3 }
-        }
-    ],*/
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/explicit-function-return-type": [
+      "warn",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true
+      }
+    ],
+    "@typescript-eslint/no-object-literal-type-assertion": "off",
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-trailing-spaces": "error",
     "curly": "error",
     "brace-style": "error",
     "arrow-parens": [
@@ -52,23 +65,12 @@
         "maxEOF": 1
       }
     ],
-    "no-var": "error",
-    "prefer-const": "error",
     "no-throw-literal": "error",
     "prefer-promise-reject-errors": "error",
-    "require-await": "error",
     "no-return-await": "error",
     "eqeqeq": [
       "error",
       "always"
-    ],
-    "quotes": [
-      "error",
-      "single",
-      {
-        "avoidEscape": true,
-        "allowTemplateLiterals": true
-      }
     ],
     "semi": [
       "error",
@@ -83,14 +85,16 @@
         "exports": "never",
         "functions": "ignore"
       }
-    ],
-    "no-trailing-spaces": "error",
-    "prettier/prettier": "error",
-    "no-nested-ternary": "off",
-    // maybe turn this on later
-    "no-unneeded-ternary": "error"
+    ]
   },
-  "parserOptions": {
-    "ecmaVersion": 2021
-  }
+  "overrides": [
+    {
+      "files": [
+        "*.test.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off"
+      }
+    }
+  ]
 }

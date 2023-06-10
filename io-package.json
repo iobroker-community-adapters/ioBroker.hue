@@ -164,6 +164,7 @@
     "polling": true,
     "pollingInterval": 10,
     "ignoreGroups": false,
+    "ignoreOsram": false,
     "ignoreScenes": false,
     "useLegacyStructure": false,
     "nativeTurnOffBehaviour": false,
