@@ -54,8 +54,6 @@ const pollSensors = [];
 /** Existing groups on API */
 const pollGroups = [];
 let noDevices;
-let pollingInterval;
-let reconnectTimeout;
 const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 class Hue extends utils.Adapter {
@@ -95,13 +93,13 @@ class Hue extends utils.Adapter {
      */
     async onUnload(callback) {
         try {
-            if (pollingInterval) {
-                clearTimeout(pollingInterval);
-                pollingInterval = undefined;
+            if (this.pollingInterval) {
+                clearTimeout(this.pollingInterval);
+                this.pollingInterval = undefined;
             }
-            if (reconnectTimeout) {
-                clearTimeout(reconnectTimeout);
-                reconnectTimeout = undefined;
+            if (this.reconnectTimeout) {
+                clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = undefined;
             }
             this.pushClient.close();
             await this.setStateAsync('info.connection', false, true);
@@ -960,7 +958,7 @@ class Hue extends utils.Adapter {
      * @param update update received by bridge
      */
     handleUpdate(update) {
-        this.log.info(JSON.stringify(update));
+        this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
         const id = parseInt(update.id_v1.split('/')[2]);
         if (update.type === 'light') {
             this.handleLightUpdate(id, update);
@@ -1074,9 +1072,12 @@ class Hue extends utils.Adapter {
         catch (e) {
             this.log.error(e.message || e);
         }
-        if (!config || !config.config) {
+        if (!(config === null || config === void 0 ? void 0 : config.config)) {
             this.log.warn(`Could not get configuration from HUE bridge (${this.config.bridge}:${this.config.port})`);
-            setTimeout(() => this.connect(), 5000);
+            this.reconnectTimeout = setTimeout(() => {
+                this.reconnectTimeout = undefined;
+                this.connect();
+            }, 5000);
             return;
         }
         // even if useLegacyStructure is false, we check if the structure exists to not create chaos
@@ -1890,9 +1891,9 @@ class Hue extends utils.Adapter {
     async poll() {
         var _a;
         // clear polling interval
-        if (pollingInterval) {
-            clearTimeout(pollingInterval);
-            pollingInterval = undefined;
+        if (this.pollingInterval) {
+            clearTimeout(this.pollingInterval);
+            this.pollingInterval = undefined;
         }
         this.log.debug('Poll all states');
         try {
@@ -2153,8 +2154,8 @@ class Hue extends utils.Adapter {
             await this.setStateChangedAsync('info.connection', false, true);
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
-        if (!pollingInterval) {
-            pollingInterval = setTimeout(() => this.poll, this.config.pollingInterval * 1000);
+        if (!this.pollingInterval) {
+            this.pollingInterval = setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
         }
     }
     /**

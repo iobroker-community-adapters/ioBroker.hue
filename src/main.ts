@@ -72,13 +72,16 @@ const pollSensors: PollSensor[] = [];
 const pollGroups: PollLight[] = [];
 
 let noDevices: number;
-let pollingInterval: NodeJS.Timeout | undefined;
-let reconnectTimeout: NodeJS.Timeout | undefined;
 
 const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 class Hue extends utils.Adapter {
+    /** Timeout for next polling */
+    private pollingInterval?: NodeJS.Timeout;
+    /** Timeout for reconnect */
+    private reconnectTimeout?: NodeJS.Timeout;
+
     /** Instance of the Hue API */
     private api!: Api;
     /** Instance of the Hue push client */
@@ -127,14 +130,14 @@ class Hue extends utils.Adapter {
      */
     async onUnload(callback: () => void): Promise<void> {
         try {
-            if (pollingInterval) {
-                clearTimeout(pollingInterval);
-                pollingInterval = undefined;
+            if (this.pollingInterval) {
+                clearTimeout(this.pollingInterval);
+                this.pollingInterval = undefined;
             }
 
-            if (reconnectTimeout) {
-                clearTimeout(reconnectTimeout);
-                reconnectTimeout = undefined;
+            if (this.reconnectTimeout) {
+                clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = undefined;
             }
 
             this.pushClient.close();
@@ -1063,7 +1066,7 @@ class Hue extends utils.Adapter {
      * @param update update received by bridge
      */
     handleUpdate(update: BridgeUpdate): void {
-        this.log.info(JSON.stringify(update));
+        this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
 
         const id = parseInt(update.id_v1.split('/')[2]);
 
@@ -1197,9 +1200,12 @@ class Hue extends utils.Adapter {
             this.log.error(e.message || e);
         }
 
-        if (!config || !config.config) {
+        if (!config?.config) {
             this.log.warn(`Could not get configuration from HUE bridge (${this.config.bridge}:${this.config.port})`);
-            setTimeout(() => this.connect(), 5_000);
+            this.reconnectTimeout = setTimeout(() => {
+                this.reconnectTimeout = undefined;
+                this.connect();
+            }, 5_000);
             return;
         }
 
@@ -2100,9 +2106,9 @@ class Hue extends utils.Adapter {
      */
     async poll(): Promise<void> {
         // clear polling interval
-        if (pollingInterval) {
-            clearTimeout(pollingInterval);
-            pollingInterval = undefined;
+        if (this.pollingInterval) {
+            clearTimeout(this.pollingInterval);
+            this.pollingInterval = undefined;
         }
 
         this.log.debug('Poll all states');
@@ -2438,8 +2444,8 @@ class Hue extends utils.Adapter {
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
 
-        if (!pollingInterval) {
-            pollingInterval = setTimeout(() => this.poll, this.config.pollingInterval * 1_000);
+        if (!this.pollingInterval) {
+            this.pollingInterval = setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
         }
     }
 
