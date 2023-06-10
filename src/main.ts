@@ -13,6 +13,7 @@ import * as hueHelper from './lib/hueHelper';
 import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
 import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
+import HuePushClient from 'hue-push-client';
 
 interface PollSensor {
     /** Sensor id in Hue */
@@ -30,6 +31,33 @@ interface PollLight {
     name: string;
 }
 
+interface BridgeUpdate {
+    dimming?: { brightness: number };
+    id: string;
+    id_v1: `/${string}/${number}`;
+    owner: { rid: string; rtype: string };
+    type: 'grouped_light' | 'light' | 'temperature' | 'motion' | 'light_level' | 'zigbee_connectivity';
+    /** if type is motion */
+    motion?: { motion: boolean; motion_report: { changed: string; motion: boolean }; motion_valid: boolean };
+    /** for lights and groups */
+    on?: { on: boolean };
+    color: { xy: { x: number; y: number } };
+    /** mirek is null if invalid */
+    color_temperature?: { mirek: null | number; mirek_valid: boolean };
+    temperature?: {
+        temperature: number;
+        temperature_report: { changed: string; temperature: number };
+        temperature_valid: boolean;
+    };
+    light?: {
+        light_level: number;
+        light_level_report: { changed: string; light_level: number };
+        light_level_valid: boolean;
+    };
+    /** For type zigbee_connectivity */
+    status?: 'connected' | 'connectivity_issue';
+}
+
 /** IDs currently blocked from polling */
 const blockedIds: Record<string, boolean> = {};
 /** Map ioBroker channel to light id */
@@ -43,15 +71,22 @@ const pollSensors: PollSensor[] = [];
 /** Existing groups on API */
 const pollGroups: PollLight[] = [];
 
-let api: Api;
 let noDevices: number;
-let pollingInterval: NodeJS.Timeout | undefined;
-let reconnectTimeout: NodeJS.Timeout | undefined;
 
 const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 class Hue extends utils.Adapter {
+    /** Timeout for next polling */
+    private pollingInterval?: NodeJS.Timeout;
+    /** Timeout for reconnect */
+    private reconnectTimeout?: NodeJS.Timeout;
+
+    /** Instance of the Hue API */
+    private api!: Api;
+    /** Instance of the Hue push client */
+    private pushClient: any;
+
     constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'hue' });
 
@@ -96,15 +131,17 @@ class Hue extends utils.Adapter {
      */
     async onUnload(callback: () => void): Promise<void> {
         try {
-            if (pollingInterval) {
-                clearTimeout(pollingInterval);
-                pollingInterval = undefined;
+            if (this.pollingInterval) {
+                clearTimeout(this.pollingInterval);
+                this.pollingInterval = undefined;
             }
 
-            if (reconnectTimeout) {
-                clearTimeout(reconnectTimeout);
-                reconnectTimeout = undefined;
+            if (this.reconnectTimeout) {
+                clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = undefined;
             }
+
+            this.pushClient.close();
 
             await this.setStateAsync('info.connection', false, true);
 
@@ -177,7 +214,8 @@ class Hue extends utils.Adapter {
 
                 groupState.scene(obj.native.id);
 
-                await api.groups.setGroupState(0, groupState);
+                await this.api.groups.setGroupState(0, groupState);
+
                 this.log.info(`Started scene: ${obj.common.name}`);
             } catch (e: any) {
                 this.log.error(`Could not start scene: ${e.message || e}`);
@@ -200,24 +238,24 @@ class Hue extends utils.Adapter {
             // it's a sensor - we support turning it on and off
             try {
                 if (dp === 'on') {
-                    const sensor = await api.sensors.get(channelObj.native.id);
+                    const sensor = await this.api.sensors.get(channelObj.native.id);
                     // @ts-expect-error is there are more official way?
                     sensor._data.config = { on: state.val };
-                    await api.sensors.updateSensorConfig(sensor);
+                    await this.api.sensors.updateSensorConfig(sensor);
                     this.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                 } else if (dp === 'status') {
-                    const sensor = await api.sensors.get(channelObj.native.id);
+                    const sensor = await this.api.sensors.get(channelObj.native.id);
                     // @ts-expect-error types are suboptimal
                     sensor.status = parseInt(state.val);
                     // @ts-expect-error types are suboptimal
-                    await api.sensors.updateSensorState(sensor);
+                    await this.api.sensors.updateSensorState(sensor);
                     this.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                 } else if (dp === 'flag') {
-                    const sensor = await api.sensors.get(channelObj.native.id);
+                    const sensor = await this.api.sensors.get(channelObj.native.id);
                     // @ts-expect-error types are suboptimal
                     sensor.flag = state.val;
                     // @ts-expect-error types are suboptimal
-                    await api.sensors.updateSensorState(sensor);
+                    await this.api.sensors.updateSensorState(sensor);
                     this.log.debug(`Changed ${dp} of sensor ${channelObj.native.id} to ${state.val}`);
                 } else {
                     this.log.warn(
@@ -237,11 +275,11 @@ class Hue extends utils.Adapter {
             if (state.val) {
                 // turn streaming on
                 this.log.debug(`Enable streaming of ${id} (${groupIds[id]})`);
-                api.groups.enableStreaming(groupIds[id]);
+                this.api.groups.enableStreaming(groupIds[id]);
             } else {
                 //turn streaming off
                 this.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
-                api.groups.disableStreaming(groupIds[id]);
+                this.api.groups.disableStreaming(groupIds[id]);
             }
             return;
         }
@@ -718,7 +756,7 @@ class Hue extends utils.Adapter {
             // log final changes / states
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
             try {
-                await api.groups.setGroupState(groupIds[id], lightState);
+                await this.api.groups.setGroupState(groupIds[id], lightState);
                 await this.updateGroupState({
                     id: groupIds[id],
                     name: obj._id.substr(this.namespace.length + 1)
@@ -736,7 +774,7 @@ class Hue extends utils.Adapter {
                 lightState = new v3.lightStates.LightState();
                 lightState.on(finalLS.on);
                 try {
-                    await api.lights.setLightState(channelIds[id], lightState);
+                    await this.api.lights.setLightState(channelIds[id], lightState);
                     await this.updateLightState({
                         id: channelIds[id],
                         name: obj._id.substr(this.namespace.length + 1)
@@ -753,7 +791,7 @@ class Hue extends utils.Adapter {
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
 
             try {
-                await api.lights.setLightState(channelIds[id], lightState);
+                await this.api.lights.setLightState(channelIds[id], lightState);
                 await this.updateLightState({
                     id: channelIds[id],
                     name: obj._id.substr(this.namespace.length + 1)
@@ -817,6 +855,7 @@ class Hue extends utils.Adapter {
                 ? await v3.api.createLocal(ip, this.config.port).connect()
                 : // @ts-expect-error third party types are incorrect
                   await v3.api.createInsecureLocal(ip, this.config.port).connect();
+
             const newUser = await api.users.createUser(ip, deviceName);
             this.log.info(`created new User: ${newUser.username}`);
             return { error: 0, message: newUser.username };
@@ -844,7 +883,7 @@ class Hue extends utils.Adapter {
         const values: { id: string; val: any }[] = [];
 
         try {
-            let result: Record<string, any> = await api.groups.getGroup(group.id);
+            let result: Record<string, any> = await this.api.groups.getGroup(group.id);
             const states: Record<string, any> = {};
 
             result = result['_data'];
@@ -925,7 +964,7 @@ class Hue extends utils.Adapter {
         const values: { id: string; val: any }[] = [];
 
         try {
-            let result = await api.lights.getLight(parseInt(light.id));
+            let result = await this.api.lights.getLight(parseInt(light.id));
             const states: Record<string, any> = {};
 
             result = result['_data'];
@@ -985,6 +1024,164 @@ class Hue extends utils.Adapter {
     }
 
     /**
+<<<<<<< HEAD
+     * Create a push connection to the Hue bridge, to listen to updates in near real-time
+     */
+    createPushConnection(): void {
+        // @ts-expect-error lib export is wrong
+        this.pushClient = new HuePushClient({ ip: this.config.bridge, user: this.config.user });
+
+        this.pushClient.addEventListener('open', () => {
+            this.log.info('Push connection established');
+        });
+
+        this.pushClient.addEventListener('close', () => {
+            this.log.info('Push connection closed');
+        });
+
+        this.pushClient.addEventListener('error', (e: any) => {
+            this.log.info(`Push connection error: ${e.message}`);
+        });
+
+        this.pushClient.addEventListener('message', (message: any) => {
+            if (!message.data) {
+                return;
+            }
+
+            try {
+                const data = JSON.parse(message.data);
+                this.log.debug(`Received on push connection: ${JSON.stringify(data)}`);
+
+                for (const timestepData of data) {
+                    for (const entry of timestepData.data) {
+                        this.handleUpdate(entry);
+                    }
+                }
+            } catch (e: any) {
+                this.log.error(`Could not parse data from push connection: ${e.message}`);
+            }
+        });
+    }
+
+    /**
+     * Handle update received by bridge
+     *
+     * @param update update received by bridge
+     */
+    handleUpdate(update: BridgeUpdate): void {
+        this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
+
+        const id = parseInt(update.id_v1.split('/')[2]);
+
+        if (update.type === 'light') {
+            this.handleLightUpdate(id, update);
+            return;
+        }
+
+        if (update.type === 'grouped_light') {
+            this.handleGroupUpdate(id, update);
+            return;
+        }
+
+        if (update.type === 'motion' || update.type === 'temperature' || update.type === 'light_level') {
+            this.handleSensorUpdate(id, update);
+            return;
+        }
+
+        if (update.type === 'zigbee_connectivity') {
+            // ignore for now
+            return;
+        }
+
+        this.log.warn(`Unknown update for type "${update.type}": ${JSON.stringify(update)}`);
+    }
+
+    /**
+     * Handle sensor specific update
+     *
+     * @param id id of the sensor
+     * @param update the update sent by bridge
+     */
+    handleSensorUpdate(id: number, update: BridgeUpdate): void {
+        const channelName = this.getSensorChannelById(id);
+
+        if (update.temperature?.temperature_valid) {
+            this.setState(`${channelName}.temperature`, update.temperature.temperature, true);
+        }
+
+        if (update.motion?.motion_valid) {
+            this.setState(`${channelName}.presence`, update.motion.motion, true);
+        }
+
+        if (update.light?.light_level_valid) {
+            this.setState(`${channelName}.lightlevel`, update.light.light_level, true);
+        }
+    }
+
+    /**
+     * Handle light specific update
+     *
+     * @param id id of the light
+     * @param update the update sent by bridge
+     */
+    handleLightUpdate(id: number, update: BridgeUpdate): void {
+        const channelName = this.getLightChannelById(id);
+
+        if (update.on) {
+            this.setState(`${channelName}.on`, update.on.on, true);
+        }
+    }
+
+    /**
+     * Handle group specific update
+     *
+     * @param id id of the group
+     * @param update the update sent by bridge
+     */
+    handleGroupUpdate(id: number, update: BridgeUpdate): void {
+        const channelName = this.getGroupChannelById(id);
+
+        if (update.on) {
+            this.setState(`${channelName}.on`, update.on.on, true);
+        }
+    }
+
+    /**
+     * Get ioBroker channel name by sensor id
+     *
+     * @param id the sensor id
+     */
+    getSensorChannelById(id: number): string {
+        const sensor = pollSensors.find(sensor => sensor.id === id.toString())!;
+
+        return sensor.name;
+    }
+
+    /**
+     * Get ioBroker channel name by light id
+     *
+     * @param id the light id
+     */
+    getLightChannelById(id: number): string {
+        const idx = Object.values(channelIds).indexOf(id.toString());
+
+        return Object.keys(channelIds)[idx];
+    }
+
+    /**
+     * Get ioBroker channel name by group id
+     *
+     * @param id the group id
+     */
+    getGroupChannelById(id: number): string {
+        const idx = Object.values(groupIds).indexOf(id.toString());
+
+        return Object.keys(groupIds)[idx];
+    }
+
+    /**
+=======
+>>>>>>> 7dcd9eb0021aff8763a97d55e0f82468f6fcc8a5
      * Connects to the bridge and creates the initial objects
      */
     async connect(): Promise<void> {
@@ -992,20 +1189,28 @@ class Hue extends utils.Adapter {
         try {
             if (this.config.ssl) {
                 this.log.debug(`Using https to connect to ${this.config.bridge}:${this.config.port}`);
-                api = await v3.api.createLocal(this.config.bridge, this.config.port).connect(this.config.user);
+                this.api = await v3.api.createLocal(this.config.bridge, this.config.port).connect(this.config.user);
             } else {
                 this.log.debug(`Using insecure http to connect to ${this.config.bridge}:${this.config.port}`);
-                // @ts-expect-error should be correct -> third party types wrong
-                api = await v3.api.createInsecureLocal(this.config.bridge, this.config.port).connect(this.config.user);
+                this.api = await v3.api
+                    .createInsecureLocal(this.config.bridge, this.config.port)
+                    // @ts-expect-error should be correct -> third party types wrong
+                    .connect(this.config.user);
             }
-            config = await api.configuration.getAll();
+
+            this.createPushConnection();
+
+            config = await this.api.configuration.getAll();
         } catch (e: any) {
             this.log.error(e.message || e);
         }
 
-        if (!config || !config.config) {
+        if (!config?.config) {
             this.log.warn(`Could not get configuration from HUE bridge (${this.config.bridge}:${this.config.port})`);
-            setTimeout(() => this.connect(), 5_000);
+            this.reconnectTimeout = setTimeout(() => {
+                this.reconnectTimeout = undefined;
+                this.connect();
+            }, 5_000);
             return;
         }
 
@@ -1324,7 +1529,7 @@ class Hue extends utils.Adapter {
                     case 'ct': {
                         let ctObj = { min: 153, max: 500 }; // fallback object
                         try {
-                            const light = await api.lights.getLight(parseInt(lid));
+                            const light = await this.api.lights.getLight(parseInt(lid));
                             // often max: 454 or 500, min: 153
                             ctObj = light._populationData.capabilities.control.ct || ctObj;
                             //fix invalid bridge values
@@ -1906,15 +2111,15 @@ class Hue extends utils.Adapter {
      */
     async poll(): Promise<void> {
         // clear polling interval
-        if (pollingInterval) {
-            clearTimeout(pollingInterval);
-            pollingInterval = undefined;
+        if (this.pollingInterval) {
+            clearTimeout(this.pollingInterval);
+            this.pollingInterval = undefined;
         }
 
         this.log.debug('Poll all states');
 
         try {
-            const config = await api.configuration.getAll();
+            const config = await this.api.configuration.getAll();
             await this.setStateChangedAsync('info.connection', true, true);
 
             if (this.log.level === 'debug' || this.log.level === 'silly') {
@@ -2244,8 +2449,8 @@ class Hue extends utils.Adapter {
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
 
-        if (!pollingInterval) {
-            pollingInterval = setTimeout(() => this.poll, this.config.pollingInterval * 1_000);
+        if (!this.pollingInterval) {
+            this.pollingInterval = setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
         }
     }
 
