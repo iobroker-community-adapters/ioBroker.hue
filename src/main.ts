@@ -306,7 +306,7 @@ class Hue extends utils.Adapter {
         }
         // if .level changed instead change .bri to level.val*254
         if (dp === 'level' && typeof state.val === 'number') {
-            bri = Math.max(Math.min(Math.round(state.val * 2.54), 254), 0);
+            bri = hueHelper.levelToBrightness(state.val);
             this.setState([id, 'bri'].join('.'), { val: bri, ack: false });
             return;
         }
@@ -463,7 +463,7 @@ class Hue extends utils.Adapter {
                     } else if (command === 'level') {
                         //convert level to bri
                         if (!Object.prototype.hasOwnProperty.call(commands, 'bri')) {
-                            ls.bri = Math.min(254, Math.max(0, Math.round(parseInt(commands[command]) * 2.54)));
+                            ls.bri = hueHelper.levelToBrightness(parseInt(commands[command]));
                         } else {
                             ls.bri = 254;
                         }
@@ -1067,13 +1067,13 @@ class Hue extends utils.Adapter {
      *
      * @param update update received by bridge
      */
-    handleUpdate(update: BridgeUpdate): void {
+    async handleUpdate(update: BridgeUpdate): Promise<void> {
         this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
 
         const id = parseInt(update.id_v1.split('/')[2]);
 
         if (update.type === 'light') {
-            this.handleLightUpdate(id, update);
+            await this.handleLightUpdate(id, update);
             return;
         }
 
@@ -1127,7 +1127,7 @@ class Hue extends utils.Adapter {
      * @param id id of the light
      * @param update the update sent by bridge
      */
-    handleLightUpdate(id: number, update: BridgeUpdate): void {
+    async handleLightUpdate(id: number, update: BridgeUpdate): Promise<void> {
         const channelName = this.getLightChannelById(id);
 
         if (update.on) {
@@ -1136,6 +1136,7 @@ class Hue extends utils.Adapter {
 
         if (update.dimming) {
             this.setState(`${channelName}.level`, Math.round(update.dimming.brightness), true);
+            this.setState(`${channelName}.bri`, hueHelper.levelToBrightness(update.dimming.brightness), true);
         }
 
         if (update.color_temperature?.mirek_valid) {
@@ -1144,8 +1145,38 @@ class Hue extends utils.Adapter {
 
         if (update.color) {
             this.setState(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
-            // TODO: also update rgb values (and maybe hue sat)
+            await this.updateColorStatesByXY(channelName, update.color.xy.x, update.color.xy.y);
         }
+    }
+
+    /**
+     * Update the RGB, Hue and sat states of a channel by given x, y values
+     *
+     * @param channelName ioBroker channel name
+     * @param x x-value
+     * @param y y-value
+     */
+    async updateColorStatesByXY(channelName: string, x: number, y: number): Promise<void> {
+        const state = await this.getStateAsync(`${channelName}.bri`);
+
+        if (!state || typeof state.val !== 'number') {
+            return;
+        }
+
+        const bri = state.val;
+
+        const { Red, Green, Blue } = hueHelper.XYBtoRGB(x, y, bri / 254);
+
+        this.setState(`${channelName}.r`, Math.round(Red * 254), true);
+        this.setState(`${channelName}.g`, Math.round(Green * 254), true);
+        this.setState(`${channelName}.b`, Math.round(Blue * 254), true);
+
+        /** TODO: this converts to wrong HS values
+        const { Ang, Sat } = hueHelper.RgbToHsv(Red, Green, Blue);
+
+        this.setState(`${channelName}.hue`, Math.round(Ang), true);
+        this.setState(`${channelName}.sat`, Math.round(Sat * 254), true);
+         */
     }
 
     /**

@@ -44,7 +44,7 @@ export declare function GamutXYforModel(Px: number, Py: number, Model: string): 
  * @param Blue - Range [0..1]
  * @returns [Ang, Sat, Bri] - Ranges [0..360] [0..1] [0..1]
  */
-export declare function HelperRGBtoHueAngSatBri(Red: number, Green: number, Blue: number): {
+export declare function RgbToHsv(Red: number, Green: number, Blue: number): {
     Ang: number;
     Sat: number;
     Bri: number;
@@ -68,3 +68,9 @@ export declare function XYBtoRGB(x: number, y: number, Brightness?: number): {
  * @param mired mired value
  */
 export declare function miredToKelvin(mired: number): number;
+/**
+ * Convert level to brightness value
+ *
+ * @param level the level value
+ */
+export declare function levelToBrightness(level: number): number;

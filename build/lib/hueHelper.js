@@ -5,7 +5,7 @@
  *
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.miredToKelvin = exports.XYBtoRGB = exports.HelperRGBtoHueAngSatBri = exports.GamutXYforModel = exports.HelperRGBtoXY = exports.RgbToXYB = void 0;
+exports.levelToBrightness = exports.miredToKelvin = exports.XYBtoRGB = exports.RgbToHsv = exports.GamutXYforModel = exports.HelperRGBtoXY = exports.RgbToXYB = void 0;
 /**
  * Convert RGB value to XYB format
  *
@@ -16,8 +16,8 @@ exports.miredToKelvin = exports.XYBtoRGB = exports.HelperRGBtoHueAngSatBri = exp
  */
 function RgbToXYB(Red, Green, Blue, model) {
     const Point = HelperRGBtoXY(Red, Green, Blue);
-    const HueAngSatBri = HelperRGBtoHueAngSatBri(Red, Green, Blue);
-    const bri = Math.min(255, Math.round(HueAngSatBri.Bri * 255));
+    const { Bri } = RgbToHsv(Red, Green, Blue);
+    const bri = Math.min(255, Math.round(Bri * 255));
     const Gamuted = GamutXYforModel(Point.x, Point.y, model);
     return { x: Gamuted.x, y: Gamuted.y, b: bri };
 }
@@ -172,34 +172,28 @@ exports.GamutXYforModel = GamutXYforModel;
  * @param Blue - Range [0..1]
  * @returns [Ang, Sat, Bri] - Ranges [0..360] [0..1] [0..1]
  */
-function HelperRGBtoHueAngSatBri(Red, Green, Blue) {
+function RgbToHsv(Red, Green, Blue) {
     let Ang;
-    let Sat;
-    let Bri;
     const Min = Math.min(Red, Green, Blue);
     const Max = Math.max(Red, Green, Blue);
-    if (Min !== Max) {
-        if (Red === Max) {
-            Ang = ((Green - Blue) / (Max - Min)) * 60;
-        }
-        else if (Green === Max) {
-            Ang = (2 + (Blue - Red) / (Max - Min)) * 60;
-        }
-        else {
-            Ang = (4 + (Red - Green) / (Max - Min)) * 60;
-        }
-        Sat = (Max - Min) / Max;
-        Bri = Max;
+    if (Max === Min) {
+        return { Ang: 0, Sat: 0, Bri: Max };
+    }
+    const delta = Max - Min;
+    if (Red === Max) {
+        Ang = ((Green - Blue) / delta) * 60;
+    }
+    else if (Green === Max) {
+        Ang = (2 + (Blue - Red) / delta) * 60;
     }
     else {
-        // Max == Min
-        Ang = 0;
-        Sat = 0;
-        Bri = Max;
+        Ang = (4 + (Red - Green) / delta) * 60;
     }
+    const Sat = delta / Max;
+    const Bri = Max;
     return { Ang, Sat, Bri };
 }
-exports.HelperRGBtoHueAngSatBri = HelperRGBtoHueAngSatBri;
+exports.RgbToHsv = RgbToHsv;
 /**
  * Converts XYB values to RGB
  *
@@ -309,4 +303,13 @@ function miredToKelvin(mired) {
     return Math.round(1e6 / mired);
 }
 exports.miredToKelvin = miredToKelvin;
+/**
+ * Convert level to brightness value
+ *
+ * @param level the level value
+ */
+function levelToBrightness(level) {
+    return Math.min(254, Math.max(0, Math.round(level * 2.54)));
+}
+exports.levelToBrightness = levelToBrightness;
 //# sourceMappingURL=hueHelper.js.map

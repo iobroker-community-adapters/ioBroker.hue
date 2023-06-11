@@ -14,8 +14,8 @@
  */
 export function RgbToXYB(Red: number, Green: number, Blue: number, model: string): { x: number; y: number; b: number } {
     const Point = HelperRGBtoXY(Red, Green, Blue);
-    const HueAngSatBri = HelperRGBtoHueAngSatBri(Red, Green, Blue);
-    const bri = Math.min(255, Math.round(HueAngSatBri.Bri * 255));
+    const { Bri } = RgbToHsv(Red, Green, Blue);
+    const bri = Math.min(255, Math.round(Bri * 255));
     const Gamuted = GamutXYforModel(Point.x, Point.y, model)!;
     return { x: Gamuted.x, y: Gamuted.y, b: bri };
 }
@@ -162,32 +162,27 @@ export function GamutXYforModel(Px: number, Py: number, Model: string): { x: num
  * @param Blue - Range [0..1]
  * @returns [Ang, Sat, Bri] - Ranges [0..360] [0..1] [0..1]
  */
-export function HelperRGBtoHueAngSatBri(
-    Red: number,
-    Green: number,
-    Blue: number
-): { Ang: number; Sat: number; Bri: number } {
+export function RgbToHsv(Red: number, Green: number, Blue: number): { Ang: number; Sat: number; Bri: number } {
     let Ang;
-    let Sat;
-    let Bri;
+
     const Min = Math.min(Red, Green, Blue);
     const Max = Math.max(Red, Green, Blue);
-    if (Min !== Max) {
-        if (Red === Max) {
-            Ang = ((Green - Blue) / (Max - Min)) * 60;
-        } else if (Green === Max) {
-            Ang = (2 + (Blue - Red) / (Max - Min)) * 60;
-        } else {
-            Ang = (4 + (Red - Green) / (Max - Min)) * 60;
-        }
-        Sat = (Max - Min) / Max;
-        Bri = Max;
-    } else {
-        // Max == Min
-        Ang = 0;
-        Sat = 0;
-        Bri = Max;
+
+    if (Max === Min) {
+        return { Ang: 0, Sat: 0, Bri: Max };
     }
+
+    const delta = Max - Min;
+
+    if (Red === Max) {
+        Ang = ((Green - Blue) / delta) * 60;
+    } else if (Green === Max) {
+        Ang = (2 + (Blue - Red) / delta) * 60;
+    } else {
+        Ang = (4 + (Red - Green) / delta) * 60;
+    }
+    const Sat = delta / Max;
+    const Bri = Max;
     return { Ang, Sat, Bri };
 }
 
@@ -295,4 +290,13 @@ export function XYBtoRGB(x: number, y: number, Brightness?: number): { Red: numb
  */
 export function miredToKelvin(mired: number): number {
     return Math.round(1e6 / mired);
+}
+
+/**
+ * Convert level to brightness value
+ *
+ * @param level the level value
+ */
+export function levelToBrightness(level: number): number {
+    return Math.min(254, Math.max(0, Math.round(level * 2.54)));
 }
