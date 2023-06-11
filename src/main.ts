@@ -1143,7 +1143,8 @@ class Hue extends utils.Adapter {
         }
 
         if (update.color) {
-            // TODO
+            this.setState(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
+            // TODO: also update rgb values (and maybe hue sat)
         }
     }
 

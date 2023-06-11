@@ -1017,7 +1017,8 @@ class Hue extends utils.Adapter {
             this.setState(`${channelName}.ct`, hueHelper.miredToKelvin(update.color_temperature.mirek), true);
         }
         if (update.color) {
-            // TODO
+            this.setState(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
+            // TODO: also update rgb values (and maybe hue sat)
         }
     }
     /**

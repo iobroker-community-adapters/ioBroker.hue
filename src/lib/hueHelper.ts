@@ -293,6 +293,6 @@ export function XYBtoRGB(x: number, y: number, Brightness?: number): { Red: numb
  *
  * @param mired mired value
  */
-export function miredToKelvin(mired: number) {
+export function miredToKelvin(mired: number): number {
     return Math.round(1e6 / mired);
 }
