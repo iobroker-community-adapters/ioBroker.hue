@@ -74,8 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-
-### __WORK IN PROGRESS__
+### 3.9.0 (2023-06-11)
 * (foxriver76) implemented poll API (closes #227, #343)
 * (foxriver76) fix polling not working (closes #408, #410)
 

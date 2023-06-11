@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.8.0",
+    "version": "3.9.0",
     "tier": 2,
     "news": {
+      "3.9.0": {
+        "en": "implemented poll API (closes #227, #343)\nfix polling not working (closes #408, #410)",
+        "de": "implementierte Umfrage-API (schließt #227, #343)\nfehlerbehebung nicht funktionieren (schließt #408, #410)",
+        "ru": "реализованный опрос API (closes #227, #343)\nисправление опроса не работает (закрыты #408, #410)",
+        "pt": "aPI de pesquisa implementada (closes #227, #343)\ncorrigir votação não funciona (fecha #408, #410)",
+        "nl": "quality over Quantity (QoQ) Releases Vertaling:\nvertaling:",
+        "fr": "aPI de sondage mise en œuvre (ferme #227, #343)\nfixer le polling qui ne fonctionne pas (ferme #408, #410)",
+        "it": "implementato poll API (chiude #227, #343)\nfix polling non funzionante (chiude #408, #410)",
+        "es": "aPI de encuesta implementada (cerca #227, #343)\narreglar encuestas no funcionan (cerca #408, #410)",
+        "pl": "zaimplementowany API (zamknięty #227, #343)\nobserwacja nie działa (ogranicz #408, #410)",
+        "uk": "реалізовано API опитування (заклади No227, No343)\nвиправити опитування не працює (закриває #408, #410)",
+        "zh-cn": "实施了污染物释放(第227号,第343号)\nf 确定不工作(第408号,第410号)的投票"
+      },
       "3.8.0": {
         "en": "Possibility to disable turn on lights with states other than `on` and `brightness` [#386]",
         "de": "Möglichkeit, Lichter mit anderen Zuständen als auf und Helligkeit zu deaktivieren #[386]",
@@ -76,18 +89,6 @@
         "es": "agregado estado `info.connection` (cierra # 268)",
         "pl": "dodany stan `info.connection` (zamyka #268)",
         "zh-cn": "添加了 `info.connection` 状态（关闭 #268）"
-      },
-      "3.6.1": {
-        "en": "ct values of groups can be even lower due to third party lights",
-        "de": "ct-Werte von Gruppen können durch Fremdlichter noch niedriger sein",
-        "ru": "Значения ct групп могут быть еще ниже из-за сторонних источников света",
-        "pt": "os valores ct dos grupos podem ser ainda mais baixos devido às luzes de terceiros",
-        "nl": "ct-waarden van groepen kunnen nog lager zijn vanwege verlichting van derden",
-        "fr": "Les valeurs de ct des groupes peuvent être encore plus faibles en raison des lumières tierces",
-        "it": "i valori ct dei gruppi possono essere anche inferiori a causa di luci di terze parti",
-        "es": "Los valores ct de los grupos pueden ser incluso más bajos debido a las luces de terceros.",
-        "pl": "Wartości ct grup mogą być jeszcze niższe ze względu na oświetlenie innych firm",
-        "zh-cn": "由于第三方灯，组的 ct 值可能更低"
       }
     },
     "titleLang": {
