@@ -287,3 +287,12 @@ export function XYBtoRGB(x: number, y: number, Brightness?: number): { Red: numb
     }
     return { Red, Green, Blue };
 }
+
+/**
+ * Convert Mired to Kelvin
+ *
+ * @param mired mired value
+ */
+export function miredToKelvin(mired: number) {
+    return Math.round(1e6 / mired);
+}

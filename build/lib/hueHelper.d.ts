@@ -62,3 +62,9 @@ export declare function XYBtoRGB(x: number, y: number, Brightness?: number): {
     Green: number;
     Blue: number;
 };
+/**
+ * Convert Mired to Kelvin
+ *
+ * @param mired mired value
+ */
+export declare function miredToKelvin(mired: number): number;

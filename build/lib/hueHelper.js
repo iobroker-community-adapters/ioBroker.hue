@@ -5,7 +5,7 @@
  *
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.XYBtoRGB = exports.HelperRGBtoHueAngSatBri = exports.GamutXYforModel = exports.HelperRGBtoXY = exports.RgbToXYB = void 0;
+exports.miredToKelvin = exports.XYBtoRGB = exports.HelperRGBtoHueAngSatBri = exports.GamutXYforModel = exports.HelperRGBtoXY = exports.RgbToXYB = void 0;
 /**
  * Convert RGB value to XYB format
  *
@@ -300,4 +300,13 @@ function XYBtoRGB(x, y, Brightness) {
     return { Red, Green, Blue };
 }
 exports.XYBtoRGB = XYBtoRGB;
+/**
+ * Convert Mired to Kelvin
+ *
+ * @param mired mired value
+ */
+function miredToKelvin(mired) {
+    return Math.round(1e6 / mired);
+}
+exports.miredToKelvin = miredToKelvin;
 //# sourceMappingURL=hueHelper.js.map

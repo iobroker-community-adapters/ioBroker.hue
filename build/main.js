@@ -506,8 +506,7 @@ class Hue extends utils.Adapter {
                 return;
             }
             finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
-            // convert kelvin to mired
-            finalLS.ct = Math.round(1e6 / finalLS.ct);
+            finalLS.ct = hueHelper.miredToKelvin(finalLS.ct);
             lightState = lightState.ct(finalLS.ct);
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
                 lightState = lightState.on(true);
@@ -830,7 +829,7 @@ class Hue extends utils.Adapter {
             }
             if (states.ct !== undefined) {
                 // convert color temperature from mired to kelvin
-                states.ct = Math.round(1e6 / states.ct);
+                states.ct = hueHelper.miredToKelvin(states.ct);
                 if (!isFinite(states.ct)) {
                     // issue #234
                     // invalid value we cannot determine the meant value, fallback to max
@@ -901,8 +900,7 @@ class Hue extends utils.Adapter {
                 states.hue = Math.round((states.hue / 65535) * 360);
             }
             if (states.ct !== undefined) {
-                // convert color temperature from mired to kelvin
-                states.ct = Math.round(1e6 / states.ct);
+                states.ct = hueHelper.miredToKelvin(states.ct);
             }
             for (const stateB of Object.keys(states)) {
                 values.push({ id: `${this.namespace}.${light.name}.${stateB}`, val: states[stateB] });
@@ -920,7 +918,6 @@ class Hue extends utils.Adapter {
         await this.syncStates(values);
     }
     /**
-<<<<<<< HEAD
      * Create a push connection to the Hue bridge, to listen to updates in near real-time
      */
     createPushConnection() {
@@ -969,7 +966,7 @@ class Hue extends utils.Adapter {
             this.handleGroupUpdate(id, update);
             return;
         }
-        if (update.type === 'motion' || update.type === 'temperature' || update.type === 'light_level') {
+        if (['motion', 'temperature', 'light_level', 'device_power'].includes(update.type)) {
             this.handleSensorUpdate(id, update);
             return;
         }
@@ -997,6 +994,9 @@ class Hue extends utils.Adapter {
         if ((_c = update.light) === null || _c === void 0 ? void 0 : _c.light_level_valid) {
             this.setState(`${channelName}.lightlevel`, update.light.light_level, true);
         }
+        if (update.power_state) {
+            this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
+        }
     }
     /**
      * Handle light specific update
@@ -1005,9 +1005,19 @@ class Hue extends utils.Adapter {
      * @param update the update sent by bridge
      */
     handleLightUpdate(id, update) {
+        var _a;
         const channelName = this.getLightChannelById(id);
         if (update.on) {
             this.setState(`${channelName}.on`, update.on.on, true);
+        }
+        if (update.dimming) {
+            this.setState(`${channelName}.level`, Math.round(update.dimming.brightness), true);
+        }
+        if ((_a = update.color_temperature) === null || _a === void 0 ? void 0 : _a.mirek_valid) {
+            this.setState(`${channelName}.ct`, hueHelper.miredToKelvin(update.color_temperature.mirek), true);
+        }
+        if (update.color) {
+            // TODO
         }
     }
     /**
@@ -1050,8 +1060,6 @@ class Hue extends utils.Adapter {
         return Object.keys(groupIds)[idx];
     }
     /**
-=======
->>>>>>> 7dcd9eb0021aff8763a97d55e0f82468f6fcc8a5
      * Connects to the bridge and creates the initial objects
      */
     async connect() {
@@ -1363,9 +1371,9 @@ class Hue extends utils.Adapter {
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.temperature';
                         lobj.common.unit = '°K';
-                        lobj.common.min = Math.round(1e6 / ctObj.max); // this way, because with higher Kelvin -> smaller Mired
-                        lobj.common.max = Math.round(1e6 / ctObj.min);
-                        value = Math.round(1e6 / value);
+                        lobj.common.min = hueHelper.miredToKelvin(ctObj.max);
+                        lobj.common.max = hueHelper.miredToKelvin(ctObj.min);
+                        value = hueHelper.miredToKelvin(value);
                         if (!isFinite(value)) {
                             // issue #234
                             // invalid value we cannot determine the meant value, fallback to max
@@ -1582,8 +1590,7 @@ class Hue extends utils.Adapter {
                             gobj.common.unit = '°K';
                             gobj.common.min = 1802; // normally 500 (2000) but some groups have smaller values due to third pary lights and we cannot get min via api for groups
                             gobj.common.max = 6536; // 153
-                            // mired to kelvin
-                            group.action[action] = Math.round(1e6 / group.action[action]);
+                            group.action[action] = hueHelper.miredToKelvin(group.action[action]);
                             if (!isFinite(group.action[action])) {
                                 // issue #234
                                 // invalid value we cannot determine the meant value, fallback to max
@@ -2021,7 +2028,7 @@ class Hue extends utils.Adapter {
                     }
                     if (states.ct !== undefined) {
                         // convert color temperature from mired to kelvin
-                        states.ct = Math.round(1e6 / states.ct);
+                        states.ct = hueHelper.miredToKelvin(states.ct);
                         // some devices send 0 -> infinity (issue #234)
                         if (!isFinite(states.ct)) {
                             // invalid value we cannot determine the meant value
@@ -2099,7 +2106,7 @@ class Hue extends utils.Adapter {
                             }
                             if (states.ct !== undefined) {
                                 // convert color temperature from mired to kelvin
-                                states.ct = Math.round(1e6 / states.ct);
+                                states.ct = hueHelper.miredToKelvin(states.ct);
                                 // some devices send 0 -> infinity (issue #234)
                                 if (!isFinite(states.ct)) {
                                     // invalid value we cannot determine the meant value
