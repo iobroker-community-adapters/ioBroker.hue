@@ -31,14 +31,31 @@ interface PollLight {
     name: string;
 }
 
+type ZigbeeConnectivityStatus = 'connected' | 'connectivity_issue';
+type StreamingStatus = 'active' | 'inactive';
+type ScenceStatus = { active: 'static' | 'inactive' };
+type ButtonEventType = 'short_release' | 'initial_press' | 'repeat' | 'long_release';
+
 interface BridgeUpdate {
     dimming?: { brightness: number };
     id: string;
     id_v1: `/${string}/${number}`;
     owner: { rid: string; rtype: string };
-    type: 'grouped_light' | 'light' | 'temperature' | 'motion' | 'light_level' | 'zigbee_connectivity' | 'device_power';
+    type:
+        | 'grouped_light'
+        | 'light'
+        | 'temperature'
+        | 'motion'
+        | 'light_level'
+        | 'zigbee_connectivity'
+        | 'device_power'
+        | 'entertainment_configuration'
+        | 'scene'
+        | 'button';
     /** if type is motion */
     motion?: { motion: boolean; motion_report: { changed: string; motion: boolean }; motion_valid: boolean };
+    /** if type entertainment_configuration */
+    active_streamer?: { rid: 'fa2b6425-206c-40b0-82bc-2fd85d5422d0'; rtype: 'auth_v1' };
     /** for lights and groups */
     on?: { on: boolean };
     color: { xy: { x: number; y: number } };
@@ -54,10 +71,15 @@ interface BridgeUpdate {
         light_level_report: { changed: string; light_level: number };
         light_level_valid: boolean;
     };
-    /** For type zigbee_connectivity */
-    status?: 'connected' | 'connectivity_issue';
+    /** For type zigbee_connectivity or entertainment_configuration or scene */
+    status?: ZigbeeConnectivityStatus | StreamingStatus | ScenceStatus;
     /** For type device_power */
-    power_state: { battery_level: number; battery_state: string };
+    power_state?: { battery_level: number; battery_state: string };
+    /** For type button */
+    button: {
+        button_report: { event: ButtonEventType; updated: string };
+        last_event: ButtonEventType;
+    };
 }
 
 /** IDs currently blocked from polling */
@@ -1077,17 +1099,22 @@ class Hue extends utils.Adapter {
             return;
         }
 
-        if (update.type === 'grouped_light') {
+        if (update.type === 'grouped_light' || update.type === 'entertainment_configuration') {
             this.handleGroupUpdate(id, update);
             return;
         }
 
-        if (['motion', 'temperature', 'light_level', 'device_power'].includes(update.type)) {
+        if (['motion', 'temperature', 'light_level', 'device_power', 'button'].includes(update.type)) {
             this.handleSensorUpdate(id, update);
             return;
         }
 
         if (update.type === 'zigbee_connectivity') {
+            // ignore for now
+            return;
+        }
+
+        if (update.type === 'scene') {
             // ignore for now
             return;
         }
@@ -1118,6 +1145,12 @@ class Hue extends utils.Adapter {
 
         if (update.power_state) {
             this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
+        }
+
+        if (update.button) {
+            // TODO: implement encoding for buttonevent
+            //this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
+            //this.setState(`${channelName}.buttonevent`, update.button.button_report.event, true);
         }
     }
 
@@ -1190,6 +1223,10 @@ class Hue extends utils.Adapter {
 
         if (update.on) {
             this.setState(`${channelName}.on`, update.on.on, true);
+        }
+
+        if (update.active_streamer) {
+            this.setState(`${channelName}.activeStream`, update.status === 'active', true);
         }
     }
 

@@ -962,15 +962,19 @@ class Hue extends utils.Adapter {
             await this.handleLightUpdate(id, update);
             return;
         }
-        if (update.type === 'grouped_light') {
+        if (update.type === 'grouped_light' || update.type === 'entertainment_configuration') {
             this.handleGroupUpdate(id, update);
             return;
         }
-        if (['motion', 'temperature', 'light_level', 'device_power'].includes(update.type)) {
+        if (['motion', 'temperature', 'light_level', 'device_power', 'button'].includes(update.type)) {
             this.handleSensorUpdate(id, update);
             return;
         }
         if (update.type === 'zigbee_connectivity') {
+            // ignore for now
+            return;
+        }
+        if (update.type === 'scene') {
             // ignore for now
             return;
         }
@@ -996,6 +1000,11 @@ class Hue extends utils.Adapter {
         }
         if (update.power_state) {
             this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
+        }
+        if (update.button) {
+            // TODO: implement encoding for buttonevent
+            //this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
+            //this.setState(`${channelName}.buttonevent`, update.button.button_report.event, true);
         }
     }
     /**
@@ -1056,6 +1065,9 @@ class Hue extends utils.Adapter {
         const channelName = this.getGroupChannelById(id);
         if (update.on) {
             this.setState(`${channelName}.on`, update.on.on, true);
+        }
+        if (update.active_streamer) {
+            this.setState(`${channelName}.activeStream`, update.status === 'active', true);
         }
     }
     /**
