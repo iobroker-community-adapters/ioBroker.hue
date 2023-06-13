@@ -59,6 +59,8 @@ const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 class Hue extends utils.Adapter {
     constructor(options = {}) {
         super({ ...options, name: 'hue' });
+        /** Object which contains all UUIDs and the corresponding metadata */
+        this.UUIDs = {};
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('message', this.onMessage.bind(this));
@@ -925,6 +927,7 @@ class Hue extends utils.Adapter {
         this.pushClient = new hue_push_client_1.default({ ip: this.config.bridge, user: this.config.user });
         this.pushClient.addEventListener('open', () => {
             this.log.info('Push connection established');
+            this.UUIDs = this.pushClient.uuids();
         });
         this.pushClient.addEventListener('close', () => {
             this.log.info('Push connection closed');
@@ -1003,9 +1006,20 @@ class Hue extends utils.Adapter {
         }
         if (update.button) {
             // TODO: implement encoding for buttonevent
-            //this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
-            //this.setState(`${channelName}.buttonevent`, update.button.button_report.event, true);
+            this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
+            this.setState(`${channelName}.buttonevent`, this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }), true);
         }
+    }
+    /**
+     * Transform button event from push api to poll api code
+     *
+     * @param options update related information like event type and uuid
+     */
+    transformButtonEvent(options) {
+        var _a, _b, _c;
+        const { event, id } = options;
+        const eventType = event === 'repeat' ? 1 : event === 'short_release' ? 2 : event === 'long_release' ? 3 : 0;
+        return ((_c = (_b = (_a = this.UUIDs[id]) === null || _a === void 0 ? void 0 : _a.metadata) === null || _b === void 0 ? void 0 : _b.control_id) !== null && _c !== void 0 ? _c : 0) * 1000 + eventType;
     }
     /**
      * Handle light specific update

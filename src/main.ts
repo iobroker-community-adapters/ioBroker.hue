@@ -38,7 +38,9 @@ type ButtonEventType = 'short_release' | 'initial_press' | 'repeat' | 'long_rele
 
 interface BridgeUpdate {
     dimming?: { brightness: number };
+    /** The UUID which is used by Hue API v2 */
     id: string;
+    /** The old Hue API v1 id */
     id_v1: `/${string}/${number}`;
     owner: { rid: string; rtype: string };
     type:
@@ -110,6 +112,8 @@ class Hue extends utils.Adapter {
     private api!: Api;
     /** Instance of the Hue push client */
     private pushClient: any;
+    /** Object which contains all UUIDs and the corresponding metadata */
+    private UUIDs: Record<string, any> = {};
 
     constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'hue' });
@@ -1054,6 +1058,7 @@ class Hue extends utils.Adapter {
 
         this.pushClient.addEventListener('open', () => {
             this.log.info('Push connection established');
+            this.UUIDs = this.pushClient.uuids();
         });
 
         this.pushClient.addEventListener('close', () => {
@@ -1149,9 +1154,26 @@ class Hue extends utils.Adapter {
 
         if (update.button) {
             // TODO: implement encoding for buttonevent
-            //this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
-            //this.setState(`${channelName}.buttonevent`, update.button.button_report.event, true);
+            this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
+            this.setState(
+                `${channelName}.buttonevent`,
+                this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }),
+                true
+            );
         }
+    }
+
+    /**
+     * Transform button event from push api to poll api code
+     *
+     * @param options update related information like event type and uuid
+     */
+    transformButtonEvent(options: { event: ButtonEventType; id: string }): number {
+        const { event, id } = options;
+
+        const eventType = event === 'repeat' ? 1 : event === 'short_release' ? 2 : event === 'long_release' ? 3 : 0;
+
+        return (this.UUIDs[id]?.metadata?.control_id ?? 0) * 1_000 + eventType;
     }
 
     /**
