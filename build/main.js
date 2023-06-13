@@ -925,9 +925,9 @@ class Hue extends utils.Adapter {
     createPushConnection() {
         // @ts-expect-error lib export is wrong
         this.pushClient = new hue_push_client_1.default({ ip: this.config.bridge, user: this.config.user });
-        this.pushClient.addEventListener('open', () => {
+        this.pushClient.addEventListener('open', async () => {
             this.log.info('Push connection established');
-            this.UUIDs = this.pushClient.uuids();
+            this.UUIDs = await this.pushClient.uuids();
         });
         this.pushClient.addEventListener('close', () => {
             this.log.info('Push connection closed');
