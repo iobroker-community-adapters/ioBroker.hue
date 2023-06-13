@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.1",
+    "version": "3.9.2",
     "tier": 2,
     "news": {
+      "3.9.2": {
+        "en": "fix sensor converting (closes #415)",
+        "de": "fix-sensor-konvertierung (schließt #415)",
+        "ru": "преобразование датчика (closes #415)",
+        "pt": "corrigir a conversão do sensor (fecha #415)",
+        "nl": "vertaling:",
+        "fr": "convertir le capteur de fixation (fermetures #415)",
+        "it": "correzione della conversione del sensore (chiude #415)",
+        "es": "fija el sensor de conversión (cerca #415)",
+        "pl": "reakcja czujnika (zamknięta #415)",
+        "uk": "перетворення датчика (закривається #415)",
+        "zh-cn": "fix 转换传感器(第415)"
+      },
       "3.9.1": {
         "en": "implemented more commands of the Push API (mainly buttons)",
         "de": "mehr Befehle der Push-API implementiert (hauptsächlich Buttons)",
@@ -78,18 +91,6 @@
         "es": "identificar correctamente los interruptores de terceros (cierra #273)",
         "pl": "poprawnie zidentyfikować przełączniki firm trzecich (zamyka #273)",
         "zh-cn": "正确识别第三方开关（关闭 #273）"
-      },
-      "3.6.3": {
-        "en": "added `info.connection` state (closes #268)",
-        "de": "Status `info.connection` hinzugefügt (schließt #268)",
-        "ru": "добавлено состояние `info.connection` (закрывает # 268)",
-        "pt": "adicionado estado `info.connection` (fecha # 268)",
-        "nl": "status 'info.connection' toegevoegd (sluit #268 af)",
-        "fr": "ajout de l'état `info.connection` (ferme #268)",
-        "it": "aggiunto stato `info.connection` (chiude #268)",
-        "es": "agregado estado `info.connection` (cierra # 268)",
-        "pl": "dodany stan `info.connection` (zamyka #268)",
-        "zh-cn": "添加了 `info.connection` 状态（关闭 #268）"
       }
     },
     "titleLang": {
