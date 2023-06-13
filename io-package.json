@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.0",
+    "version": "3.9.1",
     "tier": 2,
     "news": {
+      "3.9.1": {
+        "en": "implemented more commands of the Push API (mainly buttons)",
+        "de": "mehr Befehle der Push-API implementiert (hauptsächlich Buttons)",
+        "ru": "реализовали больше команд Push API (в основном кнопки)",
+        "pt": "implementou mais comandos da API Push (principalmente botões)",
+        "nl": "voerde meer commando's van de Push API (mainly knopen)",
+        "fr": "implémenté plus de commandes de l'API Push (principalement des boutons)",
+        "it": "implementato più comandi dell'API Push (principalmente pulsanti)",
+        "es": "implementó más comandos de la API Push (principalmente botones)",
+        "pl": "zaimplementowano bardziej nadrzędne API Push (głównie guzki)",
+        "uk": "реалізовано більше команд Push API (головно кнопки)",
+        "zh-cn": "普什·阿普惠制(主要但州)的指挥"
+      },
       "3.9.0": {
         "en": "implemented poll API (closes #227, #343)\nfix polling not working (closes #408, #410)",
         "de": "implementierte Umfrage-API (schließt #227, #343)\nfehlerbehebung nicht funktionieren (schließt #408, #410)",
@@ -67,18 +80,6 @@
         "zh-cn": "正确识别第三方开关（关闭 #273）"
       },
       "3.6.3": {
-        "en": "added `info.connection` state (closes #268)",
-        "de": "Status `info.connection` hinzugefügt (schließt #268)",
-        "ru": "добавлено состояние `info.connection` (закрывает # 268)",
-        "pt": "adicionado estado `info.connection` (fecha # 268)",
-        "nl": "status 'info.connection' toegevoegd (sluit #268 af)",
-        "fr": "ajout de l'état `info.connection` (ferme #268)",
-        "it": "aggiunto stato `info.connection` (chiude #268)",
-        "es": "agregado estado `info.connection` (cierra # 268)",
-        "pl": "dodany stan `info.connection` (zamyka #268)",
-        "zh-cn": "添加了 `info.connection` 状态（关闭 #268）"
-      },
-      "3.6.2": {
         "en": "added `info.connection` state (closes #268)",
         "de": "Status `info.connection` hinzugefügt (schließt #268)",
         "ru": "добавлено состояние `info.connection` (закрывает # 268)",
