@@ -41,7 +41,7 @@ interface BridgeUpdate {
     /** The UUID which is used by Hue API v2 */
     id: string;
     /** The old Hue API v1 id */
-    id_v1: `/${string}/${number}`;
+    id_v1?: `/${string}/${number}`;
     owner: { rid: string; rtype: string };
     type:
         | 'grouped_light'
@@ -1096,6 +1096,11 @@ class Hue extends utils.Adapter {
      */
     async handleUpdate(update: BridgeUpdate): Promise<void> {
         this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
+
+        if (!update.id_v1) {
+            this.log.debug('Ignore push connection update, because property "id_v1" is missing');
+            return;
+        }
 
         const id = parseInt(update.id_v1.split('/')[2]);
 

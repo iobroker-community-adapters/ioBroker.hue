@@ -960,6 +960,10 @@ class Hue extends utils.Adapter {
      */
     async handleUpdate(update) {
         this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
+        if (!update.id_v1) {
+            this.log.debug('Ignore push connection update, because property "id_v1" is missing');
+            return;
+        }
         const id = parseInt(update.id_v1.split('/')[2]);
         if (update.type === 'light') {
             await this.handleLightUpdate(id, update);
