@@ -74,8 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-
-### __WORK IN PROGRESS__
+### 3.9.3 (2023-06-14)
 * (foxriver76) fix crash cases on unknown push updates (closes #417)
 
 ### 3.9.2 (2023-06-13)

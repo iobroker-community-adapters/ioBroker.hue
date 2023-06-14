@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.2",
+    "version": "3.9.3",
     "tier": 2,
     "news": {
+      "3.9.3": {
+        "en": "fix crash cases on unknown push updates (closes #417)",
+        "de": "crash-fälle auf unbekannten push-updates beheben (schließt #417)",
+        "ru": "исправить случаи аварии на неизвестных push обновления (закрыты #417)",
+        "pt": "corrigir casos de acidente em atualizações de push desconhecidas (fecha #417)",
+        "nl": "vertaling:",
+        "fr": "corriger les cas de crash sur les mises à jour de poussée inconnues (fermeture #417)",
+        "it": "fix casi di crash su aggiornamenti push sconosciuti (chiude #417)",
+        "es": "solucionar casos de choque en actualizaciones de empuje desconocidas (cerca #417)",
+        "pl": "rezultaty wypadków na nieznanych aktualizacjach (zamknięto #417)",
+        "uk": "виправити випадки аварії на невідомих оновленнях (закривається #417)",
+        "zh-cn": "fix 未知的推断事件(第417)"
+      },
       "3.9.2": {
         "en": "fix sensor converting (closes #415)",
         "de": "fix-sensor-konvertierung (schließt #415)",
@@ -79,18 +92,6 @@
         "es": "sensor de software de soporte `CLIPGenericFlag` (cierra #328)",
         "pl": "obsługa czujnika oprogramowania `CLIPGenericFlag` (zamyka #328)",
         "zh-cn": "支持软件传感器“CLIPGenericFlag”（关闭#328）"
-      },
-      "3.6.5": {
-        "en": "correctly identify third party switches (closes #273)",
-        "de": "Schalter von Drittanbietern richtig identifizieren (schließt #273)",
-        "ru": "правильно идентифицировать сторонние переключатели (закрывает # 273)",
-        "pt": "identificar corretamente os switches de terceiros (fecha o nº 273)",
-        "nl": "identificeer schakelaars van derden correct (sluit #273 af)",
-        "fr": "identifier correctement les commutateurs tiers (ferme #273)",
-        "it": "identificare correttamente gli interruttori di terze parti (chiude il n. 273)",
-        "es": "identificar correctamente los interruptores de terceros (cierra #273)",
-        "pl": "poprawnie zidentyfikować przełączniki firm trzecich (zamyka #273)",
-        "zh-cn": "正确识别第三方开关（关闭 #273）"
       }
     },
     "titleLang": {
