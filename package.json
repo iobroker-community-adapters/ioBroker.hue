@@ -38,7 +38,7 @@
     "@alcalzone/release-script-plugin-license": "^3.5.9",
     "@iobroker/testing": "^4.1.0",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.9",
+    "@typescript-eslint/parser": "^5.59.11",
     "axios": "^0.27.2",
     "chai": "^4.3.7",
     "eslint": "^8.42.0",
