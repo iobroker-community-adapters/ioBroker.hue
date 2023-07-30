@@ -77,6 +77,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 ### __WORK IN PROGRESS__
 * (foxriver76) fixed edge case crash on button updates
+* (foxriver76) fix crash case if uuids can not be retrieved
 
 ### 3.9.3 (2023-06-14)
 * (foxriver76) fix crash cases on unknown push updates (closes #417)

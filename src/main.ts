@@ -1058,7 +1058,11 @@ class Hue extends utils.Adapter {
 
         this.pushClient.addEventListener('open', async () => {
             this.log.info('Push connection established');
-            this.UUIDs = await this.pushClient.uuids();
+            try {
+                this.UUIDs = await this.pushClient.uuids();
+            } catch (e: any) {
+                this.log.error(`Could not get UUIDs: ${e.message}`);
+            }
         });
 
         this.pushClient.addEventListener('close', () => {

@@ -927,7 +927,12 @@ class Hue extends utils.Adapter {
         this.pushClient = new hue_push_client_1.default({ ip: this.config.bridge, user: this.config.user });
         this.pushClient.addEventListener('open', async () => {
             this.log.info('Push connection established');
-            this.UUIDs = await this.pushClient.uuids();
+            try {
+                this.UUIDs = await this.pushClient.uuids();
+            }
+            catch (e) {
+                this.log.error(`Could not get UUIDs: ${e.message}`);
+            }
         });
         this.pushClient.addEventListener('close', () => {
             this.log.info('Push connection closed');
