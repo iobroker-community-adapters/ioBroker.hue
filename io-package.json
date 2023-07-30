@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.3",
+    "version": "3.9.4",
     "tier": 2,
     "news": {
+      "3.9.4": {
+        "en": "fixed edge case crash on button updates\nfix crash case if uuids can not be retrieved",
+        "de": "fester randfall auf knopfaktualisierung\nreparieren crash-fall, wenn uuids nicht abgerufen werden können",
+        "ru": "фикчированный случай аварии на обновления кнопки\nисправить случай аварии, если uuids не могут быть извлечены",
+        "pt": "falha de caso de borda fixa em atualizações de botão\ncorrigir caso de acidente se uuids não pode ser recuperado",
+        "nl": "vertaling:\nvertaling:",
+        "fr": "crash du boîtier de bord fixe sur les mises à jour du bouton\ncorriger le cas de crash si les uuids ne peuvent pas être récupérés",
+        "it": "crash caso bordo fisso sugli aggiornamenti del pulsante\nrisolvere caso crash se uuids non può essere recuperato",
+        "es": "bloqueo de caso de borde fijo en actualizaciones de botón\nsolucionar caso de accidente si uuids no se puede recuperar",
+        "pl": "sprawa skręcania krawędź przycisku\nw przypadku, gdy uuidy nie mogą zostać odzyskane",
+        "uk": "виправлений випадок аварійного аварійного завершення на кнопка оновлення\nвиправити випадковий випадок, якщо слух не можна отримати",
+        "zh-cn": "b. 固定案件坠落\nf 如果不能再婚,便发生意外事故。"
+      },
       "3.9.3": {
         "en": "fix crash cases on unknown push updates (closes #417)",
         "de": "crash-fälle auf unbekannten push-updates beheben (schließt #417)",
@@ -80,18 +93,6 @@
         "es": "también actualización estado para sensores CLIPGenericFlag",
         "pl": "zaktualizowano również stan CLIPGenericFlag",
         "zh-cn": "还更新了克里米尔的传感器状况"
-      },
-      "3.7.0": {
-        "en": "support software sensor `CLIPGenericFlag` (closes #328)",
-        "de": "Support-Software-Sensor `CLIPGenericFlag` (schließt #328)",
-        "ru": "датчик поддержки программного обеспечения `CLIPGenericFlag` (закрывает #328)",
-        "pt": "sensor de software de suporte `CLIPGenericFlag` (fecha #328)",
-        "nl": "ondersteuningssoftware sensor `CLIPGenericFlag` (sluit #328)",
-        "fr": "prend en charge le capteur logiciel `CLIPGenericFlag` (ferme #328)",
-        "it": "supporto software sensore `CLIPGenericFlag` (chiude #328)",
-        "es": "sensor de software de soporte `CLIPGenericFlag` (cierra #328)",
-        "pl": "obsługa czujnika oprogramowania `CLIPGenericFlag` (zamyka #328)",
-        "zh-cn": "支持软件传感器“CLIPGenericFlag”（关闭#328）"
       }
     },
     "titleLang": {
