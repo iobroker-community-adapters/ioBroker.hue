@@ -1008,8 +1008,7 @@ class Hue extends utils.Adapter {
         if (update.power_state) {
             this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
         }
-        if (update.button) {
-            // TODO: implement encoding for buttonevent
+        if (update.button.button_report) {
             this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
             this.setState(`${channelName}.buttonevent`, this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }), true);
         }
