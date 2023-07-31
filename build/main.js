@@ -1085,6 +1085,10 @@ class Hue extends utils.Adapter {
      */
     handleGroupUpdate(id, update) {
         const channelName = this.getGroupChannelById(id);
+        if (!channelName) {
+            this.log.debug(`Could not handle update of group "${id}", because no matching channel found`);
+            return;
+        }
         if (update.on) {
             this.setState(`${channelName}.on`, update.on.on, true);
         }

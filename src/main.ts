@@ -1251,6 +1251,11 @@ class Hue extends utils.Adapter {
     handleGroupUpdate(id: number, update: BridgeUpdate): void {
         const channelName = this.getGroupChannelById(id);
 
+        if (!channelName) {
+            this.log.debug(`Could not handle update of group "${id}", because no matching channel found`);
+            return;
+        }
+
         if (update.on) {
             this.setState(`${channelName}.on`, update.on.on, true);
         }
@@ -1287,7 +1292,7 @@ class Hue extends utils.Adapter {
      *
      * @param id the group id
      */
-    getGroupChannelById(id: number): string {
+    getGroupChannelById(id: number): string | undefined {
         const idx = Object.values(groupIds).indexOf(id.toString());
 
         return Object.keys(groupIds)[idx];
