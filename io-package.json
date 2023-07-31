@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.4",
+    "version": "3.9.5",
     "tier": 2,
     "news": {
+      "3.9.5": {
+        "en": "fixed crash case",
+        "de": "fester unfallfall",
+        "ru": "фиксированный случай аварии",
+        "pt": "caso de acidente fixo",
+        "nl": "vertaling:",
+        "fr": "cas d ' accident",
+        "it": "caso di arresto fisso",
+        "es": "caso de accidente fijo",
+        "pl": "przypadek katastrofy",
+        "uk": "фіксований випадок аварії",
+        "zh-cn": "固定事故"
+      },
       "3.9.4": {
         "en": "fixed edge case crash on button updates\nfix crash case if uuids can not be retrieved",
         "de": "fester randfall auf knopfaktualisierung\nreparieren crash-fall, wenn uuids nicht abgerufen werden können",
@@ -81,18 +94,6 @@
         "pl": "Odpowiedzialność za niemożliwą zmianę na światło z innymi stanami niż na i jasności #386",
         "uk": "Можливість відключення повороту на вогні з державами, відмінною від яскравості #[386]",
         "zh-cn": "与“第[386]号行动”以外的国家相反的照明"
-      },
-      "3.7.1": {
-        "en": "also update state for `CLIPGenericFlag` sensors",
-        "de": "auch Zustand für CLIPGenericFlag Sensoren aktualisieren",
-        "ru": "также обновить состояние для датчиков CLIPGenericFlag",
-        "pt": "também atualizar estado para sensores CLIPGenericFlag",
-        "nl": "ook updates voor CLIPGenericFlag sensoren",
-        "fr": "également mettre à jour l'état pour les capteurs CLIPGenericFlag",
-        "it": "anche aggiornare lo stato per i sensori CLIPGenericFlag",
-        "es": "también actualización estado para sensores CLIPGenericFlag",
-        "pl": "zaktualizowano również stan CLIPGenericFlag",
-        "zh-cn": "还更新了克里米尔的传感器状况"
       }
     },
     "titleLang": {

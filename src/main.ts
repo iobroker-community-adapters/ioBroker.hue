@@ -78,7 +78,7 @@ interface BridgeUpdate {
     /** For type device_power */
     power_state?: { battery_level: number; battery_state: string };
     /** For type button */
-    button: {
+    button?: {
         button_report?: { event: ButtonEventType; updated: string };
         last_event: ButtonEventType;
     };
@@ -1161,7 +1161,7 @@ class Hue extends utils.Adapter {
             this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
         }
 
-        if (update.button.button_report) {
+        if (update.button?.button_report) {
             this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
             this.setState(
                 `${channelName}.buttonevent`,
