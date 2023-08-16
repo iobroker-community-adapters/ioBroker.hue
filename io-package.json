@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.5",
+    "version": "3.9.6",
     "tier": 2,
     "news": {
+      "3.9.6": {
+        "en": "do not set invalid states on unknown group updates\nonly use push connection if ssl is configured",
+        "de": "nicht ungültige zustände auf unbekannte gruppenaktualisierungen einstellen\nnur druckverbindung verwenden, wenn ssl konfiguriert ist",
+        "ru": "не устанавливайте недействительные состояния на неизвестные обновления группы\nтолько использовать push соединение, если ssl настроен",
+        "pt": "não definir estados inválidos sobre atualizações de grupo desconhecido\nsomente use a conexão push se o ssl estiver configurado",
+        "nl": "zet geen invalide staten op onbekende groep updates\ngebruik alleen de verbinding als ssl in beslag genomen wordt",
+        "fr": "ne pas définir les états invalides sur les mises à jour de groupes inconnus\nutiliser uniquement la connexion push si ssl est configuré",
+        "it": "non impostare stati invalidi su aggiornamenti di gruppo sconosciuti\nutilizzare solo la connessione di spinta se ssl è configurato",
+        "es": "no establecer estados inválidos en actualizaciones de grupos desconocidas\nsolo use la conexión de empuje si ssl está configurado",
+        "pl": "nie ustalają stanów nieprawidłowych w nieznanych układach grupowych\nwykorzystuje się tylko połączenie pop, jeśli ssl jest konfigurowany",
+        "uk": "не встановлено недійсних держав на невідомих оновленнях групи\nтільки використовувати підключення штовхача, якщо sl налаштований",
+        "zh-cn": "未对未知群体更新的无效说明\n只有在配有配件时才使用推断连接。"
+      },
       "3.9.5": {
         "en": "fixed crash case",
         "de": "fester unfallfall",
@@ -81,19 +94,6 @@
         "pl": "zaimplementowany API (zamknięty #227, #343)\nobserwacja nie działa (ogranicz #408, #410)",
         "uk": "реалізовано API опитування (заклади No227, No343)\nвиправити опитування не працює (закриває #408, #410)",
         "zh-cn": "实施了污染物释放(第227号,第343号)\nf 确定不工作(第408号,第410号)的投票"
-      },
-      "3.8.0": {
-        "en": "Possibility to disable turn on lights with states other than `on` and `brightness` [#386]",
-        "de": "Möglichkeit, Lichter mit anderen Zuständen als auf und Helligkeit zu deaktivieren #[386]",
-        "ru": "Возможность отключить поворот на свет с другими государствами и яркостью #[386]",
-        "pt": "Possibilidade de desativar acender luzes com estados diferentes de ligar e brilho #[386]",
-        "nl": "Mogelijkheden om lichten uit te schakelen met andere staten dan aan en helderheid 8686:",
-        "fr": "Possibilité de désactiver les feux avec des états autres que sur et luminosité #[386]",
-        "it": "Possibilità di disattivare l'accensione delle luci con stati diversi dall'accensione e dalla luminosità #[386]",
-        "es": "Posibilidad de desactivar encender las luces con estados distintos al encendido y el brillo #[386]",
-        "pl": "Odpowiedzialność za niemożliwą zmianę na światło z innymi stanami niż na i jasności #386",
-        "uk": "Можливість відключення повороту на вогні з державами, відмінною від яскравості #[386]",
-        "zh-cn": "与“第[386]号行动”以外的国家相反的照明"
       }
     },
     "titleLang": {
