@@ -9,9 +9,6 @@
     "Bluefox <dogafox@gmail.com>",
     "Moritz Heusinger <moritz.heusinger@gmail.com>"
   ],
-  "engines": {
-    "node": ">=10"
-  },
   "homepage": "https://github.com/iobroker-community-adapters/ioBroker.hue",
   "license": "Apache-2.0",
   "keywords": [
@@ -27,6 +24,9 @@
     "type": "git",
     "url": "https://github.com/iobroker-community-adapters/ioBroker.hue"
   },
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
     "@iobroker/adapter-core": "^3.0.3",
     "hue-push-client": "^1.0.5",
@@ -41,7 +41,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "axios": "^0.27.2",
     "chai": "^4.3.7",
-    "eslint": "^8.46.0",
+    "eslint": "^8.47.0",
     "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-prettier": "^4.2.1",
     "gulp": "^4.0.2",
