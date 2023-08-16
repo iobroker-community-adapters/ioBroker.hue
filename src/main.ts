@@ -189,7 +189,6 @@ class Hue extends utils.Adapter {
         if (obj) {
             switch (obj.command) {
                 case 'browse': {
-                    // @ts-expect-error obj.message can be anything
                     const res = await this.browse(obj.message);
                     if (obj.callback) {
                         // @ts-expect-error need to check
@@ -1307,6 +1306,7 @@ class Hue extends utils.Adapter {
             if (this.config.ssl) {
                 this.log.debug(`Using https to connect to ${this.config.bridge}:${this.config.port}`);
                 this.api = await v3.api.createLocal(this.config.bridge, this.config.port).connect(this.config.user);
+                this.createPushConnection();
             } else {
                 this.log.debug(`Using insecure http to connect to ${this.config.bridge}:${this.config.port}`);
                 this.api = await v3.api
@@ -1314,8 +1314,6 @@ class Hue extends utils.Adapter {
                     // @ts-expect-error should be correct -> third party types wrong
                     .connect(this.config.user);
             }
-
-            this.createPushConnection();
 
             config = await this.api.configuration.getAll();
         } catch (e: any) {
@@ -1349,7 +1347,8 @@ class Hue extends utils.Adapter {
         const sensors = config.sensors;
         const sensorsArr = sensors ? Object.keys(sensors) : [];
         const lightsArr = lights ? Object.keys(lights) : [];
-        const objs: ioBroker.SettableObject[] = [];
+        const objs: (ioBroker.SettableStateObject | ioBroker.SettableChannelObject | ioBroker.SettableDeviceObject)[] =
+            [];
 
         await this.setStateAsync('info.connection', true, true);
 
@@ -1411,6 +1410,7 @@ class Hue extends utils.Adapter {
                         _id: `${this.namespace}.${objId.replace(/\s/g, '_')}`,
                         type: 'state',
                         common: {
+                            type: 'mixed',
                             name: objId,
                             read: true,
                             write: true,
@@ -1598,6 +1598,7 @@ class Hue extends utils.Adapter {
                     _id: `${this.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
                     common: {
+                        type: 'mixed',
                         name: objId,
                         read: true,
                         write: true,
@@ -1851,6 +1852,7 @@ class Hue extends utils.Adapter {
                         _id: `${this.namespace}.${gobjId.replace(/\s/g, '_')}`,
                         type: 'state',
                         common: {
+                            type: 'mixed',
                             name: gobjId,
                             read: true,
                             write: true,
@@ -2155,7 +2157,9 @@ class Hue extends utils.Adapter {
      *
      * @param objs objects which will be created
      */
-    async syncObjects(objs: ioBroker.SettableObject[]): Promise<void> {
+    async syncObjects(
+        objs: (ioBroker.SettableStateObject | ioBroker.SettableChannelObject | ioBroker.SettableDeviceObject)[]
+    ): Promise<void> {
         for (const task of objs) {
             try {
                 const id = task._id!;

@@ -77,6 +77,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 ### __WORK IN PROGRESS__
 * (foxriver76) do not set invalid states on unknown group updates
+* (foxriver76) only use push connection if ssl is configured
 
 ### 3.9.5 (2023-07-31)
 * (foxriver76) fixed crash case
