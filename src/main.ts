@@ -2291,10 +2291,10 @@ class Hue extends utils.Adapter {
                         } else {
                             this.log.info(`Recursive deletion not supported by your js-controller, please delete \
                         ${this.namespace}.${
-                                this.config.useLegacyStructure
-                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
-                                    : sensorName
-                            } manually`);
+                            this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
+                                : sensorName
+                        } manually`);
                         }
                         continue;
                     }
@@ -2354,10 +2354,10 @@ class Hue extends utils.Adapter {
                         } else {
                             this.log.info(`Recursive deletion not supported by your js-controller, please delete \
                         ${this.namespace}.${
-                                this.config.useLegacyStructure
-                                    ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
-                                    : lightName
-                            } manually`);
+                            this.config.useLegacyStructure
+                                ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
+                                : lightName
+                        } manually`);
                         }
                         continue;
                     }
@@ -2461,10 +2461,10 @@ class Hue extends utils.Adapter {
                                     this.log
                                         .info(`Recursive deletion not supported by your js-controller, please delete \
                                 ${this.namespace}.${
-                                        this.config.useLegacyStructure
-                                            ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
-                                            : pollGroup.name
-                                    } manually`);
+                                    this.config.useLegacyStructure
+                                        ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
+                                        : pollGroup.name
+                                } manually`);
                                 }
 
                                 pollGroups.splice(
