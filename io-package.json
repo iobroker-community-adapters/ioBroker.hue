@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.9.6",
+    "version": "3.10.0",
     "tier": 2,
     "news": {
+      "3.10.0": {
+        "en": "fixed problem on auto-deletion of groups\nimplemented Hue Tap Dial (closes #368, closes #416)",
+        "de": "problem bei der auto-deleetion von gruppen behoben\ndurchgeführt Hue Tap Dial (schließt #368, schließt #416)",
+        "ru": "фиксированная проблема на автовыборе групп\nреализовано Hue Tap Dial (замки #368, замки #416)",
+        "pt": "problema fixo na auto-eliminação de grupos\nimplementação Hue Tap Dial (fecha #368, fecha #416)",
+        "nl": "een probleem op auto-deletie van groepen\n_ Hue Tap Dial (closes #368, sluit #416)",
+        "fr": "problème fixe sur la suppression automatique des groupes\nmise en œuvre Hue Tap Dial (ferme #368, ferme #416)",
+        "it": "problema fisso sull'eliminazione automatica dei gruppi\nimplementato Hue Tap Dial (chiude #368, chiude #416)",
+        "es": "problema fijo en la eliminación automática de grupos\naplicadas Hue Tap Dial (cerca #368, cierra #416)",
+        "pl": "stały problem auto-delecji grup\nwdrożone Hue Tap Dial (zamknięta #368, zamyka #416)",
+        "uk": "виправлена проблема на автозняття груп\nреалізований Hue Tap Dial (закривається #368, закривається #416)",
+        "zh-cn": "b. 某些群体的尸体解剖的固定问题\n执行 He Tap Dial(第368号行动)"
+      },
       "3.9.6": {
         "en": "do not set invalid states on unknown group updates\nonly use push connection if ssl is configured",
         "de": "nicht ungültige zustände auf unbekannte gruppenaktualisierungen einstellen\nnur druckverbindung verwenden, wenn ssl konfiguriert ist",
@@ -81,19 +94,6 @@
         "pl": "zaimplementowano bardziej nadrzędne API Push (głównie guzki)",
         "uk": "реалізовано більше команд Push API (головно кнопки)",
         "zh-cn": "普什·阿普惠制(主要但州)的指挥"
-      },
-      "3.9.0": {
-        "en": "implemented poll API (closes #227, #343)\nfix polling not working (closes #408, #410)",
-        "de": "implementierte Umfrage-API (schließt #227, #343)\nfehlerbehebung nicht funktionieren (schließt #408, #410)",
-        "ru": "реализованный опрос API (closes #227, #343)\nисправление опроса не работает (закрыты #408, #410)",
-        "pt": "aPI de pesquisa implementada (closes #227, #343)\ncorrigir votação não funciona (fecha #408, #410)",
-        "nl": "quality over Quantity (QoQ) Releases Vertaling:\nvertaling:",
-        "fr": "aPI de sondage mise en œuvre (ferme #227, #343)\nfixer le polling qui ne fonctionne pas (ferme #408, #410)",
-        "it": "implementato poll API (chiude #227, #343)\nfix polling non funzionante (chiude #408, #410)",
-        "es": "aPI de encuesta implementada (cerca #227, #343)\narreglar encuestas no funcionan (cerca #408, #410)",
-        "pl": "zaimplementowany API (zamknięty #227, #343)\nobserwacja nie działa (ogranicz #408, #410)",
-        "uk": "реалізовано API опитування (заклади No227, No343)\nвиправити опитування не працює (закриває #408, #410)",
-        "zh-cn": "实施了污染物释放(第227号,第343号)\nf 确定不工作(第408号,第410号)的投票"
       }
     },
     "titleLang": {
