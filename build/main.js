@@ -54,7 +54,15 @@ const pollSensors = [];
 /** Existing groups on API */
 const pollGroups = [];
 let noDevices;
-const SUPPORTED_SENSORS = ['ZLLSwitch', 'ZGPSwitch', 'Daylight', 'ZLLTemperature', 'ZLLPresence', 'ZLLLightLevel'];
+const SUPPORTED_SENSORS = [
+    'ZLLSwitch',
+    'ZGPSwitch',
+    'Daylight',
+    'ZLLTemperature',
+    'ZLLPresence',
+    'ZLLLightLevel',
+    'ZLLRelativeRotary'
+];
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 class Hue extends utils.Adapter {
     constructor(options = {}) {
@@ -1274,6 +1282,23 @@ class Hue extends utils.Adapter {
                             lobj.common.role = 'indicator.temperature';
                             lobj.common.write = false;
                             value = this.convertTemperature(value);
+                            break;
+                        case 'rotaryevent':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'state';
+                            lobj.common.write = false;
+                            break;
+                        case 'expectedrotation':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'state';
+                            lobj.common.write = false;
+                            lobj.common.unit = '°';
+                            break;
+                        case 'expectedeventduration':
+                            lobj.common.type = 'number';
+                            lobj.common.role = 'state';
+                            lobj.common.write = false;
+                            lobj.common.unit = 'ms';
                             break;
                         default:
                             lobj.common.type = 'mixed';
