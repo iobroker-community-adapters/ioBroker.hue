@@ -74,6 +74,10 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+
+### __WORK IN PROGRESS__
+* (foxriver76) fixed problem on auto-deletion of groups
+
 ### 3.9.6 (2023-08-16)
 * (foxriver76) do not set invalid states on unknown group updates
 * (foxriver76) only use push connection if ssl is configured

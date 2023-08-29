@@ -1965,7 +1965,7 @@ class Hue extends utils.Adapter {
      * Polls all lights from bridge, creates new groups/lights/sensors and deletes removed ones
      */
     async poll() {
-        var _a;
+        var _a, _b;
         // clear polling interval
         if (this.pollingInterval) {
             clearTimeout(this.pollingInterval);
@@ -2142,7 +2142,7 @@ class Hue extends utils.Adapter {
                                         ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
                                         : pollGroup.name} manually`);
                                 }
-                                pollGroups.splice(pollGroups.findIndex(item => item.id === group.id), 1);
+                                pollGroups.splice(pollGroups.findIndex(item => item.id === pollGroup.id), 1);
                                 continue;
                             }
                             group.name = groupName;
@@ -2184,7 +2184,7 @@ class Hue extends utils.Adapter {
                             if (group.class) {
                                 states.class = group.class;
                             }
-                            if (group.stream && group.stream.active !== undefined) {
+                            if (((_b = group.stream) === null || _b === void 0 ? void 0 : _b.active) !== undefined) {
                                 states.activeStream = group.stream.active;
                             }
                             for (const stateB of Object.keys(states)) {

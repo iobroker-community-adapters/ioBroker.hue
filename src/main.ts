@@ -2468,7 +2468,7 @@ class Hue extends utils.Adapter {
                                 }
 
                                 pollGroups.splice(
-                                    pollGroups.findIndex(item => item.id === group.id),
+                                    pollGroups.findIndex(item => item.id === pollGroup.id),
                                     1
                                 );
                                 continue;
@@ -2521,7 +2521,7 @@ class Hue extends utils.Adapter {
                                 states.class = group.class;
                             }
 
-                            if (group.stream && group.stream.active !== undefined) {
+                            if (group.stream?.active !== undefined) {
                                 states.activeStream = group.stream.active;
                             }
 
