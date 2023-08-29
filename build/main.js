@@ -985,7 +985,7 @@ class Hue extends utils.Adapter {
             this.handleGroupUpdate(id, update);
             return;
         }
-        if (['motion', 'temperature', 'light_level', 'device_power', 'button'].includes(update.type)) {
+        if (['motion', 'temperature', 'light_level', 'device_power', 'button', 'relative_rotary'].includes(update.type)) {
             this.handleSensorUpdate(id, update);
             return;
         }
@@ -1006,7 +1006,7 @@ class Hue extends utils.Adapter {
      * @param update the update sent by bridge
      */
     handleSensorUpdate(id, update) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e;
         const channelName = this.getSensorChannelById(id);
         if ((_a = update.temperature) === null || _a === void 0 ? void 0 : _a.temperature_valid) {
             this.setState(`${channelName}.temperature`, update.temperature.temperature, true);
@@ -1023,6 +1023,10 @@ class Hue extends utils.Adapter {
         if ((_d = update.button) === null || _d === void 0 ? void 0 : _d.button_report) {
             this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
             this.setState(`${channelName}.buttonevent`, this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }), true);
+        }
+        if ((_e = update.relative_rotary) === null || _e === void 0 ? void 0 : _e.rotary_report) {
+            this.setState(`${channelName}.lastupdated`, update.relative_rotary.rotary_report.updated, true);
+            this.setState(`${channelName}.rotaryevent`, update.relative_rotary.rotary_report.action === 'start' ? 1 : 2, true);
         }
     }
     /**

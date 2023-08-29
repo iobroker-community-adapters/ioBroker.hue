@@ -77,7 +77,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 ### __WORK IN PROGRESS__
 * (foxriver76) fixed problem on auto-deletion of groups
-* (foxriver76) implemented Hue Tap Dial (closes #368)
+* (foxriver76) implemented Hue Tap Dial (closes #368, closes #416)
 
 ### 3.9.6 (2023-08-16)
 * (foxriver76) do not set invalid states on unknown group updates

@@ -35,6 +35,8 @@ type ZigbeeConnectivityStatus = 'connected' | 'connectivity_issue';
 type StreamingStatus = 'active' | 'inactive';
 type ScenceStatus = { active: 'static' | 'inactive' };
 type ButtonEventType = 'short_release' | 'initial_press' | 'repeat' | 'long_release';
+type RelativeRotaryAction = 'start' | 'repeat';
+type RelativeRotaryDirection = 'clock_wise' | 'counter_clock_wise';
 
 interface BridgeUpdate {
     dimming?: { brightness: number };
@@ -53,7 +55,8 @@ interface BridgeUpdate {
         | 'device_power'
         | 'entertainment_configuration'
         | 'scene'
-        | 'button';
+        | 'button'
+        | 'relative_rotary';
     /** if type is motion */
     motion?: { motion: boolean; motion_report: { changed: string; motion: boolean }; motion_valid: boolean };
     /** if type entertainment_configuration */
@@ -81,6 +84,18 @@ interface BridgeUpdate {
     button?: {
         button_report?: { event: ButtonEventType; updated: string };
         last_event: ButtonEventType;
+    };
+    /** For type relative_rotary */
+    relative_rotary?: {
+        last_event: {
+            action: RelativeRotaryAction;
+            rotation: { direction: RelativeRotaryDirection; duration: number; steps: number };
+        };
+        rotary_report: {
+            action: RelativeRotaryAction;
+            rotation: { direction: RelativeRotaryDirection; duration: number; steps: number };
+            updated: string;
+        };
     };
 }
 
@@ -1125,7 +1140,9 @@ class Hue extends utils.Adapter {
             return;
         }
 
-        if (['motion', 'temperature', 'light_level', 'device_power', 'button'].includes(update.type)) {
+        if (
+            ['motion', 'temperature', 'light_level', 'device_power', 'button', 'relative_rotary'].includes(update.type)
+        ) {
             this.handleSensorUpdate(id, update);
             return;
         }
@@ -1173,6 +1190,15 @@ class Hue extends utils.Adapter {
             this.setState(
                 `${channelName}.buttonevent`,
                 this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }),
+                true
+            );
+        }
+
+        if (update.relative_rotary?.rotary_report) {
+            this.setState(`${channelName}.lastupdated`, update.relative_rotary.rotary_report.updated, true);
+            this.setState(
+                `${channelName}.rotaryevent`,
+                update.relative_rotary.rotary_report.action === 'start' ? 1 : 2,
                 true
             );
         }
