@@ -57,7 +57,7 @@ interface BridgeUpdate {
         | 'scene'
         | 'button'
         | 'relative_rotary';
-    /** if type is motion */
+    /** if a type is motion */
     motion?: { motion: boolean; motion_report: { changed: string; motion: boolean }; motion_valid: boolean };
     /** if type entertainment_configuration */
     active_streamer?: { rid: 'fa2b6425-206c-40b0-82bc-2fd85d5422d0'; rtype: 'auth_v1' };
@@ -128,7 +128,7 @@ const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 class Hue extends utils.Adapter {
     /** Timeout for next polling */
     private pollingInterval?: NodeJS.Timeout;
-    /** Timeout for reconnect */
+    /** Timeout for reconnecting */
     private reconnectTimeout?: NodeJS.Timeout;
 
     /** Instance of the Hue API */
@@ -254,7 +254,7 @@ class Hue extends utils.Adapter {
 
         if (dp.startsWith('scene_')) {
             try {
-                // it's a scene -> get scene id to start it
+                // it's a scene -> get a scene id to start it
                 const obj = await this.getForeignObjectAsync(id);
                 const groupState = new v3.lightStates.GroupLightState();
 
@@ -273,7 +273,7 @@ class Hue extends utils.Adapter {
             return;
         }
 
-        // check if its a sensor
+        // check if it is a sensor
         const channelId = id.substring(0, id.lastIndexOf('.'));
 
         let channelObj;
@@ -325,11 +325,11 @@ class Hue extends utils.Adapter {
             if (state.val) {
                 // turn streaming on
                 this.log.debug(`Enable streaming of ${id} (${groupIds[id]})`);
-                this.api.groups.enableStreaming(groupIds[id]);
+                await this.api.groups.enableStreaming(groupIds[id]);
             } else {
                 //turn streaming off
                 this.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
-                this.api.groups.disableStreaming(groupIds[id]);
+                await this.api.groups.disableStreaming(groupIds[id]);
             }
             return;
         }
@@ -341,7 +341,7 @@ class Hue extends utils.Adapter {
 
         const fullIdBase = `${tmp.join('.')}.`;
 
-        // if .on changed instead change .bri to 254 or 0, except it is a switch which has no brightness
+        // if .on changed instead change .bri to 254 or 0, except it is a switch that has no brightness
         let bri = 0;
         if (
             dp === 'on' &&
@@ -349,13 +349,13 @@ class Hue extends utils.Adapter {
             !(channelObj && channelObj.common && channelObj.common.role === 'switch')
         ) {
             bri = state.val ? 254 : 0;
-            this.setState([id, 'bri'].join('.'), { val: bri, ack: false });
+            await this.setStateAsync([id, 'bri'].join('.'), { val: bri, ack: false });
             return;
         }
         // if .level changed instead change .bri to level.val*254
         if (dp === 'level' && typeof state.val === 'number') {
             bri = hueHelper.levelToBrightness(state.val);
-            this.setState([id, 'bri'].join('.'), { val: bri, ack: false });
+            await this.setStateAsync([id, 'bri'].join('.'), { val: bri, ack: false });
             return;
         }
         // get lamp states
@@ -573,7 +573,7 @@ class Hue extends utils.Adapter {
             }
             lightState = lightState.bri(bri);
             finalLS.bri = bri;
-            // if nativeTurnOnOffBehaviour -> only turn group on if no lamp is on yet on brightness change
+            // if nativeTurnOnOffBehaviour -> only turn a group on if no lamp is on yet on brightness change
             if (!this.config.nativeTurnOffBehaviour || !alls['anyOn']) {
                 finalLS.on = true;
                 lightState = lightState.on(true);
@@ -781,7 +781,7 @@ class Hue extends utils.Adapter {
             finalLS.level = Math.max(Math.min(Math.round(finalLS.bri / 2.54), 100), 0);
         }
 
-        // if dp is on, and we use native turn off behaviour only set the lightState
+        // if dp is on, and we use native turn-off behaviour only set the lightState
         if (dp === 'on' && this.config.nativeTurnOffBehaviour) {
             // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
             lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
@@ -1136,14 +1136,14 @@ class Hue extends utils.Adapter {
         }
 
         if (update.type === 'grouped_light' || update.type === 'entertainment_configuration') {
-            this.handleGroupUpdate(id, update);
+            await this.handleGroupUpdate(id, update);
             return;
         }
 
         if (
             ['motion', 'temperature', 'light_level', 'device_power', 'button', 'relative_rotary'].includes(update.type)
         ) {
-            this.handleSensorUpdate(id, update);
+            await this.handleSensorUpdate(id, update);
             return;
         }
 
@@ -1166,28 +1166,28 @@ class Hue extends utils.Adapter {
      * @param id id of the sensor
      * @param update the update sent by bridge
      */
-    handleSensorUpdate(id: number, update: BridgeUpdate): void {
+    async handleSensorUpdate(id: number, update: BridgeUpdate): void {
         const channelName = this.getSensorChannelById(id);
 
         if (update.temperature?.temperature_valid) {
-            this.setState(`${channelName}.temperature`, update.temperature.temperature, true);
+            await this.setStateAsync(`${channelName}.temperature`, update.temperature.temperature, true);
         }
 
         if (update.motion?.motion_valid) {
-            this.setState(`${channelName}.presence`, update.motion.motion, true);
+            await this.setStateAsync(`${channelName}.presence`, update.motion.motion, true);
         }
 
         if (update.light?.light_level_valid) {
-            this.setState(`${channelName}.lightlevel`, update.light.light_level, true);
+            await this.setStateAsync(`${channelName}.lightlevel`, update.light.light_level, true);
         }
 
         if (update.power_state) {
-            this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
+            await this.setStateAsync(`${channelName}.battery`, update.power_state.battery_level, true);
         }
 
         if (update.button?.button_report) {
-            this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
-            this.setState(
+            await this.setStateAsync(`${channelName}.lastupdated`, update.button.button_report.updated, true);
+            await this.setStateAsync(
                 `${channelName}.buttonevent`,
                 this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }),
                 true
@@ -1195,8 +1195,8 @@ class Hue extends utils.Adapter {
         }
 
         if (update.relative_rotary?.rotary_report) {
-            this.setState(`${channelName}.lastupdated`, update.relative_rotary.rotary_report.updated, true);
-            this.setState(
+            await this.setStateAsync(`${channelName}.lastupdated`, update.relative_rotary.rotary_report.updated, true);
+            await this.setStateAsync(
                 `${channelName}.rotaryevent`,
                 update.relative_rotary.rotary_report.action === 'start' ? 1 : 2,
                 true
@@ -1207,7 +1207,7 @@ class Hue extends utils.Adapter {
     /**
      * Transform button event from push api to poll api code
      *
-     * @param options update related information like event type and uuid
+     * @param options update related information like an event type and uuid
      */
     transformButtonEvent(options: { event: ButtonEventType; id: string }): number {
         const { event, id } = options;
@@ -1227,20 +1227,28 @@ class Hue extends utils.Adapter {
         const channelName = this.getLightChannelById(id);
 
         if (update.on) {
-            this.setState(`${channelName}.on`, update.on.on, true);
+            await this.setStateAsync(`${channelName}.on`, update.on.on, true);
         }
 
         if (update.dimming) {
-            this.setState(`${channelName}.level`, Math.round(update.dimming.brightness), true);
-            this.setState(`${channelName}.bri`, hueHelper.levelToBrightness(update.dimming.brightness), true);
+            await this.setStateAsync(`${channelName}.level`, Math.round(update.dimming.brightness), true);
+            await this.setStateAsync(
+                `${channelName}.bri`,
+                hueHelper.levelToBrightness(update.dimming.brightness),
+                true
+            );
         }
 
         if (update.color_temperature?.mirek_valid) {
-            this.setState(`${channelName}.ct`, hueHelper.miredToKelvin(update.color_temperature.mirek!), true);
+            await this.setStateAsync(
+                `${channelName}.ct`,
+                hueHelper.miredToKelvin(update.color_temperature.mirek!),
+                true
+            );
         }
 
         if (update.color) {
-            this.setState(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
+            await this.setStateAsync(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
             await this.updateColorStatesByXY(channelName, update.color.xy.x, update.color.xy.y);
         }
     }
@@ -1263,9 +1271,9 @@ class Hue extends utils.Adapter {
 
         const { Red, Green, Blue } = hueHelper.XYBtoRGB(x, y, bri / 254);
 
-        this.setState(`${channelName}.r`, Math.round(Red * 254), true);
-        this.setState(`${channelName}.g`, Math.round(Green * 254), true);
-        this.setState(`${channelName}.b`, Math.round(Blue * 254), true);
+        await this.setStateAsync(`${channelName}.r`, Math.round(Red * 254), true);
+        await this.setStateAsync(`${channelName}.g`, Math.round(Green * 254), true);
+        await this.setStateAsync(`${channelName}.b`, Math.round(Blue * 254), true);
 
         /** TODO: this converts to wrong HS values
         const { Ang, Sat } = hueHelper.RgbToHsv(Red, Green, Blue);
@@ -1281,7 +1289,7 @@ class Hue extends utils.Adapter {
      * @param id id of the group
      * @param update the update sent by bridge
      */
-    handleGroupUpdate(id: number, update: BridgeUpdate): void {
+    async handleGroupUpdate(id: number, update: BridgeUpdate): void {
         const channelName = this.getGroupChannelById(id);
 
         if (!channelName) {
@@ -1290,11 +1298,11 @@ class Hue extends utils.Adapter {
         }
 
         if (update.on) {
-            this.setState(`${channelName}.on`, update.on.on, true);
+            await this.setStateAsync(`${channelName}.on`, update.on.on, true);
         }
 
         if (update.active_streamer) {
-            this.setState(`${channelName}.activeStream`, update.status === 'active', true);
+            await this.setStateAsync(`${channelName}.activeStream`, update.status === 'active', true);
         }
     }
 
