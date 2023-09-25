@@ -9,7 +9,7 @@
  * @param Red R-value
  * @param Green G-value
  * @param Blue B-value
- * @param model - Modelname of the Light to Gamutcorrect Px, Py for
+ * @param model - Model name of the Light to Gamut correct Px, Py for
  */
 export declare function RgbToXYB(Red: number, Green: number, Blue: number, model: string): {
     x: number;

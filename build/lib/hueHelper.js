@@ -12,7 +12,7 @@ exports.levelToBrightness = exports.miredToKelvin = exports.XYBtoRGB = exports.R
  * @param Red R-value
  * @param Green G-value
  * @param Blue B-value
- * @param model - Modelname of the Light to Gamutcorrect Px, Py for
+ * @param model - Model name of the Light to Gamut correct Px, Py for
  */
 function RgbToXYB(Red, Green, Blue, model) {
     const Point = HelperRGBtoXY(Red, Green, Blue);

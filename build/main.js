@@ -169,7 +169,7 @@ class Hue extends utils.Adapter {
         let dp = tmp.pop();
         if (dp.startsWith('scene_')) {
             try {
-                // it's a scene -> get scene id to start it
+                // it's a scene -> get a scene id to start it
                 const obj = await this.getForeignObjectAsync(id);
                 const groupState = new node_hue_api_1.v3.lightStates.GroupLightState();
                 if (!obj) {
@@ -184,7 +184,7 @@ class Hue extends utils.Adapter {
             }
             return;
         }
-        // check if its a sensor
+        // check if it is a sensor
         const channelId = id.substring(0, id.lastIndexOf('.'));
         let channelObj;
         try {
@@ -235,12 +235,12 @@ class Hue extends utils.Adapter {
             if (state.val) {
                 // turn streaming on
                 this.log.debug(`Enable streaming of ${id} (${groupIds[id]})`);
-                this.api.groups.enableStreaming(groupIds[id]);
+                await this.api.groups.enableStreaming(groupIds[id]);
             }
             else {
                 //turn streaming off
                 this.log.debug(`Disable streaming of ${id} (${groupIds[id]})`);
-                this.api.groups.disableStreaming(groupIds[id]);
+                await this.api.groups.disableStreaming(groupIds[id]);
             }
             return;
         }
@@ -249,19 +249,19 @@ class Hue extends utils.Adapter {
             dp = 'on';
         }
         const fullIdBase = `${tmp.join('.')}.`;
-        // if .on changed instead change .bri to 254 or 0, except it is a switch which has no brightness
+        // if .on changed instead change .bri to 254 or 0, except it is a switch that has no brightness
         let bri = 0;
         if (dp === 'on' &&
             !this.config.nativeTurnOffBehaviour &&
             !(channelObj && channelObj.common && channelObj.common.role === 'switch')) {
             bri = state.val ? 254 : 0;
-            this.setState([id, 'bri'].join('.'), { val: bri, ack: false });
+            await this.setStateAsync([id, 'bri'].join('.'), { val: bri, ack: false });
             return;
         }
         // if .level changed instead change .bri to level.val*254
         if (dp === 'level' && typeof state.val === 'number') {
             bri = hueHelper.levelToBrightness(state.val);
-            this.setState([id, 'bri'].join('.'), { val: bri, ack: false });
+            await this.setStateAsync([id, 'bri'].join('.'), { val: bri, ack: false });
             return;
         }
         // get lamp states
@@ -468,7 +468,7 @@ class Hue extends utils.Adapter {
             }
             lightState = lightState.bri(bri);
             finalLS.bri = bri;
-            // if nativeTurnOnOffBehaviour -> only turn group on if no lamp is on yet on brightness change
+            // if nativeTurnOnOffBehaviour -> only turn a group on if no lamp is on yet on brightness change
             if (!this.config.nativeTurnOffBehaviour || !alls['anyOn']) {
                 finalLS.on = true;
                 lightState = lightState.on(true);
@@ -659,7 +659,7 @@ class Hue extends utils.Adapter {
         if ('bri' in finalLS) {
             finalLS.level = Math.max(Math.min(Math.round(finalLS.bri / 2.54), 100), 0);
         }
-        // if dp is on, and we use native turn off behaviour only set the lightState
+        // if dp is on, and we use native turn-off behaviour only set the lightState
         if (dp === 'on' && this.config.nativeTurnOffBehaviour) {
             // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
             lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
@@ -982,11 +982,11 @@ class Hue extends utils.Adapter {
             return;
         }
         if (update.type === 'grouped_light' || update.type === 'entertainment_configuration') {
-            this.handleGroupUpdate(id, update);
+            await this.handleGroupUpdate(id, update);
             return;
         }
         if (['motion', 'temperature', 'light_level', 'device_power', 'button', 'relative_rotary'].includes(update.type)) {
-            this.handleSensorUpdate(id, update);
+            await this.handleSensorUpdate(id, update);
             return;
         }
         if (update.type === 'zigbee_connectivity') {
@@ -1005,34 +1005,34 @@ class Hue extends utils.Adapter {
      * @param id id of the sensor
      * @param update the update sent by bridge
      */
-    handleSensorUpdate(id, update) {
+    async handleSensorUpdate(id, update) {
         var _a, _b, _c, _d, _e;
         const channelName = this.getSensorChannelById(id);
         if ((_a = update.temperature) === null || _a === void 0 ? void 0 : _a.temperature_valid) {
-            this.setState(`${channelName}.temperature`, update.temperature.temperature, true);
+            await this.setStateAsync(`${channelName}.temperature`, update.temperature.temperature, true);
         }
         if ((_b = update.motion) === null || _b === void 0 ? void 0 : _b.motion_valid) {
-            this.setState(`${channelName}.presence`, update.motion.motion, true);
+            await this.setStateAsync(`${channelName}.presence`, update.motion.motion, true);
         }
         if ((_c = update.light) === null || _c === void 0 ? void 0 : _c.light_level_valid) {
-            this.setState(`${channelName}.lightlevel`, update.light.light_level, true);
+            await this.setStateAsync(`${channelName}.lightlevel`, update.light.light_level, true);
         }
         if (update.power_state) {
-            this.setState(`${channelName}.battery`, update.power_state.battery_level, true);
+            await this.setStateAsync(`${channelName}.battery`, update.power_state.battery_level, true);
         }
         if ((_d = update.button) === null || _d === void 0 ? void 0 : _d.button_report) {
-            this.setState(`${channelName}.lastupdated`, update.button.button_report.updated, true);
-            this.setState(`${channelName}.buttonevent`, this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }), true);
+            await this.setStateAsync(`${channelName}.lastupdated`, update.button.button_report.updated, true);
+            await this.setStateAsync(`${channelName}.buttonevent`, this.transformButtonEvent({ event: update.button.button_report.event, id: update.id }), true);
         }
         if ((_e = update.relative_rotary) === null || _e === void 0 ? void 0 : _e.rotary_report) {
-            this.setState(`${channelName}.lastupdated`, update.relative_rotary.rotary_report.updated, true);
-            this.setState(`${channelName}.rotaryevent`, update.relative_rotary.rotary_report.action === 'start' ? 1 : 2, true);
+            await this.setStateAsync(`${channelName}.lastupdated`, update.relative_rotary.rotary_report.updated, true);
+            await this.setStateAsync(`${channelName}.rotaryevent`, update.relative_rotary.rotary_report.action === 'start' ? 1 : 2, true);
         }
     }
     /**
      * Transform button event from push api to poll api code
      *
-     * @param options update related information like event type and uuid
+     * @param options update related information like an event type and uuid
      */
     transformButtonEvent(options) {
         var _a, _b, _c;
@@ -1050,17 +1050,17 @@ class Hue extends utils.Adapter {
         var _a;
         const channelName = this.getLightChannelById(id);
         if (update.on) {
-            this.setState(`${channelName}.on`, update.on.on, true);
+            await this.setStateAsync(`${channelName}.on`, update.on.on, true);
         }
         if (update.dimming) {
-            this.setState(`${channelName}.level`, Math.round(update.dimming.brightness), true);
-            this.setState(`${channelName}.bri`, hueHelper.levelToBrightness(update.dimming.brightness), true);
+            await this.setStateAsync(`${channelName}.level`, Math.round(update.dimming.brightness), true);
+            await this.setStateAsync(`${channelName}.bri`, hueHelper.levelToBrightness(update.dimming.brightness), true);
         }
         if ((_a = update.color_temperature) === null || _a === void 0 ? void 0 : _a.mirek_valid) {
-            this.setState(`${channelName}.ct`, hueHelper.miredToKelvin(update.color_temperature.mirek), true);
+            await this.setStateAsync(`${channelName}.ct`, hueHelper.miredToKelvin(update.color_temperature.mirek), true);
         }
         if (update.color) {
-            this.setState(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
+            await this.setStateAsync(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
             await this.updateColorStatesByXY(channelName, update.color.xy.x, update.color.xy.y);
         }
     }
@@ -1078,9 +1078,9 @@ class Hue extends utils.Adapter {
         }
         const bri = state.val;
         const { Red, Green, Blue } = hueHelper.XYBtoRGB(x, y, bri / 254);
-        this.setState(`${channelName}.r`, Math.round(Red * 254), true);
-        this.setState(`${channelName}.g`, Math.round(Green * 254), true);
-        this.setState(`${channelName}.b`, Math.round(Blue * 254), true);
+        await this.setStateAsync(`${channelName}.r`, Math.round(Red * 254), true);
+        await this.setStateAsync(`${channelName}.g`, Math.round(Green * 254), true);
+        await this.setStateAsync(`${channelName}.b`, Math.round(Blue * 254), true);
         /** TODO: this converts to wrong HS values
         const { Ang, Sat } = hueHelper.RgbToHsv(Red, Green, Blue);
 
@@ -1094,17 +1094,17 @@ class Hue extends utils.Adapter {
      * @param id id of the group
      * @param update the update sent by bridge
      */
-    handleGroupUpdate(id, update) {
+    async handleGroupUpdate(id, update) {
         const channelName = this.getGroupChannelById(id);
         if (!channelName) {
             this.log.debug(`Could not handle update of group "${id}", because no matching channel found`);
             return;
         }
         if (update.on) {
-            this.setState(`${channelName}.on`, update.on.on, true);
+            await this.setStateAsync(`${channelName}.on`, update.on.on, true);
         }
         if (update.active_streamer) {
-            this.setState(`${channelName}.activeStream`, update.status === 'active', true);
+            await this.setStateAsync(`${channelName}.activeStream`, update.status === 'active', true);
         }
     }
     /**
@@ -2026,7 +2026,7 @@ class Hue extends utils.Adapter {
                         this.log.info(`Sensor ${sensorName} has been removed from bridge`);
                         noDevices--;
                         pollSensors.splice(pollSensors.findIndex(item => item.id === pollSensor.id), 1);
-                        // if recursive deletion is supported we delete the object
+                        // if recursive deletion is supported, we delete the object
                         if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                             this.log.info(`Deleting ${this.namespace}.${this.config.useLegacyStructure
                                 ? `${config.config.name.replace(/[\s.]/g, '_')}.${sensorName}`
@@ -2071,7 +2071,7 @@ class Hue extends utils.Adapter {
                         this.log.info(`Light ${lightName} has been removed from bridge`);
                         noDevices--;
                         pollLights.splice(pollLights.findIndex(item => item.id === pollLight.id), 1);
-                        // if recursive deletion is supported we delete the object
+                        // if recursive deletion is supported, we delete the object
                         if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                             this.log.info(`Deleting ${this.namespace}.${this.config.useLegacyStructure
                                 ? `${config.config.name.replace(/[\s.]/g, '_')}.${lightName}`
@@ -2146,7 +2146,7 @@ class Hue extends utils.Adapter {
                         // Group 0 needs extra polling
                         if (pollGroup.id !== '0') {
                             const states = {};
-                            // save name before changing group
+                            // save name before a group changing
                             const groupName = pollGroup.name;
                             if (groups[pollGroup.id] !== undefined) {
                                 group = groups[pollGroup.id];
@@ -2155,7 +2155,7 @@ class Hue extends utils.Adapter {
                                 // detect removed groups
                                 this.log.info(`Group ${pollGroup.name} has been removed from bridge`);
                                 noDevices--;
-                                // if recursive deletion is supported we delete the object
+                                // if recursive deletion is supported, we delete the object
                                 if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                                     this.log.info(`Deleting ${this.namespace}.${this.config.useLegacyStructure
                                         ? `${config.config.name.replace(/[\s.]/g, '_')}.${pollGroup.name}`
@@ -2209,7 +2209,7 @@ class Hue extends utils.Adapter {
                                     delete states.ct;
                                 }
                             }
-                            // Next two are entertainment states
+                            // The next two are entertainment states
                             if (group.class) {
                                 states.class = group.class;
                             }
@@ -2235,7 +2235,7 @@ class Hue extends utils.Adapter {
                         }
                         else {
                             // poll the 0 - ALL group
-                            this.updateGroupState(pollGroup);
+                            await this.updateGroupState(pollGroup);
                         }
                     }
                 }
@@ -2259,9 +2259,8 @@ class Hue extends utils.Adapter {
             await this.setStateChangedAsync('info.connection', false, true);
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
-        if (!this.pollingInterval) {
-            this.pollingInterval = setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
-        }
+        this.pollingInterval =
+            this.pollingInterval || setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
     }
     /**
      * Convert the temperature reading

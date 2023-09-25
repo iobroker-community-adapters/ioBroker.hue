@@ -1166,7 +1166,7 @@ class Hue extends utils.Adapter {
      * @param id id of the sensor
      * @param update the update sent by bridge
      */
-    async handleSensorUpdate(id: number, update: BridgeUpdate): void {
+    async handleSensorUpdate(id: number, update: BridgeUpdate): Promise<void> {
         const channelName = this.getSensorChannelById(id);
 
         if (update.temperature?.temperature_valid) {
@@ -1289,7 +1289,7 @@ class Hue extends utils.Adapter {
      * @param id id of the group
      * @param update the update sent by bridge
      */
-    async handleGroupUpdate(id: number, update: BridgeUpdate): void {
+    async handleGroupUpdate(id: number, update: BridgeUpdate): Promise<void> {
         const channelName = this.getGroupChannelById(id);
 
         if (!channelName) {
