@@ -18,13 +18,13 @@
     "Philips HUE adapter settings": "Philips HUE Adaptereinstellungen",
     "Please wait, searching for bridge.": "Bitte warten, suche nach Bridge.",
     "Polling": "Polling",
-    "Polling interval (sec)": "Pollintervall(sek)",
+    "Polling interval (sec)": "Abfrageintervall (sek)",
     "Select a bridge:": "Wähle eine Bridge aus:",
     "Settings": "Einstellungen",
     "Sync software sensors": "Software-Sensoren synchronisieren",
     "error creating user: ": "Fehler beim Erzeugen des Benutzers: ",
     "error finding bridge": "Fehler beim Finden der Brücke",
     "ignoreOsram": "ignoriere Osram",
-    "link button not pressed": "Link-Knopf nicht gedruckt",
+    "link button not pressed": "Link-Knopf nicht gedrückt",
     "polling_warning": "Hinweis: Der Adapter kann nur 10 Befehle in 1 Sekunde senden."
 }
