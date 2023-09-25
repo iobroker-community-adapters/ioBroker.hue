@@ -2330,7 +2330,7 @@ class Hue extends utils.Adapter {
                             pollSensors.findIndex(item => item.id === pollSensor.id),
                             1
                         );
-                        // if recursive deletion is supported we delete the object
+                        // if recursive deletion is supported, we delete the object
                         if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                             this.log.info(
                                 `Deleting ${this.namespace}.${
@@ -2393,7 +2393,7 @@ class Hue extends utils.Adapter {
                             pollLights.findIndex(item => item.id === pollLight.id),
                             1
                         );
-                        // if recursive deletion is supported we delete the object
+                        // if recursive deletion is supported, we delete the object
                         if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                             this.log.info(
                                 `Deleting ${this.namespace}.${
@@ -2490,7 +2490,7 @@ class Hue extends utils.Adapter {
                         if (pollGroup.id !== '0') {
                             const states: Record<string, any> = {};
 
-                            // save name before changing group
+                            // save name before a group changing
                             const groupName = pollGroup.name;
 
                             if (groups[pollGroup.id] !== undefined) {
@@ -2499,7 +2499,7 @@ class Hue extends utils.Adapter {
                                 // detect removed groups
                                 this.log.info(`Group ${pollGroup.name} has been removed from bridge`);
                                 noDevices--;
-                                // if recursive deletion is supported we delete the object
+                                // if recursive deletion is supported, we delete the object
                                 if (this.supportsFeature && this.supportsFeature('ADAPTER_DEL_OBJECT_RECURSIVE')) {
                                     this.log.info(
                                         `Deleting ${this.namespace}.${
@@ -2575,7 +2575,7 @@ class Hue extends utils.Adapter {
                                 }
                             }
 
-                            // Next two are entertainment states
+                            // The next two are entertainment states
                             if (group.class) {
                                 states.class = group.class;
                             }
@@ -2604,7 +2604,7 @@ class Hue extends utils.Adapter {
                             });
                         } else {
                             // poll the 0 - ALL group
-                            this.updateGroupState(pollGroup);
+                            await this.updateGroupState(pollGroup);
                         }
                     }
                 }
@@ -2628,9 +2628,8 @@ class Hue extends utils.Adapter {
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
 
-        if (!this.pollingInterval) {
-            this.pollingInterval = setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
-        }
+        this.pollingInterval =
+            this.pollingInterval || setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
     }
 
     /**
