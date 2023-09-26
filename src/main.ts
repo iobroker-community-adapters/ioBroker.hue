@@ -273,7 +273,7 @@ class Hue extends utils.Adapter {
             return;
         }
 
-        // check if its a sensor
+        // check if it's a sensor
         const channelId = id.substring(0, id.lastIndexOf('.'));
 
         let channelObj;
