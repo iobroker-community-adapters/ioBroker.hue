@@ -28,7 +28,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.0.3",
+    "@iobroker/adapter-core": "^3.0.4",
     "hue-push-client": "^1.0.5",
     "node-hue-api": "^4.0.11"
   },
