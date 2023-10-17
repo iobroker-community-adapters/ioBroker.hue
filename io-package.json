@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.10.0",
+    "version": "3.10.1",
     "tier": 2,
     "news": {
+      "3.10.1": {
+        "en": "fixed frontend/backend communication (closes #481)",
+        "de": "feste frontend/backd-kommunikation (schließt #481)",
+        "ru": "фиксированное frontend/backend сообщение (closes #481)",
+        "pt": "comunicação frontend/backend fixo (fecha #481)",
+        "nl": "vertaling:",
+        "fr": "communication fixe frontend/backend (ferme #481)",
+        "it": "comunicazione fisso frontend/backend (chiude #481)",
+        "es": "comunicación de frontend fijo/backend (cerca #481)",
+        "pl": "komunikat ustalony (odcinek #481)",
+        "uk": "фіксований передній / зворотній зв'язок (закривається #481)",
+        "zh-cn": "固定前线/后端通信(第481号)"
+      },
       "3.10.0": {
         "en": "fixed problem on auto-deletion of groups\nimplemented Hue Tap Dial (closes #368, closes #416)",
         "de": "problem bei der auto-deleetion von gruppen behoben\ndurchgeführt Hue Tap Dial (schließt #368, schließt #416)",
@@ -81,19 +94,6 @@
         "pl": "reakcja czujnika (zamknięta #415)",
         "uk": "перетворення датчика (закривається #415)",
         "zh-cn": "fix 转换传感器(第415)"
-      },
-      "3.9.1": {
-        "en": "implemented more commands of the Push API (mainly buttons)",
-        "de": "mehr Befehle der Push-API implementiert (hauptsächlich Buttons)",
-        "ru": "реализовали больше команд Push API (в основном кнопки)",
-        "pt": "implementou mais comandos da API Push (principalmente botões)",
-        "nl": "voerde meer commando's van de Push API (mainly knopen)",
-        "fr": "implémenté plus de commandes de l'API Push (principalement des boutons)",
-        "it": "implementato più comandi dell'API Push (principalmente pulsanti)",
-        "es": "implementó más comandos de la API Push (principalmente botones)",
-        "pl": "zaimplementowano bardziej nadrzędne API Push (głównie guzki)",
-        "uk": "реалізовано більше команд Push API (головно кнопки)",
-        "zh-cn": "普什·阿普惠制(主要但州)的指挥"
       }
     },
     "titleLang": {
