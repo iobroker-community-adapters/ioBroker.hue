@@ -213,25 +213,23 @@ class Hue extends utils.Adapter {
             switch (obj.command) {
                 case 'browse': {
                     const res = await this.browse(obj.message);
+                    this.log.warn(JSON.stringify(res));
                     if (obj.callback) {
-                        // @ts-expect-error need to check
-                        await this.sendToAsync(obj.from, obj.command, res, obj.callback);
+                        this.sendTo(obj.from, obj.command, res, obj.callback);
                     }
                     break;
                 }
                 case 'createUser': {
                     const res = await this.createUser(obj.message as string);
                     if (obj.callback) {
-                        // @ts-expect-error need to check
-                        await this.sendToAsync(obj.from, obj.command, res, obj.callback);
+                        this.sendTo(obj.from, obj.command, res, obj.callback);
                     }
                     break;
                 }
                 default:
                     this.log.warn(`Unknown command: ${obj.command}`);
                     if (obj.callback) {
-                        // @ts-expect-error need to check
-                        await this.sendToAsync(obj.from, obj.command, obj.message, obj.callback);
+                        this.sendTo(obj.from, obj.command, obj.message, obj.callback);
                     }
                     break;
             }
