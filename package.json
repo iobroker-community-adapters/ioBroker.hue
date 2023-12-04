@@ -43,7 +43,7 @@
     "axios": "^1.6.2",
     "chai": "^4.3.10",
     "eslint": "^8.54.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
     "gulp": "^4.0.2",
     "mocha": "^10.2.0",
