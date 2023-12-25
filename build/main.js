@@ -69,6 +69,8 @@ class Hue extends utils.Adapter {
         super({ ...options, name: 'hue' });
         /** Object which contains all UUIDs and the corresponding metadata */
         this.UUIDs = {};
+        /** Time to wait before between setting and polling group state */
+        this.GROUP_UPDATE_DELAY_MS = 150;
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('message', this.onMessage.bind(this));
@@ -680,9 +682,10 @@ class Hue extends utils.Adapter {
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.groups.setGroupState(groupIds[id], lightState);
+                await this.delay(this.GROUP_UPDATE_DELAY_MS);
                 await this.updateGroupState({
                     id: groupIds[id],
-                    name: obj._id.substr(this.namespace.length + 1)
+                    name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
             }
@@ -701,7 +704,7 @@ class Hue extends utils.Adapter {
                     await this.api.lights.setLightState(channelIds[id], lightState);
                     await this.updateLightState({
                         id: channelIds[id],
-                        name: obj._id.substr(this.namespace.length + 1)
+                        name: obj._id.substring(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
                 }
@@ -720,7 +723,7 @@ class Hue extends utils.Adapter {
                 await this.api.lights.setLightState(channelIds[id], lightState);
                 await this.updateLightState({
                     id: channelIds[id],
-                    name: obj._id.substr(this.namespace.length + 1)
+                    name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
             }
@@ -1158,7 +1161,7 @@ class Hue extends utils.Adapter {
         }
         if (!(config === null || config === void 0 ? void 0 : config.config)) {
             this.log.warn(`Could not get configuration from HUE bridge (${this.config.bridge}:${this.config.port})`);
-            this.reconnectTimeout = setTimeout(() => {
+            this.reconnectTimeout = this.setTimeout(() => {
                 this.reconnectTimeout = undefined;
                 this.connect();
             }, 5000);
@@ -2258,7 +2261,7 @@ class Hue extends utils.Adapter {
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
         this.pollingInterval =
-            this.pollingInterval || setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
+            this.pollingInterval || this.setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
     }
     /**
      * Convert the temperature reading

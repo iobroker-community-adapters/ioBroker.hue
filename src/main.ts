@@ -127,9 +127,9 @@ const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 class Hue extends utils.Adapter {
     /** Timeout for next polling */
-    private pollingInterval?: NodeJS.Timeout;
+    private pollingInterval?: NodeJS.Timeout | void;
     /** Timeout for reconnecting */
-    private reconnectTimeout?: NodeJS.Timeout;
+    private reconnectTimeout?: NodeJS.Timeout | void;
 
     /** Instance of the Hue API */
     private api!: Api;
@@ -137,6 +137,9 @@ class Hue extends utils.Adapter {
     private pushClient: any;
     /** Object which contains all UUIDs and the corresponding metadata */
     private UUIDs: Record<string, any> = {};
+
+    /** Time to wait before between setting and polling group state */
+    private GROUP_UPDATE_DELAY_MS = 150;
 
     constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'hue' });
@@ -804,9 +807,10 @@ class Hue extends utils.Adapter {
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.groups.setGroupState(groupIds[id], lightState);
+                await this.delay(this.GROUP_UPDATE_DELAY_MS);
                 await this.updateGroupState({
                     id: groupIds[id],
-                    name: obj._id.substr(this.namespace.length + 1)
+                    name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
             } catch (e: any) {
@@ -824,7 +828,7 @@ class Hue extends utils.Adapter {
                     await this.api.lights.setLightState(channelIds[id], lightState);
                     await this.updateLightState({
                         id: channelIds[id],
-                        name: obj._id.substr(this.namespace.length + 1)
+                        name: obj._id.substring(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
                 } catch (e: any) {
@@ -841,7 +845,7 @@ class Hue extends utils.Adapter {
                 await this.api.lights.setLightState(channelIds[id], lightState);
                 await this.updateLightState({
                     id: channelIds[id],
-                    name: obj._id.substr(this.namespace.length + 1)
+                    name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
             } catch (e: any) {
@@ -1362,7 +1366,7 @@ class Hue extends utils.Adapter {
 
         if (!config?.config) {
             this.log.warn(`Could not get configuration from HUE bridge (${this.config.bridge}:${this.config.port})`);
-            this.reconnectTimeout = setTimeout(() => {
+            this.reconnectTimeout = this.setTimeout(() => {
                 this.reconnectTimeout = undefined;
                 this.connect();
             }, 5_000);
@@ -2627,7 +2631,7 @@ class Hue extends utils.Adapter {
         }
 
         this.pollingInterval =
-            this.pollingInterval || setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
+            this.pollingInterval || this.setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
     }
 
     /**
