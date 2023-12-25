@@ -127,9 +127,9 @@ const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 class Hue extends utils.Adapter {
     /** Timeout for next polling */
-    private pollingInterval?: NodeJS.Timeout | void;
+    private pollingInterval?: ioBroker.Timeout;
     /** Timeout for reconnecting */
-    private reconnectTimeout?: NodeJS.Timeout | void;
+    private reconnectTimeout?: ioBroker.Timeout;
 
     /** Instance of the Hue API */
     private api!: Api;

@@ -1572,14 +1572,14 @@ class Hue extends utils.Adapter {
             }
             const groups = config.groups;
             groups[0] = {
-                name: 'All',
+                name: 'All', // "Lightset 0"
                 type: 'LightGroup',
                 id: 0,
                 action: {
                     alert: 'select',
                     bri: 0,
                     colormode: '',
-                    ct: 454,
+                    ct: 454, // min value, else it gets inf
                     effect: 'none',
                     hue: 0,
                     on: false,
