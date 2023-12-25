@@ -74,6 +74,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (foxriver76) remove immediate poll after setting state
+
 ### 3.10.2 (2023-12-25)
 * (foxriver76) bring back short delay between setting and polling a group
 * (foxriver76) use adapter internal timer methods

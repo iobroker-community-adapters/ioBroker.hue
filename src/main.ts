@@ -126,6 +126,8 @@ const SUPPORTED_SENSORS = [
 const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 
 class Hue extends utils.Adapter {
+    /** If currently unloading */
+    private unloading = false;
     /** Timeout for next polling */
     private pollingInterval?: ioBroker.Timeout;
     /** Timeout for reconnecting */
@@ -184,6 +186,7 @@ class Hue extends utils.Adapter {
      * @param callback
      */
     async onUnload(callback: () => void): Promise<void> {
+        this.unloading = true;
         try {
             if (this.pollingInterval) {
                 clearTimeout(this.pollingInterval);
@@ -807,12 +810,14 @@ class Hue extends utils.Adapter {
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.groups.setGroupState(groupIds[id], lightState);
+                /**
                 await this.delay(this.GROUP_UPDATE_DELAY_MS);
                 await this.updateGroupState({
                     id: groupIds[id],
                     name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
+                    */
             } catch (e: any) {
                 this.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
             }
@@ -826,11 +831,13 @@ class Hue extends utils.Adapter {
                 lightState.on(finalLS.on);
                 try {
                     await this.api.lights.setLightState(channelIds[id], lightState);
+                    /**
                     await this.updateLightState({
                         id: channelIds[id],
                         name: obj._id.substring(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
+                        */
                 } catch (e: any) {
                     this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
                 }
@@ -843,15 +850,19 @@ class Hue extends utils.Adapter {
 
             try {
                 await this.api.lights.setLightState(channelIds[id], lightState);
+                /**
                 await this.updateLightState({
                     id: channelIds[id],
                     name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
+                    */
             } catch (e: any) {
                 this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
             }
         }
+
+        blockedIds[id] = false;
     }
 
     /**
@@ -1090,11 +1101,18 @@ class Hue extends utils.Adapter {
         });
 
         this.pushClient.addEventListener('close', () => {
-            this.log.info('Push connection closed');
+            if (this.unloading) {
+                this.log.info('Push connection closed');
+            } else {
+                this.log.warn('Push connection closed');
+                this.createPushConnection();
+            }
         });
 
         this.pushClient.addEventListener('error', (e: any) => {
             this.log.info(`Push connection error: ${e.message}`);
+            this.pushClient.close();
+            this.createPushConnection();
         });
 
         this.pushClient.addEventListener('message', (message: any) => {
@@ -1686,6 +1704,7 @@ class Hue extends utils.Adapter {
                         lobj.common.role = 'level.dimmer';
                         lobj.common.min = 0;
                         lobj.common.max = 100;
+                        lobj.common.unit = '%';
                         break;
                     case 'hue':
                         lobj.common.type = 'number';
