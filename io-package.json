@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.10.1",
+    "version": "3.10.2",
     "tier": 2,
     "news": {
+      "3.10.2": {
+        "en": "bring back short delay between setting and polling a group\nuse adapter internal timer methods",
+        "de": "kurze verzögerung zwischen einstellung und abstimmung einer gruppe zurückbringen\nverwenden adapter interne timer methoden",
+        "ru": "вернуть короткую задержку между настройкой и опросом группы\nиспользовать адаптер внутренних таймер методы",
+        "pt": "trazer de volta um atraso curto entre a definição e a votação de um grupo\nusar métodos do temporizador interno do adaptador",
+        "nl": "breng korte vertraging terug tussen een groep\ngebruik adapter interne timer methodes",
+        "fr": "ramener un court délai entre la mise en place et le vote d'un groupe\nutiliser les méthodes de timer internes de l'adaptateur",
+        "it": "riportare breve ritardo tra l'impostazione e l'inquinamento di un gruppo\nutilizzare i metodi di timer interni dell'adattatore",
+        "es": "traer de vuelta breve retraso entre el ajuste y la encuesta de un grupo\nuso de adaptador de tiempo interno métodos",
+        "pl": "powracają krótkie opóźnienia pomiędzy ustawodawstwem a zanieczyszczeniem grupy\nmetoda adaptowania wewnętrznego czasu",
+        "uk": "повернути коротку затримку між встановленням та опитуванням групи\nвикористання методів внутрішнього таймера",
+        "zh-cn": "b. 成立和投票集团之间的短期延误\n利用内部时间方法"
+      },
       "3.10.1": {
         "en": "fixed frontend/backend communication (closes #481)",
         "de": "feste frontend/backd-kommunikation (schließt #481)",
@@ -81,19 +94,6 @@
         "pl": "rezultaty wypadków na nieznanych aktualizacjach (zamknięto #417)",
         "uk": "виправити випадки аварії на невідомих оновленнях (закривається #417)",
         "zh-cn": "fix 未知的推断事件(第417)"
-      },
-      "3.9.2": {
-        "en": "fix sensor converting (closes #415)",
-        "de": "fix-sensor-konvertierung (schließt #415)",
-        "ru": "преобразование датчика (closes #415)",
-        "pt": "corrigir a conversão do sensor (fecha #415)",
-        "nl": "vertaling:",
-        "fr": "convertir le capteur de fixation (fermetures #415)",
-        "it": "correzione della conversione del sensore (chiude #415)",
-        "es": "fija el sensor de conversión (cerca #415)",
-        "pl": "reakcja czujnika (zamknięta #415)",
-        "uk": "перетворення датчика (закривається #415)",
-        "zh-cn": "fix 转换传感器(第415)"
       }
     },
     "titleLang": {
