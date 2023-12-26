@@ -67,8 +67,6 @@ const SOFTWARE_SENSORS = ['CLIPGenericStatus', 'CLIPGenericFlag'];
 class Hue extends utils.Adapter {
     constructor(options = {}) {
         super({ ...options, name: 'hue' });
-        /** If currently unloading */
-        this.unloading = false;
         /** Object which contains all UUIDs and the corresponding metadata */
         this.UUIDs = {};
         /** Time to wait before between setting and polling group state */
@@ -106,7 +104,6 @@ class Hue extends utils.Adapter {
      * @param callback
      */
     async onUnload(callback) {
-        this.unloading = true;
         try {
             if (this.pollingInterval) {
                 clearTimeout(this.pollingInterval);
@@ -685,14 +682,12 @@ class Hue extends utils.Adapter {
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.groups.setGroupState(groupIds[id], lightState);
-                /**
                 await this.delay(this.GROUP_UPDATE_DELAY_MS);
                 await this.updateGroupState({
                     id: groupIds[id],
                     name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
-                    */
             }
             catch (e) {
                 this.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
@@ -707,13 +702,11 @@ class Hue extends utils.Adapter {
                 lightState.on(finalLS.on);
                 try {
                     await this.api.lights.setLightState(channelIds[id], lightState);
-                    /**
                     await this.updateLightState({
                         id: channelIds[id],
                         name: obj._id.substring(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
-                        */
                 }
                 catch (e) {
                     this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
@@ -728,19 +721,16 @@ class Hue extends utils.Adapter {
             this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.lights.setLightState(channelIds[id], lightState);
-                /**
                 await this.updateLightState({
                     id: channelIds[id],
                     name: obj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
-                    */
             }
             catch (e) {
                 this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
             }
         }
-        blockedIds[id] = false;
     }
     /**
      * Search for bridges via upnp and nupnp
@@ -953,18 +943,10 @@ class Hue extends utils.Adapter {
             }
         });
         this.pushClient.addEventListener('close', () => {
-            if (this.unloading) {
-                this.log.info('Push connection closed');
-            }
-            else {
-                this.log.warn('Push connection closed');
-                this.createPushConnection();
-            }
+            this.log.info('Push connection closed');
         });
         this.pushClient.addEventListener('error', (e) => {
             this.log.info(`Push connection error: ${e.message}`);
-            this.pushClient.close();
-            this.createPushConnection();
         });
         this.pushClient.addEventListener('message', (message) => {
             if (!message.data) {
@@ -1445,7 +1427,6 @@ class Hue extends utils.Adapter {
                         lobj.common.role = 'level.dimmer';
                         lobj.common.min = 0;
                         lobj.common.max = 100;
-                        lobj.common.unit = '%';
                         break;
                     case 'hue':
                         lobj.common.type = 'number';
