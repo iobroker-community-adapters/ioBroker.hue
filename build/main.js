@@ -387,8 +387,12 @@ class Hue extends utils.Adapter {
             try {
                 const commands = JSON.parse(state.val);
                 if (typeof commands.scene === 'string') {
-                    // we need to get the id of the scene
-                    const sceneObj = await this.getObjectAsync(`${channelId}.scene_${commands.scene.toLowerCase()}`);
+                    // we need to get the id of the scene - try the object scene-tree first
+                    let sceneObj = await this.getObjectAsync(`${channelId}.scene_${commands.scene.toLowerCase()}`);
+                    // if no id could be obtained, try the global scene-tree
+                    if (sceneObj === null) {
+                        sceneObj = await this.getObjectAsync(`${this.namespace}.lightScenes.scene_${commands.scene.toLowerCase()}`);
+                    }
                     if (sceneObj === null || sceneObj === void 0 ? void 0 : sceneObj.native) {
                         sceneId = sceneObj.native.id;
                     }
