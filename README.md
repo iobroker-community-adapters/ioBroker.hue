@@ -73,6 +73,8 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
+	* (seb2010) added possibility to use global light-scenes in commands (in addition to object-lightscene)
+
 -->
 ### 3.10.2 (2023-12-25)
 * (foxriver76) bring back short delay between setting and polling a group
