@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.10.2",
+    "version": "3.11.0",
     "tier": 2,
     "news": {
+      "3.11.0": {
+        "en": "added possibility to use global light-scenes in commands (in addition to object-lightscene)\ndropped support of node 16 (End-Of-Life)",
+        "de": "zusätzliche möglichkeit, globale lichtscene in befehlen zu verwenden ( zusätzlich zu objekt-lichtscene)\ndrop-Unterstützung von Knoten 16 (End-Of-Life)",
+        "ru": "добавлена возможность использования глобальных световых сцен в командах (в дополнение к объектно-легкому)\nсброс поддержки узла 16 (End-Of-Life)",
+        "pt": "possibilidade adicionada de usar cenas de luz globais em comandos (além do objeto-lightscene)\nsuporte do nó 16 (End-Of-Life)",
+        "nl": "toegevoegd mogelijkheid om globale licht-scenes te gebruiken in commando's (naast object-lightscene)\nde steun van knooppunt 16 (End-Of-Life) is ingetrokken",
+        "fr": "possibilité d'utiliser des scènes lumineuses globales dans les commandes (en plus de la scène lumineuse objet)\nsoutien abandonné du noeud 16 (fin de vie)",
+        "it": "possibilità aggiuntiva di utilizzare la luce-scena globale in comandi (oltre alla luce-oggetto)\nil supporto del nodo 16 (End-Of-Life)",
+        "es": "agregó la posibilidad de utilizar escenas de luz globales en comandos (además de la escena de objeto)\n(End-Of-Life)",
+        "pl": "dodana możliwość używania globalnych scen świetlnych w poleceniach (oprócz scen obiektów)\nupuszczone wsparcie węzła 16 (End- Of- Life)",
+        "uk": "додана можливість використання глобальних світлових осей в командах (на додаток до об'єкту-lightscene)\nскидання підтримки вузла 16 (End-Of-Life)",
+        "zh-cn": "添加在命令中使用全局光幕的可能性( 除了对象光幕)\n已放弃的节点16(生命结束)支持"
+      },
       "3.10.2": {
         "en": "bring back short delay between setting and polling a group\nuse adapter internal timer methods",
         "de": "kurze verzögerung zwischen einstellung und abstimmung einer gruppe zurückbringen\nverwenden adapter interne timer methoden",
@@ -81,19 +94,6 @@
         "pl": "sprawa skręcania krawędź przycisku\nw przypadku, gdy uuidy nie mogą zostać odzyskane",
         "uk": "виправлений випадок аварійного аварійного завершення на кнопка оновлення\nвиправити випадковий випадок, якщо слух не можна отримати",
         "zh-cn": "b. 固定案件坠落\nf 如果不能再婚,便发生意外事故。"
-      },
-      "3.9.3": {
-        "en": "fix crash cases on unknown push updates (closes #417)",
-        "de": "crash-fälle auf unbekannten push-updates beheben (schließt #417)",
-        "ru": "исправить случаи аварии на неизвестных push обновления (закрыты #417)",
-        "pt": "corrigir casos de acidente em atualizações de push desconhecidas (fecha #417)",
-        "nl": "vertaling:",
-        "fr": "corriger les cas de crash sur les mises à jour de poussée inconnues (fermeture #417)",
-        "it": "fix casi di crash su aggiornamenti push sconosciuti (chiude #417)",
-        "es": "solucionar casos de choque en actualizaciones de empuje desconocidas (cerca #417)",
-        "pl": "rezultaty wypadków na nieznanych aktualizacjach (zamknięto #417)",
-        "uk": "виправити випадки аварії на невідомих оновленнях (закривається #417)",
-        "zh-cn": "fix 未知的推断事件(第417)"
       }
     },
     "titleLang": {
