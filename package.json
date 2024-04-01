@@ -41,7 +41,7 @@
     "@peter-murray/hue-bridge-model": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "chai": "^4.3.10",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
