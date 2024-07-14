@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.11.0",
+    "version": "3.12.0",
     "tier": 2,
     "news": {
+      "3.12.0": {
+        "en": "`level` and `bri` states of groups are now updated via push API",
+        "de": "`level` und `bri` Gruppenzustände werden nun über Push-API aktualisiert",
+        "ru": "«уровень» и «бри» состояния групп теперь обновляются через push API",
+        "pt": "`level` e `bri` estados de grupos agora são atualizados via push API",
+        "nl": "De statussen van groepen worden nu bijgewerkt via push API",
+        "fr": "Les états `niveau` et `bri` des groupes sont maintenant mis à jour via l'API push",
+        "it": "`level` e `bri` stati di gruppi sono ora aggiornati via push API",
+        "es": "\" nivel \" y \" estado de grupos \" se actualizan ahora mediante la API push",
+        "pl": "'level' i 'bri' stany grup są teraz aktualizowane poprzez wciśnięcie API",
+        "uk": "`level` і `bri` стани груп тепер оновлено через push API",
+        "zh-cn": "\" 一级 \" 和 \" 布里 \" 群体状况现在通过推进API加以更新"
+      },
       "3.11.0": {
         "en": "added possibility to use global light-scenes in commands (in addition to object-lightscene)\ndropped support of node 16 (End-Of-Life)",
         "de": "zusätzliche möglichkeit, globale lichtscene in befehlen zu verwenden ( zusätzlich zu objekt-lichtscene)\ndrop-Unterstützung von Knoten 16 (End-Of-Life)",
@@ -81,19 +94,6 @@
         "pl": "przypadek katastrofy",
         "uk": "фіксований випадок аварії",
         "zh-cn": "固定事故"
-      },
-      "3.9.4": {
-        "en": "fixed edge case crash on button updates\nfix crash case if uuids can not be retrieved",
-        "de": "fester randfall auf knopfaktualisierung\nreparieren crash-fall, wenn uuids nicht abgerufen werden können",
-        "ru": "фикчированный случай аварии на обновления кнопки\nисправить случай аварии, если uuids не могут быть извлечены",
-        "pt": "falha de caso de borda fixa em atualizações de botão\ncorrigir caso de acidente se uuids não pode ser recuperado",
-        "nl": "vertaling:\nvertaling:",
-        "fr": "crash du boîtier de bord fixe sur les mises à jour du bouton\ncorriger le cas de crash si les uuids ne peuvent pas être récupérés",
-        "it": "crash caso bordo fisso sugli aggiornamenti del pulsante\nrisolvere caso crash se uuids non può essere recuperato",
-        "es": "bloqueo de caso de borde fijo en actualizaciones de botón\nsolucionar caso de accidente si uuids no se puede recuperar",
-        "pl": "sprawa skręcania krawędź przycisku\nw przypadku, gdy uuidy nie mogą zostać odzyskane",
-        "uk": "виправлений випадок аварійного аварійного завершення на кнопка оновлення\nвиправити випадковий випадок, якщо слух не можна отримати",
-        "zh-cn": "b. 固定案件坠落\nf 如果不能再婚,便发生意外事故。"
       }
     },
     "titleLang": {
