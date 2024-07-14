@@ -1305,6 +1305,15 @@ class Hue extends utils.Adapter {
             return;
         }
 
+        if (update.dimming) {
+            await this.setStateAsync(`${channelName}.level`, Math.round(update.dimming.brightness), true);
+            await this.setStateAsync(
+                `${channelName}.bri`,
+                hueHelper.levelToBrightness(update.dimming.brightness),
+                true
+            );
+        }
+
         if (update.on) {
             await this.setStateAsync(`${channelName}.on`, update.on.on, true);
         }

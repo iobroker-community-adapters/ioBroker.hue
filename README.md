@@ -74,6 +74,10 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+
+### __WORK IN PROGRESS__
+* (foxriver76) `level` and `bri` states of groups are now updated via push API
+
 ### 3.11.0 (2024-03-26)
 * (seb2010) added possibility to use global light-scenes in commands (in addition to object-lightscene)
 * (foxriver76) dropped support of node 16 (End-Of-Life)

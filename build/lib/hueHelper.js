@@ -5,7 +5,13 @@
  *
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.levelToBrightness = exports.miredToKelvin = exports.XYBtoRGB = exports.RgbToHsv = exports.GamutXYforModel = exports.HelperRGBtoXY = exports.RgbToXYB = void 0;
+exports.RgbToXYB = RgbToXYB;
+exports.HelperRGBtoXY = HelperRGBtoXY;
+exports.GamutXYforModel = GamutXYforModel;
+exports.RgbToHsv = RgbToHsv;
+exports.XYBtoRGB = XYBtoRGB;
+exports.miredToKelvin = miredToKelvin;
+exports.levelToBrightness = levelToBrightness;
 /**
  * Convert RGB value to XYB format
  *
@@ -21,7 +27,6 @@ function RgbToXYB(Red, Green, Blue, model) {
     const Gamuted = GamutXYforModel(Point.x, Point.y, model);
     return { x: Gamuted.x, y: Gamuted.y, b: bri };
 }
-exports.RgbToXYB = RgbToXYB;
 /**
  * @param Red - Range [0..1]
  * @param Green - Range [0..1]
@@ -59,7 +64,6 @@ function HelperRGBtoXY(Red, Green, Blue) {
     }
     return { x: X / (X + Y + Z), y: Y / (X + Y + Z) };
 }
-exports.HelperRGBtoXY = HelperRGBtoXY;
 /**
  * Tests if the Px,Py resides within the Gamut for the model.
  * Otherwise, it will calculate the closest point on the Gamut.
@@ -165,7 +169,6 @@ function GamutXYforModel(Px, Py, Model) {
         }
     }
 }
-exports.GamutXYforModel = GamutXYforModel;
 /**
  * @param Red - Range [0..1]
  * @param Green - Range [0..1]
@@ -193,7 +196,6 @@ function RgbToHsv(Red, Green, Blue) {
     const Bri = Max;
     return { Ang, Sat, Bri };
 }
-exports.RgbToHsv = RgbToHsv;
 /**
  * Converts XYB values to RGB
  *
@@ -293,7 +295,6 @@ function XYBtoRGB(x, y, Brightness) {
     }
     return { Red, Green, Blue };
 }
-exports.XYBtoRGB = XYBtoRGB;
 /**
  * Convert Mired to Kelvin
  *
@@ -302,7 +303,6 @@ exports.XYBtoRGB = XYBtoRGB;
 function miredToKelvin(mired) {
     return Math.round(1e6 / mired);
 }
-exports.miredToKelvin = miredToKelvin;
 /**
  * Convert level to brightness value
  *
@@ -311,5 +311,4 @@ exports.miredToKelvin = miredToKelvin;
 function levelToBrightness(level) {
     return Math.min(254, Math.max(0, Math.round(level * 2.54)));
 }
-exports.levelToBrightness = levelToBrightness;
 //# sourceMappingURL=hueHelper.js.map
