@@ -633,7 +633,7 @@ class Hue extends utils.Adapter {
                 return;
             }
 
-            finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
+            finalLS.ct = Math.max(2000, Math.min(6500, ls.ct));
             finalLS.ct = hueHelper.miredToKelvin(finalLS.ct);
 
             lightState = lightState.ct(finalLS.ct);
@@ -746,7 +746,7 @@ class Hue extends utils.Adapter {
             lightState = lightState.hue(finalLS.hue);
         }
         if ('ct_inc' in ls && !('ct' in finalLS) && 'ct' in alls) {
-            alls.ct = 500 - 153 - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
+            alls.ct = 500 - 153 - ((alls.ct - 2000) / (6500 - 2000)) * (500 - 153) + 153;
 
             finalLS.ct = ((((alls.ct - 153 + ls.ct_inc) % 348) + 348) % 348) + 153;
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
