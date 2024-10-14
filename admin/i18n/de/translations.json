@@ -23,10 +23,10 @@
     "Select a bridge:": "Wähle eine Bridge aus:",
     "Settings": "Einstellungen",
     "Sync software sensors": "Software-Sensoren synchronisieren",
+    "Turn on with others": "Schaltet das Gerät mit anderen Funktionen als Leistung und Helligkeit ein",
     "error creating user: ": "Fehler beim Erzeugen des Benutzers:",
     "error finding bridge": "Fehler beim Finden der Bridge",
     "ignoreOsram": "ignoriere Osram",
     "link button not pressed": "Link-Knopf nicht gedrückt",
-    "polling_warning": "Hinweis: Der Adapter kann nur 10 Befehle in 1 Sekunde senden.",
-    "Turn on with others": "Schaltet das Gerät mit anderen Funktionen als Leistung und Helligkeit ein"
+    "polling_warning": "Hinweis: Der Adapter kann nur 10 Befehle in 1 Sekunde senden."
 }
