@@ -28,10 +28,10 @@
       "type": "text",
       "label": "Bridge User",
       "xs": 12,
-      "sm": 7,
-      "md": 4,
-      "lg": 3,
-      "xl": 4,
+      "sm": 12,
+      "md": 8,
+      "lg": 6,
+      "xl": 6,
       "newLine": true
     },
     "_instructionText": {
@@ -39,13 +39,15 @@
       "text": "Instruction",
       "style": {
         "fontWeight": "bold",
-        "fontSize": "larger"
+        "fontSize": "larger",
+        "color": "red"
       },
       "xs": 12,
-      "sm": 7,
+      "sm": 12,
       "md": 4,
       "lg": 3,
-      "xl": 2
+      "xl": 4,
+      "newLine": true
     },
     "createUserButton": {
       "type": "sendTo",
@@ -63,10 +65,14 @@
       "timeout": 15000,
       "help": "Instructions",
       "xs": 12,
-      "sm": 5,
+      "sm": 12,
       "md": 4,
       "lg": 3,
       "xl": 2
+    },
+    "_divider": {
+      "type": "divider",
+      "height": 2
     },
     "ignoreOsram": {
       "type": "checkbox",
