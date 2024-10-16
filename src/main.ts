@@ -14,6 +14,7 @@ import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
 import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
 import HuePushClient from 'hue-push-client';
+import { MAX_CT, MIN_CT } from './lib/constants';
 
 interface PollSensor {
     /** Sensor id in Hue */
@@ -232,7 +233,6 @@ class Hue extends utils.Adapter {
                         } else {
                             this.sendTo(obj.from, obj.command, { error: 'Unknown error' }, obj.callback);
                         }
-
                     }
                     break;
                 }
@@ -640,7 +640,7 @@ class Hue extends utils.Adapter {
                 return;
             }
 
-            finalLS.ct = Math.max(2200, Math.min(6500, ls.ct));
+            finalLS.ct = Math.max(MIN_CT, Math.min(MAX_CT, ls.ct));
             finalLS.ct = hueHelper.miredToKelvin(finalLS.ct);
 
             lightState = lightState.ct(finalLS.ct);
@@ -753,7 +753,7 @@ class Hue extends utils.Adapter {
             lightState = lightState.hue(finalLS.hue);
         }
         if ('ct_inc' in ls && !('ct' in finalLS) && 'ct' in alls) {
-            alls.ct = 500 - 153 - ((alls.ct - 2200) / (6500 - 2200)) * (500 - 153) + 153;
+            alls.ct = 500 - 153 - ((alls.ct - MIN_CT) / (MAX_CT - MIN_CT)) * (500 - 153) + 153;
 
             finalLS.ct = ((((alls.ct - 153 + ls.ct_inc) % 348) + 348) % 348) + 153;
             if (!lampOn && (!('bri' in ls) || ls.bri === 0) && this.config.turnOnWithOthers) {
@@ -986,7 +986,7 @@ class Hue extends utils.Adapter {
             }
 
             if (states.hue !== undefined) {
-                states.hue = Math.round((states.hue / 65535) * 360);
+                states.hue = Math.round((states.hue / 65_535) * 360);
             }
             if (states.ct !== undefined) {
                 // convert color temperature from mired to kelvin
