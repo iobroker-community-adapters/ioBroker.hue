@@ -215,17 +215,24 @@ class Hue extends utils.Adapter {
         if (obj) {
             switch (obj.command) {
                 case 'browse': {
-                    const res = await this.browse(obj.message);
-                    this.log.warn(JSON.stringify(res));
+                    const timeout = obj.message.timeout;
+                    const res = await this.browse(timeout);
                     if (obj.callback) {
                         this.sendTo(obj.from, obj.command, res, obj.callback);
                     }
                     break;
                 }
                 case 'createUser': {
-                    const res = await this.createUser(obj.message as string);
+                    const res = await this.createUser(obj.message.ip as string, obj.message.port);
                     if (obj.callback) {
-                        this.sendTo(obj.from, obj.command, res, obj.callback);
+                        if (res.error === 0) {
+                            this.sendTo(obj.from, obj.command, { user: res.message }, obj.callback);
+                        } else if (res.error === 403) {
+                            this.sendTo(obj.from, obj.command, { error: 'Not open' }, obj.callback);
+                        } else {
+                            this.sendTo(obj.from, obj.command, { error: 'Unknown error' }, obj.callback);
+                        }
+
                     }
                     break;
                 }
@@ -897,21 +904,27 @@ class Hue extends utils.Adapter {
             }
         }
 
-        return bridges;
+        const ipsWithLabels = ips.map(ip => ({
+            value: ip,
+            label: ip
+        }));
+
+        return ipsWithLabels;
     }
 
     /**
      * Create user on the bridge by given Ip
      *
      * @param ip - ip address of the bridge
+     * @param port - port of the bridge
      */
-    async createUser(ip: string): Promise<Record<string, any>> {
+    async createUser(ip: string, port: number): Promise<Record<string, any>> {
         const deviceName = 'ioBroker.hue';
         try {
             const api = this.config.ssl
-                ? await v3.api.createLocal(ip, this.config.port).connect()
+                ? await v3.api.createLocal(ip, port).connect()
                 : // @ts-expect-error third party types are incorrect
-                  await v3.api.createInsecureLocal(ip, this.config.port).connect();
+                  await v3.api.createInsecureLocal(ip, port).connect();
 
             const newUser = await api.users.createUser(ip, deviceName);
             this.log.info(`created new User: ${newUser.username}`);

@@ -1,0 +1,170 @@
+{
+  "type": "panel",
+  "i18n": true,
+  "items": {
+    "bridge": {
+      "type": "autocompleteSendTo",
+      "command": "browse",
+      "jsonData": "{\"timeout\":  5000}",
+      "freeSolo": true,
+      "label": "Bridge Address",
+      "help": "Help bridge address",
+      "xs": 12,
+      "sm": 8,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "port": {
+      "type": "number",
+      "label": "Bridge Port",
+      "xs": 12,
+      "sm": 4,
+      "md": 2,
+      "lg": 2,
+      "xl": 2
+    },
+    "user": {
+      "type": "text",
+      "label": "Bridge User",
+      "xs": 12,
+      "sm": 12,
+      "md": 8,
+      "lg": 6,
+      "xl": 6,
+      "newLine": true
+    },
+    "_instructionText": {
+      "type": "staticText",
+      "text": "Instruction",
+      "style": {
+        "fontWeight": "bold",
+        "fontSize": "larger",
+        "color": "red"
+      },
+      "xs": 12,
+      "sm": 12,
+      "md": 4,
+      "lg": 3,
+      "xl": 4,
+      "newLine": true
+    },
+    "createUserButton": {
+      "type": "sendTo",
+      "command": "createUser",
+      "jsonData": "{\"ip\":  \"${data.bridge}\", \"port\": \"${data.port}\"}",
+      "error": {
+        "Not open": "link button not pressed",
+        "Unknown error": "Unknown error"
+      },
+      "label": "Create User",
+      "icon": "add",
+      "variant": "contained",
+      "showProcess": true,
+      "useNative": true,
+      "timeout": 15000,
+      "help": "Instructions",
+      "xs": 12,
+      "sm": 12,
+      "md": 4,
+      "lg": 3,
+      "xl": 2
+    },
+    "_divider": {
+      "type": "divider",
+      "height": 2
+    },
+    "ignoreOsram": {
+      "type": "checkbox",
+      "label": "ignoreOsram",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4,
+      "newLine": true
+    },
+    "ignoreGroups": {
+      "type": "checkbox",
+      "label": "Ignore groups",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "ignoreScenes": {
+      "type": "checkbox",
+      "label": "Ignore scenes",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "useLegacyStructure": {
+      "type": "checkbox",
+      "label": "Legacy structure",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "ssl": {
+      "type": "checkbox",
+      "label": "SSL",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "nativeTurnOffBehaviour": {
+      "type": "checkbox",
+      "label": "Native turn off/on behaviour",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "syncSoftwareSensors": {
+      "type": "checkbox",
+      "label": "Sync software sensors",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "turnOnWithOthers": {
+      "type": "checkbox",
+      "label": "Turn On with Others",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "polling": {
+      "type": "checkbox",
+      "label": "Polling",
+      "xs": 12,
+      "sm": 10,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "pollingInterval": {
+      "type": "number",
+      "label": "Polling interval (sec)",
+      "min": 2,
+      "xs": 12,
+      "sm": 4,
+      "md": 3,
+      "lg": 2,
+      "xl": 2
+    }
+  }
+}
