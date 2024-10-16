@@ -126,13 +126,16 @@
       "Bluefox <dogafox@gmail.com>",
       "Moritz Heusinger <moritz.heusinger@gmail.com>"
     ],
-    "license": "Apache-2.0",
+    "licenseInformation": {
+      "license": "Apache-2.0",
+      "type": "free"
+    },
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "messagebox": true,
     "dependencies": [
       {
-        "js-controller": ">=3.2.0"
+        "js-controller": ">=5.0.0"
       }
     ],
     "plugins": {
