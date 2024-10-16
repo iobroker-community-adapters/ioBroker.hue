@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.12.0",
+    "version": "3.13.0",
     "tier": 2,
     "news": {
+      "3.13.0": {
+        "en": "optimized settings page for mobile devices (ported to json-config)",
+        "de": "optimierte einstellungsseite für mobile geräte (portiert auf json-config)",
+        "ru": "оптимизированная страница настроек для мобильных устройств (включена в json-config)",
+        "pt": "página de configurações otimizadas para dispositivos móveis (portado para json-config)",
+        "nl": "geoptimaliseerde instellingen pagina voor mobiele apparaten (geporteerd naar json-config)",
+        "fr": "page de configuration optimisée pour les appareils mobiles (portée à json-config)",
+        "it": "pagina delle impostazioni ottimizzate per dispositivi mobili (portato a json-config)",
+        "es": "página de configuración optimizada para dispositivos móviles (portado a json-config)",
+        "pl": "zoptymalizowana strona ustawień urządzeń mobilnych (przeniesiona do json- config)",
+        "uk": "оптимізована сторінка налаштувань для мобільних пристроїв (портується на json-config)",
+        "zh-cn": "优化移动设备设置页面( 移植到 json- config)"
+      },
       "3.12.0": {
         "en": "`level` and `bri` states of groups are now updated via push API",
         "de": "`level` und `bri` Gruppenzustände werden nun über Push-API aktualisiert",
@@ -81,19 +94,6 @@
         "pl": "nie ustalają stanów nieprawidłowych w nieznanych układach grupowych\nwykorzystuje się tylko połączenie pop, jeśli ssl jest konfigurowany",
         "uk": "не встановлено недійсних держав на невідомих оновленнях групи\nтільки використовувати підключення штовхача, якщо sl налаштований",
         "zh-cn": "未对未知群体更新的无效说明\n只有在配有配件时才使用推断连接。"
-      },
-      "3.9.5": {
-        "en": "fixed crash case",
-        "de": "fester unfallfall",
-        "ru": "фиксированный случай аварии",
-        "pt": "caso de acidente fixo",
-        "nl": "vertaling:",
-        "fr": "cas d ' accident",
-        "it": "caso di arresto fisso",
-        "es": "caso de accidente fijo",
-        "pl": "przypadek katastrofy",
-        "uk": "фіксований випадок аварії",
-        "zh-cn": "固定事故"
       }
     },
     "titleLang": {

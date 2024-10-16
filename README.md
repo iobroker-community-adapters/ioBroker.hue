@@ -74,8 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-
-### __WORK IN PROGRESS__
+### 3.13.0 (2024-10-16)
 * (@Jey-Cee) optimized settings page for mobile devices (ported to json-config)
 
 ### 3.12.0 (2024-07-14)
