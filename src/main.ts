@@ -14,6 +14,7 @@ import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
 import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
 import HuePushClient from 'hue-push-client';
+import { HueV2Client, Response, RoomData, ZoneData } from './lib/v2/v2-client';
 import { MAX_CT, MIN_CT } from './lib/constants';
 
 interface PollSensor {
@@ -134,6 +135,8 @@ class Hue extends utils.Adapter {
 
     /** Instance of the Hue API */
     private api!: Api;
+    /** Instance of the V2 API */
+    private clientV2!: InstanceType<typeof HueV2Client>;
     /** Instance of the Hue push client */
     private pushClient: any;
     /** Object which contains all UUIDs and the corresponding metadata */
@@ -175,8 +178,62 @@ class Hue extends utils.Adapter {
 
         await this.connect();
 
+        this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
+
+        try {
+            await this.getSmartScenes();
+        } catch (e: any) {
+            this.log.warn(`Could not create smart scenes: ${e.message}`);
+        }
+
         if (this.config.polling) {
             this.poll();
+        }
+    }
+
+    /**
+     * Creates smart scenes for existing groups
+     */
+    private async getSmartScenes(): Promise<void> {
+        const scenesData = await this.clientV2.getSmartScenes();
+
+        for (const sceneData of scenesData.data) {
+            const groupUuid = sceneData.group.rid;
+            const isGroup = sceneData.group.rtype === 'room';
+
+            let groupOrZoneData: Response<RoomData | ZoneData>;
+
+            if (isGroup) {
+                groupOrZoneData = await this.clientV2.getRoom(groupUuid);
+            } else {
+                groupOrZoneData = await this.clientV2.getZone(groupUuid);
+            }
+
+            this.log.warn(JSON.stringify(groupOrZoneData, null, 2));
+
+            await this.extendObjectAsync(groupUuid, {
+                type: 'channel',
+                common: {
+                    name: groupOrZoneData.data[0].metadata.name
+                },
+                native: {
+                    data: groupOrZoneData.data
+                }
+            });
+
+            await this.extendObjectAsync(`${groupUuid}.${sceneData.id}`, {
+                type: 'state',
+                common: {
+                    name: sceneData.metadata.name,
+                    type: 'boolean',
+                    role: 'switch',
+                    write: true,
+                    read: true
+                },
+                native: {
+                    data: sceneData
+                }
+            });
         }
     }
 
@@ -259,6 +316,28 @@ class Hue extends utils.Adapter {
         this.log.debug(`stateChange ${id} ${JSON.stringify(state)}`);
         const tmp = id.split('.');
         let dp = tmp.pop()!;
+
+        let obj: ioBroker.Object | null | undefined;
+        try {
+            obj = await this.getForeignObjectAsync(id);
+        } catch (e: any) {
+            this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
+            return;
+        }
+
+        if (obj?.native?.data?.type === 'smart_scene') {
+            const uuid = obj.native.data.id;
+
+            if (state.val) {
+                this.log.info(`Start smart scene "${obj.common.name}"`);
+                await this.clientV2.startSmartScene(uuid);
+            } else {
+                this.log.info(`Stop smart scene "${obj.common.name}"`);
+                await this.clientV2.stopSmartScene(uuid);
+            }
+
+            return;
+        }
 
         if (dp.startsWith('scene_')) {
             try {
@@ -537,15 +616,6 @@ class Hue extends utils.Adapter {
                 this.log.error(e.message);
                 return;
             }
-        }
-
-        // get lightState
-        let obj;
-        try {
-            obj = await this.getObjectAsync(id);
-        } catch (e: any) {
-            this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
-            return;
         }
 
         // maybe someone emitted a state change for a non-existing device via script
@@ -2658,8 +2728,9 @@ class Hue extends utils.Adapter {
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
 
-        this.pollingInterval =
-            this.pollingInterval || this.setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
+        if (!this.pollingInterval) {
+            this.pollingInterval = this.setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
+        }
     }
 
     /**

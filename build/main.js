@@ -41,6 +41,7 @@ const hueHelper = __importStar(require("./lib/hueHelper"));
 const tools = __importStar(require("./lib/tools"));
 const GroupState_1 = __importDefault(require("node-hue-api/lib/model/lightstate/GroupState"));
 const hue_push_client_1 = __importDefault(require("hue-push-client"));
+const v2_client_1 = require("./lib/v2/v2-client");
 const constants_1 = require("./lib/constants");
 /** IDs currently blocked from polling */
 const blockedIds = {};
@@ -96,8 +97,55 @@ class Hue extends utils.Adapter {
             return;
         }
         await this.connect();
+        this.clientV2 = new v2_client_1.HueV2Client({ user: this.config.user, address: this.config.bridge });
+        try {
+            await this.getSmartScenes();
+        }
+        catch (e) {
+            this.log.warn(`Could not create smart scenes: ${e.message}`);
+        }
         if (this.config.polling) {
             this.poll();
+        }
+    }
+    /**
+     * Creates smart scenes for existing groups
+     */
+    async getSmartScenes() {
+        const scenesData = await this.clientV2.getSmartScenes();
+        for (const sceneData of scenesData.data) {
+            const groupUuid = sceneData.group.rid;
+            const isGroup = sceneData.group.rtype === 'room';
+            let groupOrZoneData;
+            if (isGroup) {
+                groupOrZoneData = await this.clientV2.getRoom(groupUuid);
+            }
+            else {
+                groupOrZoneData = await this.clientV2.getZone(groupUuid);
+            }
+            this.log.warn(JSON.stringify(groupOrZoneData, null, 2));
+            await this.extendObjectAsync(groupUuid, {
+                type: 'channel',
+                common: {
+                    name: groupOrZoneData.data[0].metadata.name
+                },
+                native: {
+                    data: groupOrZoneData.data
+                }
+            });
+            await this.extendObjectAsync(`${groupUuid}.${sceneData.id}`, {
+                type: 'state',
+                common: {
+                    name: sceneData.metadata.name,
+                    type: 'boolean',
+                    role: 'switch',
+                    write: true,
+                    read: true
+                },
+                native: {
+                    data: sceneData
+                }
+            });
         }
     }
     /**
@@ -169,13 +217,33 @@ class Hue extends utils.Adapter {
      * @param state
      */
     async onStateChange(id, state) {
-        var _a, _b;
+        var _a, _b, _c, _d;
         if (!id || !state || state.ack) {
             return;
         }
         this.log.debug(`stateChange ${id} ${JSON.stringify(state)}`);
         const tmp = id.split('.');
         let dp = tmp.pop();
+        let obj;
+        try {
+            obj = await this.getForeignObjectAsync(id);
+        }
+        catch (e) {
+            this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
+            return;
+        }
+        if (((_b = (_a = obj === null || obj === void 0 ? void 0 : obj.native) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.type) === 'smart_scene') {
+            const uuid = obj.native.data.id;
+            if (state.val) {
+                this.log.info(`Start smart scene "${obj.common.name}"`);
+                await this.clientV2.startSmartScene(uuid);
+            }
+            else {
+                this.log.info(`Stop smart scene "${obj.common.name}"`);
+                await this.clientV2.stopSmartScene(uuid);
+            }
+            return;
+        }
         if (dp.startsWith('scene_')) {
             try {
                 // it's a scene -> get a scene id to start it
@@ -203,7 +271,7 @@ class Hue extends utils.Adapter {
             this.log.error(`Cannot get channelObj on stateChange for id "${id}" (${channelId}): ${e.message}`);
             return;
         }
-        if (((_a = channelObj === null || channelObj === void 0 ? void 0 : channelObj.common) === null || _a === void 0 ? void 0 : _a.role) && SUPPORTED_SENSORS.includes(channelObj.common.role)) {
+        if (((_c = channelObj === null || channelObj === void 0 ? void 0 : channelObj.common) === null || _c === void 0 ? void 0 : _c.role) && SUPPORTED_SENSORS.includes(channelObj.common.role)) {
             // it's a sensor - we support turning it on and off
             try {
                 if (dp === 'on') {
@@ -441,17 +509,8 @@ class Hue extends utils.Adapter {
                 return;
             }
         }
-        // get lightState
-        let obj;
-        try {
-            obj = await this.getObjectAsync(id);
-        }
-        catch (e) {
-            this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
-            return;
-        }
         // maybe someone emitted a state change for a non-existing device via script
-        if (!((_b = obj === null || obj === void 0 ? void 0 : obj.common) === null || _b === void 0 ? void 0 : _b.role)) {
+        if (!((_d = obj === null || obj === void 0 ? void 0 : obj.common) === null || _d === void 0 ? void 0 : _d.role)) {
             this.log.error(`Object "${id}" on stateChange is null, undefined or corrupted`);
             return;
         }
@@ -2282,8 +2341,9 @@ class Hue extends utils.Adapter {
             await this.setStateChangedAsync('info.connection', false, true);
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
-        this.pollingInterval =
-            this.pollingInterval || this.setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
+        if (!this.pollingInterval) {
+            this.pollingInterval = this.setTimeout(() => this.poll(), this.config.pollingInterval * 1000);
+        }
     }
     /**
      * Convert the temperature reading
