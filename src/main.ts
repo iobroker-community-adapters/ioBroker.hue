@@ -209,8 +209,6 @@ class Hue extends utils.Adapter {
                 groupOrZoneData = await this.clientV2.getZone(groupUuid);
             }
 
-            this.log.warn(JSON.stringify(groupOrZoneData, null, 2));
-
             await this.extendObjectAsync(groupUuid, {
                 type: 'channel',
                 common: {
@@ -317,22 +315,22 @@ class Hue extends utils.Adapter {
         const tmp = id.split('.');
         let dp = tmp.pop()!;
 
-        let obj: ioBroker.Object | null | undefined;
+        let stateObj: ioBroker.Object | null | undefined;
         try {
-            obj = await this.getForeignObjectAsync(id);
+            stateObj = await this.getForeignObjectAsync(id);
         } catch (e: any) {
             this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
             return;
         }
 
-        if (obj?.native?.data?.type === 'smart_scene') {
-            const uuid = obj.native.data.id;
+        if (stateObj?.native?.data?.type === 'smart_scene') {
+            const uuid = stateObj.native.data.id;
 
             if (state.val) {
-                this.log.info(`Start smart scene "${obj.common.name}"`);
+                this.log.info(`Start smart scene "${stateObj.common.name}"`);
                 await this.clientV2.startSmartScene(uuid);
             } else {
-                this.log.info(`Stop smart scene "${obj.common.name}"`);
+                this.log.info(`Stop smart scene "${stateObj.common.name}"`);
                 await this.clientV2.stopSmartScene(uuid);
             }
 
@@ -342,18 +340,17 @@ class Hue extends utils.Adapter {
         if (dp.startsWith('scene_')) {
             try {
                 // it's a scene -> get a scene id to start it
-                const obj = await this.getForeignObjectAsync(id);
                 const groupState = new v3.lightStates.GroupLightState();
 
-                if (!obj) {
+                if (!stateObj) {
                     throw new Error(`Object "${id}" is not existing`);
                 }
 
-                groupState.scene(obj.native.id);
+                groupState.scene(stateObj.native.id);
 
                 await this.api.groups.setGroupState(0, groupState);
 
-                this.log.info(`Started scene: ${obj.common.name}`);
+                this.log.info(`Started scene: ${stateObj.common.name}`);
             } catch (e: any) {
                 this.log.error(`Could not start scene: ${e.message || e}`);
             }
@@ -619,7 +616,7 @@ class Hue extends utils.Adapter {
         }
 
         // maybe someone emitted a state change for a non-existing device via script
-        if (!obj?.common?.role) {
+        if (!channelObj?.common?.role) {
             this.log.error(`Object "${id}" on stateChange is null, undefined or corrupted`);
             return;
         }
@@ -639,14 +636,16 @@ class Hue extends utils.Adapter {
                 ls.r / 255,
                 ls.g / 255,
                 ls.b / 255,
-                Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
+                Object.prototype.hasOwnProperty.call(channelObj.native, 'modelid')
+                    ? channelObj.native.modelid.trim()
+                    : 'default'
             );
             ls.bri = xyb.b;
             ls.xy = `${xyb.x},${xyb.y}`;
         }
 
         // create lightState from ls and check values
-        let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
+        let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(channelObj.common.role)
             ? new v3.lightStates.GroupLightState()
             : new v3.lightStates.LightState();
 
@@ -682,7 +681,9 @@ class Hue extends utils.Adapter {
             xy = hueHelper.GamutXYforModel(
                 xy.x,
                 xy.y,
-                Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
+                Object.prototype.hasOwnProperty.call(channelObj.native, 'modelid')
+                    ? channelObj.native.modelid.trim()
+                    : 'default'
             );
             if (!xy) {
                 this.log.error(`Invalid "xy" value "${state.val}" for id "${id}"`);
@@ -868,7 +869,7 @@ class Hue extends utils.Adapter {
         // if dp is on, and we use native turn-off behaviour only set the lightState
         if (dp === 'on' && this.config.nativeTurnOffBehaviour) {
             // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
-            lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
+            lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(channelObj.common.role)
                 ? new v3.lightStates.GroupLightState()
                 : new v3.lightStates.LightState();
             if (state.val) {
@@ -885,25 +886,25 @@ class Hue extends utils.Adapter {
 
         blockedIds[id] = true;
 
-        if (!this.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
+        if (!this.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(channelObj.common.role)) {
             // log final changes / states
-            this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+            this.log.debug(`final lightState for ${channelObj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.groups.setGroupState(groupIds[id], lightState);
                 await this.delay(this.GROUP_UPDATE_DELAY_MS);
                 await this.updateGroupState({
                     id: groupIds[id],
-                    name: obj._id.substring(this.namespace.length + 1)
+                    name: channelObj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
             } catch (e: any) {
-                this.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
+                this.log.error(`Could not set GroupState of ${channelObj.common.name}: ${e.message}`);
             }
-        } else if (obj.common.role === 'switch') {
+        } else if (channelObj.common.role === 'switch') {
             if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
                 finalLS = { on: finalLS.on };
                 // log final changes / states
-                this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+                this.log.debug(`final lightState for ${channelObj.common.name}:${JSON.stringify(finalLS)}`);
 
                 lightState = new v3.lightStates.LightState();
                 lightState.on(finalLS.on);
@@ -911,28 +912,28 @@ class Hue extends utils.Adapter {
                     await this.api.lights.setLightState(channelIds[id], lightState);
                     await this.updateLightState({
                         id: channelIds[id],
-                        name: obj._id.substring(this.namespace.length + 1)
+                        name: channelObj._id.substring(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
                 } catch (e: any) {
-                    this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
+                    this.log.error(`Could not set LightState of ${channelObj.common.name}: ${e.message}`);
                 }
             } else {
                 this.log.warn('invalid switch operation');
             }
         } else {
             // log final changes / states
-            this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+            this.log.debug(`final lightState for ${channelObj.common.name}:${JSON.stringify(finalLS)}`);
 
             try {
                 await this.api.lights.setLightState(channelIds[id], lightState);
                 await this.updateLightState({
                     id: channelIds[id],
-                    name: obj._id.substring(this.namespace.length + 1)
+                    name: channelObj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
             } catch (e: any) {
-                this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
+                this.log.error(`Could not set LightState of ${channelObj.common.name}: ${e.message}`);
             }
         }
     }
