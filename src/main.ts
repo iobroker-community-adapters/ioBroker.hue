@@ -14,7 +14,7 @@ import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
 import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
 import HuePushClient from 'hue-push-client';
-import { HueV2Client, Response, RoomData, ZoneData } from './lib/v2/v2-client';
+import { HueV2Client, Response, RoomData, SmartSceneData, ZoneData } from './lib/v2/v2-client';
 import { MAX_CT, MIN_CT } from './lib/constants';
 
 interface PollSensor {
@@ -181,7 +181,7 @@ class Hue extends utils.Adapter {
         this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
 
         try {
-            await this.getSmartScenes();
+            await this.syncSmartScenes();
         } catch (e: any) {
             this.log.warn(`Could not create smart scenes: ${e.message}`);
         }
@@ -192,10 +192,29 @@ class Hue extends utils.Adapter {
     }
 
     /**
-     * Creates smart scenes for existing groups
+     * Creates smart scenes for existing groups and deletes no longer existing ones
      */
-    private async getSmartScenes(): Promise<void> {
+    private async syncSmartScenes(): Promise<void> {
         const scenesData = await this.clientV2.getSmartScenes();
+        const res = await this.getObjectViewAsync('system', 'state', {
+            startkey: this.namespace,
+            endkey: `${this.namespace}\u9999`
+        });
+
+        for (const row of res.rows) {
+            if (row.value.native?.data?.type !== 'smart_scene') {
+                continue;
+            }
+
+            const smartSceneId = (row.value.native.data as SmartSceneData).id;
+            const sceneExistsInBridge = scenesData.data.some(smartScene => smartScene.id === smartSceneId);
+
+            if (!sceneExistsInBridge) {
+                this.log.info(`Deleted smart scene "${smartSceneId}"`);
+                const groupUuid = (row.value.native.data as SmartSceneData).group.rid;
+                await this.delObjectAsync(`${groupUuid}.${smartSceneId}`);
+            }
+        }
 
         for (const sceneData of scenesData.data) {
             const groupUuid = sceneData.group.rid;

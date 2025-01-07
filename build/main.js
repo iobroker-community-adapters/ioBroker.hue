@@ -99,7 +99,7 @@ class Hue extends utils.Adapter {
         await this.connect();
         this.clientV2 = new v2_client_1.HueV2Client({ user: this.config.user, address: this.config.bridge });
         try {
-            await this.getSmartScenes();
+            await this.syncSmartScenes();
         }
         catch (e) {
             this.log.warn(`Could not create smart scenes: ${e.message}`);
@@ -109,10 +109,27 @@ class Hue extends utils.Adapter {
         }
     }
     /**
-     * Creates smart scenes for existing groups
+     * Creates smart scenes for existing groups and deletes no longer existing ones
      */
-    async getSmartScenes() {
+    async syncSmartScenes() {
+        var _a, _b;
         const scenesData = await this.clientV2.getSmartScenes();
+        const res = await this.getObjectViewAsync('system', 'state', {
+            startkey: this.namespace,
+            endkey: `${this.namespace}\u9999`
+        });
+        for (const row of res.rows) {
+            if (((_b = (_a = row.value.native) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.type) !== 'smart_scene') {
+                continue;
+            }
+            const smartSceneId = row.value.native.data.id;
+            const sceneExistsInBridge = scenesData.data.some(smartScene => smartScene.id === smartSceneId);
+            if (!sceneExistsInBridge) {
+                this.log.info(`Deleted smart scene "${smartSceneId}"`);
+                const groupUuid = row.value.native.data.group.rid;
+                await this.delObjectAsync(`${groupUuid}.${smartSceneId}`);
+            }
+        }
         for (const sceneData of scenesData.data) {
             const groupUuid = sceneData.group.rid;
             const isGroup = sceneData.group.rtype === 'room';
