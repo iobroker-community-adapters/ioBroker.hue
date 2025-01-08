@@ -14,6 +14,7 @@ import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
 import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
 import HuePushClient from 'hue-push-client';
+import { HueV2Client, Response, RoomData, SmartSceneData, ZoneData } from './lib/v2/v2-client';
 import { MAX_CT, MIN_CT } from './lib/constants';
 
 interface PollSensor {
@@ -134,6 +135,8 @@ class Hue extends utils.Adapter {
 
     /** Instance of the Hue API */
     private api!: Api;
+    /** Instance of the V2 API */
+    private clientV2!: InstanceType<typeof HueV2Client>;
     /** Instance of the Hue push client */
     private pushClient: any;
     /** Object which contains all UUIDs and the corresponding metadata */
@@ -175,8 +178,89 @@ class Hue extends utils.Adapter {
 
         await this.connect();
 
+        this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
+
+        try {
+            await this.syncSmartScenes();
+        } catch (e: any) {
+            this.log.warn(`Could not create smart scenes: ${e.message}`);
+        }
+
         if (this.config.polling) {
             this.poll();
+        }
+    }
+
+    /**
+     * Creates smart scenes for existing groups and deletes no longer existing ones
+     */
+    private async syncSmartScenes(): Promise<void> {
+        const scenesData = await this.clientV2.getSmartScenes();
+        const res = await this.getObjectViewAsync('system', 'state', {
+            startkey: this.namespace,
+            endkey: `${this.namespace}\u9999`
+        });
+
+        for (const row of res.rows) {
+            if (row.value.native?.data?.type !== 'smart_scene') {
+                continue;
+            }
+
+            const smartSceneId = (row.value.native.data as SmartSceneData).id;
+            const sceneExistsInBridge = scenesData.data.some(smartScene => smartScene.id === smartSceneId);
+
+            if (!sceneExistsInBridge) {
+                this.log.info(`Deleted smart scene "${smartSceneId}"`);
+                const groupUuid = (row.value.native.data as SmartSceneData).group.rid;
+                await this.delObjectAsync(`${groupUuid}.${smartSceneId}`);
+
+                // check if group is now empty
+                const res = await this.getObjectViewAsync('system', 'state', {
+                    startkey: `${this.namespace}.${groupUuid}.`,
+                    endkey: `${this.namespace}.${groupUuid}.\u9999`
+                });
+
+                if (res.rows.length === 0) {
+                    await this.delObjectAsync(groupUuid);
+                }
+            }
+        }
+
+        for (const sceneData of scenesData.data) {
+            const groupUuid = sceneData.group.rid;
+            const isGroup = sceneData.group.rtype === 'room';
+
+            let groupOrZoneData: Response<RoomData | ZoneData>;
+
+            if (isGroup) {
+                groupOrZoneData = await this.clientV2.getRoom(groupUuid);
+            } else {
+                groupOrZoneData = await this.clientV2.getZone(groupUuid);
+            }
+
+            await this.extendObjectAsync(groupUuid, {
+                type: 'channel',
+                common: {
+                    name: groupOrZoneData.data[0].metadata.name
+                },
+                native: {
+                    data: groupOrZoneData.data
+                }
+            });
+
+            await this.extendObjectAsync(`${groupUuid}.${sceneData.id}`, {
+                type: 'state',
+                common: {
+                    name: sceneData.metadata.name,
+                    type: 'boolean',
+                    role: 'switch',
+                    write: true,
+                    read: true
+                },
+                native: {
+                    data: sceneData
+                }
+            });
         }
     }
 
@@ -260,21 +344,42 @@ class Hue extends utils.Adapter {
         const tmp = id.split('.');
         let dp = tmp.pop()!;
 
+        let stateObj: ioBroker.Object | null | undefined;
+        try {
+            stateObj = await this.getForeignObjectAsync(id);
+        } catch (e: any) {
+            this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
+            return;
+        }
+
+        if (stateObj?.native?.data?.type === 'smart_scene') {
+            const uuid = stateObj.native.data.id;
+
+            if (state.val) {
+                this.log.info(`Start smart scene "${stateObj.common.name}"`);
+                await this.clientV2.startSmartScene(uuid);
+            } else {
+                this.log.info(`Stop smart scene "${stateObj.common.name}"`);
+                await this.clientV2.stopSmartScene(uuid);
+            }
+
+            return;
+        }
+
         if (dp.startsWith('scene_')) {
             try {
                 // it's a scene -> get a scene id to start it
-                const obj = await this.getForeignObjectAsync(id);
                 const groupState = new v3.lightStates.GroupLightState();
 
-                if (!obj) {
+                if (!stateObj) {
                     throw new Error(`Object "${id}" is not existing`);
                 }
 
-                groupState.scene(obj.native.id);
+                groupState.scene(stateObj.native.id);
 
                 await this.api.groups.setGroupState(0, groupState);
 
-                this.log.info(`Started scene: ${obj.common.name}`);
+                this.log.info(`Started scene: ${stateObj.common.name}`);
             } catch (e: any) {
                 this.log.error(`Could not start scene: ${e.message || e}`);
             }
@@ -539,17 +644,8 @@ class Hue extends utils.Adapter {
             }
         }
 
-        // get lightState
-        let obj;
-        try {
-            obj = await this.getObjectAsync(id);
-        } catch (e: any) {
-            this.log.error(`Could not get object "${id}" on stateChange: ${e.message}`);
-            return;
-        }
-
         // maybe someone emitted a state change for a non-existing device via script
-        if (!obj?.common?.role) {
+        if (!channelObj?.common?.role) {
             this.log.error(`Object "${id}" on stateChange is null, undefined or corrupted`);
             return;
         }
@@ -569,14 +665,16 @@ class Hue extends utils.Adapter {
                 ls.r / 255,
                 ls.g / 255,
                 ls.b / 255,
-                Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
+                Object.prototype.hasOwnProperty.call(channelObj.native, 'modelid')
+                    ? channelObj.native.modelid.trim()
+                    : 'default'
             );
             ls.bri = xyb.b;
             ls.xy = `${xyb.x},${xyb.y}`;
         }
 
         // create lightState from ls and check values
-        let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
+        let lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(channelObj.common.role)
             ? new v3.lightStates.GroupLightState()
             : new v3.lightStates.LightState();
 
@@ -612,7 +710,9 @@ class Hue extends utils.Adapter {
             xy = hueHelper.GamutXYforModel(
                 xy.x,
                 xy.y,
-                Object.prototype.hasOwnProperty.call(obj.native, 'modelid') ? obj.native.modelid.trim() : 'default'
+                Object.prototype.hasOwnProperty.call(channelObj.native, 'modelid')
+                    ? channelObj.native.modelid.trim()
+                    : 'default'
             );
             if (!xy) {
                 this.log.error(`Invalid "xy" value "${state.val}" for id "${id}"`);
@@ -798,7 +898,7 @@ class Hue extends utils.Adapter {
         // if dp is on, and we use native turn-off behaviour only set the lightState
         if (dp === 'on' && this.config.nativeTurnOffBehaviour) {
             // todo: this is somehow dirty but the code above is messy -> integrate above in a more clever way later
-            lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)
+            lightState = /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(channelObj.common.role)
                 ? new v3.lightStates.GroupLightState()
                 : new v3.lightStates.LightState();
             if (state.val) {
@@ -815,25 +915,25 @@ class Hue extends utils.Adapter {
 
         blockedIds[id] = true;
 
-        if (!this.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(obj.common.role)) {
+        if (!this.config.ignoreGroups && /(LightGroup)|(Room)|(Zone)|(Entertainment)/g.test(channelObj.common.role)) {
             // log final changes / states
-            this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+            this.log.debug(`final lightState for ${channelObj.common.name}:${JSON.stringify(finalLS)}`);
             try {
                 await this.api.groups.setGroupState(groupIds[id], lightState);
                 await this.delay(this.GROUP_UPDATE_DELAY_MS);
                 await this.updateGroupState({
                     id: groupIds[id],
-                    name: obj._id.substring(this.namespace.length + 1)
+                    name: channelObj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated group state (${groupIds[id]}) after change`);
             } catch (e: any) {
-                this.log.error(`Could not set GroupState of ${obj.common.name}: ${e.message}`);
+                this.log.error(`Could not set GroupState of ${channelObj.common.name}: ${e.message}`);
             }
-        } else if (obj.common.role === 'switch') {
+        } else if (channelObj.common.role === 'switch') {
             if (Object.prototype.hasOwnProperty.call(finalLS, 'on')) {
                 finalLS = { on: finalLS.on };
                 // log final changes / states
-                this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+                this.log.debug(`final lightState for ${channelObj.common.name}:${JSON.stringify(finalLS)}`);
 
                 lightState = new v3.lightStates.LightState();
                 lightState.on(finalLS.on);
@@ -841,28 +941,28 @@ class Hue extends utils.Adapter {
                     await this.api.lights.setLightState(channelIds[id], lightState);
                     await this.updateLightState({
                         id: channelIds[id],
-                        name: obj._id.substring(this.namespace.length + 1)
+                        name: channelObj._id.substring(this.namespace.length + 1)
                     });
                     this.log.debug(`updated LightState (${channelIds[id]}) after change`);
                 } catch (e: any) {
-                    this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
+                    this.log.error(`Could not set LightState of ${channelObj.common.name}: ${e.message}`);
                 }
             } else {
                 this.log.warn('invalid switch operation');
             }
         } else {
             // log final changes / states
-            this.log.debug(`final lightState for ${obj.common.name}:${JSON.stringify(finalLS)}`);
+            this.log.debug(`final lightState for ${channelObj.common.name}:${JSON.stringify(finalLS)}`);
 
             try {
                 await this.api.lights.setLightState(channelIds[id], lightState);
                 await this.updateLightState({
                     id: channelIds[id],
-                    name: obj._id.substring(this.namespace.length + 1)
+                    name: channelObj._id.substring(this.namespace.length + 1)
                 });
                 this.log.debug(`updated LightState (${channelIds[id]}) after change`);
             } catch (e: any) {
-                this.log.error(`Could not set LightState of ${obj.common.name}: ${e.message}`);
+                this.log.error(`Could not set LightState of ${channelObj.common.name}: ${e.message}`);
             }
         }
     }
@@ -2658,8 +2758,9 @@ class Hue extends utils.Adapter {
             this.log.error(`Could not poll all: ${e.message || e}`);
         }
 
-        this.pollingInterval =
-            this.pollingInterval || this.setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
+        if (!this.pollingInterval) {
+            this.pollingInterval = this.setTimeout(() => this.poll(), this.config.pollingInterval * 1_000);
+        }
     }
 
     /**
