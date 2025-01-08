@@ -28,7 +28,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.1.4",
+    "@iobroker/adapter-core": "^3.2.3",
     "axios": "^1.7.9",
     "hue-push-client": "^1.0.5",
     "node-hue-api": "^4.0.11"
@@ -38,7 +38,7 @@
     "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@iobroker/testing": "^5.0.0",
-    "@iobroker/types": "^5.0.19",
+    "@iobroker/types": "^7.0.6",
     "@peter-murray/hue-bridge-model": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
