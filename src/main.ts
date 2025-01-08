@@ -213,6 +213,16 @@ class Hue extends utils.Adapter {
                 this.log.info(`Deleted smart scene "${smartSceneId}"`);
                 const groupUuid = (row.value.native.data as SmartSceneData).group.rid;
                 await this.delObjectAsync(`${groupUuid}.${smartSceneId}`);
+
+                // check if group is now empty
+                const res = await this.getObjectViewAsync('system', 'state', {
+                    startkey: `${this.namespace}.${groupUuid}.`,
+                    endkey: `${this.namespace}.${groupUuid}.\u9999`
+                });
+
+                if (res.rows.length === 0) {
+                    await this.delObjectAsync(groupUuid);
+                }
             }
         }
 
