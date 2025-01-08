@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.13.1",
+    "version": "3.14.0",
     "tier": 2,
     "news": {
+      "3.14.0": {
+        "en": "added dynamic scenes (Note: new states are added by UUID)",
+        "de": "hinzugefügt dynamische Szenen (Anmerkung: neue Zustände werden von UUID hinzugefügt)",
+        "ru": "добавленные динамические сцены (Примечание: новые состояния добавлены UUID)",
+        "pt": "cenas dinâmicas adicionadas (Nota: novos estados são adicionados por UUID)",
+        "nl": "toegevoegde dynamische scènes (Noot: nieuwe toestanden worden toegevoegd door UUID)",
+        "fr": "scènes dynamiques ajoutées (Note : de nouveaux états sont ajoutés par UUID)",
+        "it": "aggiunto scene dinamiche (Nota: nuovi stati sono aggiunti da UUID)",
+        "es": "escenas dinámicas agregadas (Nota: nuevos estados son añadidos por UUID)",
+        "pl": "dodane sceny dynamiczne (Uwaga: nowe stany są dodane przez UUID)",
+        "uk": "додано динамічні сцени (Note: нові стани додаються UUID)",
+        "zh-cn": "新增动态场景( 注: UUID 新增状态)"
+      },
       "3.13.1": {
         "en": "correct min color temperature to 2000 (valid for color lights) instead of 2200",
         "de": "korrekte farbtemperatur bis 2000 (gültig für farblichter) statt 2200",
@@ -81,19 +94,6 @@
         "pl": "komunikat ustalony (odcinek #481)",
         "uk": "фіксований передній / зворотній зв'язок (закривається #481)",
         "zh-cn": "固定前线/后端通信(第481号)"
-      },
-      "3.10.0": {
-        "en": "fixed problem on auto-deletion of groups\nimplemented Hue Tap Dial (closes #368, closes #416)",
-        "de": "problem bei der auto-deleetion von gruppen behoben\ndurchgeführt Hue Tap Dial (schließt #368, schließt #416)",
-        "ru": "фиксированная проблема на автовыборе групп\nреализовано Hue Tap Dial (замки #368, замки #416)",
-        "pt": "problema fixo na auto-eliminação de grupos\nimplementação Hue Tap Dial (fecha #368, fecha #416)",
-        "nl": "een probleem op auto-deletie van groepen\n_ Hue Tap Dial (closes #368, sluit #416)",
-        "fr": "problème fixe sur la suppression automatique des groupes\nmise en œuvre Hue Tap Dial (ferme #368, ferme #416)",
-        "it": "problema fisso sull'eliminazione automatica dei gruppi\nimplementato Hue Tap Dial (chiude #368, chiude #416)",
-        "es": "problema fijo en la eliminación automática de grupos\naplicadas Hue Tap Dial (cerca #368, cierra #416)",
-        "pl": "stały problem auto-delecji grup\nwdrożone Hue Tap Dial (zamknięta #368, zamyka #416)",
-        "uk": "виправлена проблема на автозняття груп\nреалізований Hue Tap Dial (закривається #368, закривається #416)",
-        "zh-cn": "b. 某些群体的尸体解剖的固定问题\n执行 He Tap Dial(第368号行动)"
       }
     },
     "titleLang": {
