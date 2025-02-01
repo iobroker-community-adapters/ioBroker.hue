@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.14.0",
+    "version": "3.14.1",
     "tier": 2,
     "news": {
+      "3.14.1": {
+        "en": "improved error handling for smart scenes",
+        "de": "verbesserte fehlerbehandlung für smarte szenen",
+        "ru": "улучшенная обработка ошибок для умных сцен",
+        "pt": "melhor manipulação de erros para cenas inteligentes",
+        "nl": "verbeterde foutafhandeling voor slimme scènes",
+        "fr": "amélioration de la gestion des erreurs pour les scènes intelligentes",
+        "it": "migliore gestione degli errori per scene intelligenti",
+        "es": "mejor manejo de errores para escenas inteligentes",
+        "pl": "ulepszona obsługa błędów dla scen inteligentnych",
+        "uk": "покращена обробка помилок для смарт-сцен",
+        "zh-cn": "智能场景的改进错误处理"
+      },
       "3.14.0": {
         "en": "added dynamic scenes (Note: new states are added by UUID)",
         "de": "hinzugefügt dynamische Szenen (Anmerkung: neue Zustände werden von UUID hinzugefügt)",
@@ -81,19 +94,6 @@
         "pl": "powracają krótkie opóźnienia pomiędzy ustawodawstwem a zanieczyszczeniem grupy\nmetoda adaptowania wewnętrznego czasu",
         "uk": "повернути коротку затримку між встановленням та опитуванням групи\nвикористання методів внутрішнього таймера",
         "zh-cn": "b. 成立和投票集团之间的短期延误\n利用内部时间方法"
-      },
-      "3.10.1": {
-        "en": "fixed frontend/backend communication (closes #481)",
-        "de": "feste frontend/backd-kommunikation (schließt #481)",
-        "ru": "фиксированное frontend/backend сообщение (closes #481)",
-        "pt": "comunicação frontend/backend fixo (fecha #481)",
-        "nl": "vertaling:",
-        "fr": "communication fixe frontend/backend (ferme #481)",
-        "it": "comunicazione fisso frontend/backend (chiude #481)",
-        "es": "comunicación de frontend fijo/backend (cerca #481)",
-        "pl": "komunikat ustalony (odcinek #481)",
-        "uk": "фіксований передній / зворотній зв'язок (закривається #481)",
-        "zh-cn": "固定前线/后端通信(第481号)"
       }
     },
     "titleLang": {
