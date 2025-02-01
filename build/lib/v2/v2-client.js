@@ -60,21 +60,12 @@ class HueV2Client {
     }
     /**
      * Activate or deactivate a smart scene
+     *
      * @param uuid uuid of the smart scene
      * @param state the activation state
      */
     async setSmartSceneState(uuid, state) {
-        const res = await this.restClient.get(`${this.baseUrl}/resource/smart_scene/${uuid}`, {
-            headers: {
-                'hue-application-key': this.user
-            }
-        });
-        const sceneData = res.data.data[0];
         const putData = {
-            metadata: {},
-            type: sceneData.type,
-            week_timeslots: sceneData.week_timeslots,
-            transition_duration: sceneData.transition_duration,
             recall: {
                 action: state
             }

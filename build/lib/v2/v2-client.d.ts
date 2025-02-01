@@ -204,6 +204,7 @@ export declare class HueV2Client {
     getSmartScenes(): Promise<Response<SmartSceneData>>;
     /**
      * Activate or deactivate a smart scene
+     *
      * @param uuid uuid of the smart scene
      * @param state the activation state
      */

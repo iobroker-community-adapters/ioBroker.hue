@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import https from 'node:https';
 
 export type ActivationState = 'active' | 'inactive';
@@ -285,25 +285,12 @@ export class HueV2Client {
 
     /**
      * Activate or deactivate a smart scene
+     *
      * @param uuid uuid of the smart scene
      * @param state the activation state
      */
     private async setSmartSceneState(uuid: string, state: SceneActivationState): Promise<Response<Resource>> {
-        const res: AxiosResponse<Response<SmartSceneData>> = await this.restClient.get(
-            `${this.baseUrl}/resource/smart_scene/${uuid}`,
-            {
-                headers: {
-                    'hue-application-key': this.user
-                }
-            }
-        );
-
-        const sceneData = res.data.data[0];
         const putData = {
-            metadata: {},
-            type: sceneData.type,
-            week_timeslots: sceneData.week_timeslots,
-            transition_duration: sceneData.transition_duration,
             recall: {
                 action: state
             }

@@ -353,14 +353,18 @@ class Hue extends utils.Adapter {
         }
 
         if (stateObj?.native?.data?.type === 'smart_scene') {
-            const uuid = stateObj.native.data.id;
+            try {
+                const uuid = stateObj.native.data.id;
 
-            if (state.val) {
-                this.log.info(`Start smart scene "${stateObj.common.name}"`);
-                await this.clientV2.startSmartScene(uuid);
-            } else {
-                this.log.info(`Stop smart scene "${stateObj.common.name}"`);
-                await this.clientV2.stopSmartScene(uuid);
+                if (state.val) {
+                    this.log.info(`Start smart scene "${stateObj.common.name}"`);
+                    await this.clientV2.startSmartScene(uuid);
+                } else {
+                    this.log.info(`Stop smart scene "${stateObj.common.name}"`);
+                    await this.clientV2.stopSmartScene(uuid);
+                }
+            } catch (e: any) {
+                this.log.error(`Could not start smart scene "${stateObj.common.name}": ${e.message}`);
             }
 
             return;

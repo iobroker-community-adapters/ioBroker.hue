@@ -74,6 +74,10 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+
+### __WORK IN PROGRESS__
+* (@foxriver76) improved error handling for smart scenes
+
 ### 3.14.0 (2025-01-08)
 * (@foxriver76) added dynamic scenes (Note: new states are added by UUID)
 
