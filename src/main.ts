@@ -14,7 +14,18 @@ import * as tools from './lib/tools';
 import Api from 'node-hue-api/lib/api/Api';
 import GroupState from 'node-hue-api/lib/model/lightstate/GroupState';
 import HuePushClient from 'hue-push-client';
-import { HueV2Client, Response, RoomData, SmartSceneData, ZoneData } from './lib/v2/v2-client';
+import {
+    BatteryState,
+    ContactReport,
+    ContactSensorData,
+    HueUuid,
+    HueV2Client,
+    Resource,
+    Response,
+    RoomData,
+    SmartSceneData,
+    ZoneData
+} from './lib/v2/v2-client';
 import { MAX_CT, MIN_CT } from './lib/constants';
 
 interface PollSensor {
@@ -39,14 +50,13 @@ type ScenceStatus = { active: 'static' | 'inactive' };
 type ButtonEventType = 'short_release' | 'initial_press' | 'repeat' | 'long_release';
 type RelativeRotaryAction = 'start' | 'repeat';
 type RelativeRotaryDirection = 'clock_wise' | 'counter_clock_wise';
-
 interface BridgeUpdate {
     dimming?: { brightness: number };
     /** The UUID which is used by Hue API v2 */
     id: string;
     /** The old Hue API v1 id */
     id_v1?: `/${string}/${number}`;
-    owner: { rid: string; rtype: string };
+    owner: Resource;
     type:
         | 'grouped_light'
         | 'light'
@@ -58,11 +68,14 @@ interface BridgeUpdate {
         | 'entertainment_configuration'
         | 'scene'
         | 'button'
-        | 'relative_rotary';
+        | 'relative_rotary'
+        | 'contact';
     /** if a type is motion */
     motion?: { motion: boolean; motion_report: { changed: string; motion: boolean }; motion_valid: boolean };
     /** if type entertainment_configuration */
     active_streamer?: { rid: 'fa2b6425-206c-40b0-82bc-2fd85d5422d0'; rtype: 'auth_v1' };
+    /** if type is contact */
+    contact_report?: ContactReport;
     /** for lights and groups */
     on?: { on: boolean };
     color: { xy: { x: number; y: number } };
@@ -81,7 +94,7 @@ interface BridgeUpdate {
     /** For type zigbee_connectivity or entertainment_configuration or scene */
     status?: ZigbeeConnectivityStatus | StreamingStatus | ScenceStatus;
     /** For type device_power */
-    power_state?: { battery_level: number; battery_state: string };
+    power_state?: { battery_level: number; battery_state: BatteryState };
     /** For type button */
     button?: {
         button_report?: { event: ButtonEventType; updated: string };
@@ -186,9 +199,127 @@ class Hue extends utils.Adapter {
             this.log.warn(`Could not create smart scenes: ${e.message}`);
         }
 
+        try {
+            await this.syncContactSensors();
+        } catch (e: any) {
+            this.log.warn(`Could not create contact scenes: ${e.message}`);
+        }
+
         if (this.config.polling) {
             this.poll();
         }
+    }
+
+    /**
+     * Creates contact sensors and deletes no longer existing ones
+     */
+    private async syncContactSensors(): Promise<void> {
+        const contactSensors = await this.clientV2.getContactSensors();
+
+        const res = await this.getObjectViewAsync('system', 'state', {
+            startkey: this.namespace,
+            endkey: `${this.namespace}\u9999`
+        });
+
+        for (const row of res.rows) {
+            if (row.value.native?.data?.type !== 'contact') {
+                continue;
+            }
+
+            const contactData = row.value.native.data as ContactSensorData;
+            const contactSensorId = contactData.id;
+            const sensorExistsInBridge = contactSensors.data.some(
+                contactSensor => contactSensor.id === contactSensorId
+            );
+
+            if (!sensorExistsInBridge) {
+                const deviceId = contactData.owner.rid;
+                this.log.info(`Deleted contact sensor "${deviceId}"`);
+                await this.delObjectAsync(deviceId, { recursive: true });
+            }
+        }
+
+        for (const contactSensor of contactSensors.data) {
+            const deviceId = contactSensor.owner.rid;
+            const device = await this.clientV2.getDevice(deviceId);
+            const deviceData = device.data[0];
+
+            await this.extendObjectAsync(deviceId, {
+                type: 'device',
+                common: {
+                    name: deviceData.metadata.name
+                },
+                native: {
+                    data: deviceData
+                }
+            });
+
+            await this.extendObjectAsync(`${deviceId}.${contactSensor.id}`, {
+                type: 'state',
+                common: {
+                    name: 'Contact State',
+                    type: 'boolean',
+                    role: 'sensor.contact',
+                    write: false,
+                    read: true
+                },
+                native: {
+                    data: contactSensor
+                }
+            });
+
+            await this.setStateAsync(
+                `${deviceId}.${contactSensor.id}`,
+                this.contactToStateVal(contactSensor.contact_report.state),
+                true
+            );
+
+            for (const service of deviceData.services) {
+                await this.createService(deviceId, service);
+            }
+        }
+    }
+
+    /**
+     * Create state for given service
+     *
+     * @param deviceId id of the device
+     * @param resource the resource to create a state for
+     */
+    private async createService(deviceId: HueUuid, resource: Resource): Promise<void> {
+        if (resource.rtype === 'device_power') {
+            const devicePowerResponse = await this.clientV2.getDevicePower(resource.rid);
+            const devicePowerData = devicePowerResponse.data[0];
+
+            await this.extendObjectAsync(`${deviceId}.${resource.rid}`, {
+                type: 'state',
+                common: {
+                    name: 'Battery Level',
+                    type: 'number',
+                    role: 'value.battery',
+                    write: false,
+                    read: true,
+                    unit: '%'
+                },
+                native: {
+                    data: devicePowerData
+                }
+            });
+
+            await this.setStateAsync(`${deviceId}.${resource.rid}`, devicePowerData.power_state.battery_level, true);
+            return;
+        }
+
+        this.log.debug(`Do not create service for "${resource.rtype}"`);
+    }
+
+    /**
+     * Convert contact sensor string to boolean (note, that open means true)
+     *
+     * @param contactState contact state from HUE API
+     */
+    private contactToStateVal(contactState: ContactReport['state']): boolean {
+        return contactState === 'no_contact';
     }
 
     /**
@@ -1248,6 +1379,16 @@ class Hue extends utils.Adapter {
     async handleUpdate(update: BridgeUpdate): Promise<void> {
         this.log.debug(`New push connection update: ${JSON.stringify(update)}`);
 
+        if (update.type === 'contact') {
+            await this.handleContactSensorUpdate(update);
+            return;
+        }
+
+        if (update.type === 'device_power') {
+            await this.handleDevicePowerUpdate(update);
+            return;
+        }
+
         if (!update.id_v1) {
             this.log.debug('Ignore push connection update, because property "id_v1" is missing');
             return;
@@ -1406,6 +1547,40 @@ class Hue extends utils.Adapter {
         this.setState(`${channelName}.hue`, Math.round(Ang), true);
         this.setState(`${channelName}.sat`, Math.round(Sat * 254), true);
          */
+    }
+
+    /**
+     * Handle update from contact sensor
+     *
+     * @param update the update sent by bridge
+     */
+    async handleContactSensorUpdate(update: BridgeUpdate): Promise<void> {
+        if (!update.contact_report) {
+            return;
+        }
+
+        const deviceId = update.owner.rid;
+
+        await this.setStateAsync(`${deviceId}.${update.id}`, this.contactToStateVal(update.contact_report.state), true);
+    }
+
+    /**
+     * Handle update for device power
+     *
+     * @param update the update sent by bridge
+     */
+    async handleDevicePowerUpdate(update: BridgeUpdate): Promise<void> {
+        if (!update.power_state) {
+            return;
+        }
+
+        const deviceId = update.owner.rid;
+        const iobId = `${deviceId}.${update.id}`;
+        const stateExists = await this.objectExists(iobId);
+
+        if (stateExists) {
+            await this.setStateAsync(iobId, update.power_state.battery_level, true);
+        }
     }
 
     /**
