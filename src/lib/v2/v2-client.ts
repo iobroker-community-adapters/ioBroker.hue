@@ -308,6 +308,9 @@ export class HueV2Client {
         return res.data;
     }
 
+    /**
+     * Get all contact sensors from bridge
+     */
     async getContactSensors(): Promise<Response<ContactSensorData>> {
         const res = await this.restClient.get(`${this.baseUrl}/resource/contact`, {
             headers: {
