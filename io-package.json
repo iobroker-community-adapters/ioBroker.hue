@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.14.1",
+    "version": "3.15.0",
     "tier": 2,
     "news": {
+      "3.15.0": {
+        "en": "added support for contact sensors",
+        "de": "unterstützung für kontaktsensoren",
+        "ru": "добавлена поддержка контактных датчиков",
+        "pt": "suporte adicional para sensores de contato",
+        "nl": "extra ondersteuning voor contactsensoren",
+        "fr": "un support supplémentaire pour les capteurs de contact",
+        "it": "supporto aggiunto per sensori di contatto",
+        "es": "soporte añadido para sensores de contacto",
+        "pl": "dodane wsparcie dla czujników kontaktowych",
+        "uk": "додано підтримку датчиків контакту",
+        "zh-cn": "为接触传感器添加支持"
+      },
       "3.14.1": {
         "en": "improved error handling for smart scenes",
         "de": "verbesserte fehlerbehandlung für smarte szenen",
@@ -81,19 +94,6 @@
         "pl": "dodana możliwość używania globalnych scen świetlnych w poleceniach (oprócz scen obiektów)\nupuszczone wsparcie węzła 16 (End- Of- Life)",
         "uk": "додана можливість використання глобальних світлових осей в командах (на додаток до об'єкту-lightscene)\nскидання підтримки вузла 16 (End-Of-Life)",
         "zh-cn": "添加在命令中使用全局光幕的可能性( 除了对象光幕)\n已放弃的节点16(生命结束)支持"
-      },
-      "3.10.2": {
-        "en": "bring back short delay between setting and polling a group\nuse adapter internal timer methods",
-        "de": "kurze verzögerung zwischen einstellung und abstimmung einer gruppe zurückbringen\nverwenden adapter interne timer methoden",
-        "ru": "вернуть короткую задержку между настройкой и опросом группы\nиспользовать адаптер внутренних таймер методы",
-        "pt": "trazer de volta um atraso curto entre a definição e a votação de um grupo\nusar métodos do temporizador interno do adaptador",
-        "nl": "breng korte vertraging terug tussen een groep\ngebruik adapter interne timer methodes",
-        "fr": "ramener un court délai entre la mise en place et le vote d'un groupe\nutiliser les méthodes de timer internes de l'adaptateur",
-        "it": "riportare breve ritardo tra l'impostazione e l'inquinamento di un gruppo\nutilizzare i metodi di timer interni dell'adattatore",
-        "es": "traer de vuelta breve retraso entre el ajuste y la encuesta de un grupo\nuso de adaptador de tiempo interno métodos",
-        "pl": "powracają krótkie opóźnienia pomiędzy ustawodawstwem a zanieczyszczeniem grupy\nmetoda adaptowania wewnętrznego czasu",
-        "uk": "повернути коротку затримку між встановленням та опитуванням групи\nвикористання методів внутрішнього таймера",
-        "zh-cn": "b. 成立和投票集团之间的短期延误\n利用内部时间方法"
       }
     },
     "titleLang": {
