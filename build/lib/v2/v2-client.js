@@ -47,6 +47,40 @@ class HueV2Client {
         });
         return res.data;
     }
+    async getContactSensors() {
+        const res = await this.restClient.get(`${this.baseUrl}/resource/contact`, {
+            headers: {
+                'hue-application-key': this.user
+            }
+        });
+        return res.data;
+    }
+    /**
+     * Get device data for single device by UUID
+     *
+     * @param uuid uuid of the device
+     */
+    async getDevice(uuid) {
+        const res = await this.restClient.get(`${this.baseUrl}/resource/device/${uuid}`, {
+            headers: {
+                'hue-application-key': this.user
+            }
+        });
+        return res.data;
+    }
+    /**
+     * Get device data power data for single resource by UUID
+     *
+     * @param uuid uuid of the device power resource
+     */
+    async getDevicePower(uuid) {
+        const res = await this.restClient.get(`${this.baseUrl}/resource/device_power/${uuid}`, {
+            headers: {
+                'hue-application-key': this.user
+            }
+        });
+        return res.data;
+    }
     /**
      * Get all smart scenes
      */
