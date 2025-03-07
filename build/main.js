@@ -216,13 +216,16 @@ class Hue extends utils.Adapter {
                     type: 'boolean',
                     role: 'sensor.alarm',
                     write: false,
-                    read: true
+                    read: true,
+                    def: false
                 },
                 native: {
                     data: tamperData
                 }
             });
-            await this.setStateAsync(`${deviceId}.${resource.rid}`, this.tamperToStateVal(tamperData.tamper_reports[0].state), true);
+            if (tamperData.tamper_reports.length > 0) {
+                await this.setStateAsync(`${deviceId}.${resource.rid}`, this.tamperToStateVal(tamperData.tamper_reports[0].state), true);
+            }
             return;
         }
         this.log.debug(`Do not create service for "${resource.rtype}"`);
