@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.16.0",
+    "version": "3.16.1",
     "tier": 2,
     "news": {
+      "3.16.1": {
+        "en": "fix if no tamper report is present on state creation",
+        "de": "fix, wenn kein manipulationsbericht vorhanden ist",
+        "ru": "исправить, если нет отчета о фальсификации о создании государства",
+        "pt": "corrigir se nenhum relatório do tamper está presente na criação do estado",
+        "nl": "vast te stellen als er geen manipulatierapport aanwezig is bij het aanmaken van de staat",
+        "fr": "corriger si aucun rapport d'altération n'est présent sur la création de l'état",
+        "it": "risolvere se nessun rapporto di manomissione è presente sulla creazione di stato",
+        "es": "arreglar si no hay informe de manipulación está presente en la creación del estado",
+        "pl": "ustala, czy nie ma raportu o utworzeniu państwa",
+        "uk": "фіксувати, якщо звіт не присутній на державному творі",
+        "zh-cn": "如果没有关于国家创建的篡改报告, 则修复"
+      },
       "3.16.0": {
         "en": "added tamper states for contact sensors",
         "de": "zusätzliche verstärkerzustände für kontaktsensoren",
@@ -81,19 +94,6 @@
         "pl": "zoptymalizowana strona ustawień urządzeń mobilnych (przeniesiona do json- config)",
         "uk": "оптимізована сторінка налаштувань для мобільних пристроїв (портується на json-config)",
         "zh-cn": "优化移动设备设置页面( 移植到 json- config)"
-      },
-      "3.12.0": {
-        "en": "`level` and `bri` states of groups are now updated via push API",
-        "de": "`level` und `bri` Gruppenzustände werden nun über Push-API aktualisiert",
-        "ru": "«уровень» и «бри» состояния групп теперь обновляются через push API",
-        "pt": "`level` e `bri` estados de grupos agora são atualizados via push API",
-        "nl": "De statussen van groepen worden nu bijgewerkt via push API",
-        "fr": "Les états `niveau` et `bri` des groupes sont maintenant mis à jour via l'API push",
-        "it": "`level` e `bri` stati di gruppi sono ora aggiornati via push API",
-        "es": "\" nivel \" y \" estado de grupos \" se actualizan ahora mediante la API push",
-        "pl": "'level' i 'bri' stany grup są teraz aktualizowane poprzez wciśnięcie API",
-        "uk": "`level` і `bri` стани груп тепер оновлено через push API",
-        "zh-cn": "\" 一级 \" 和 \" 布里 \" 群体状况现在通过推进API加以更新"
       }
     },
     "titleLang": {
