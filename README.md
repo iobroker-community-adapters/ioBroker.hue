@@ -74,6 +74,10 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+
+### __WORK IN PROGRESS__
+* (@foxriver76) added tamper states for contact sensors
+
 ### 3.15.0 (2025-03-06)
 * (@foxriver76) added support for contact sensors
 

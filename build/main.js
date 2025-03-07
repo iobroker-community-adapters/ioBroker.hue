@@ -206,6 +206,25 @@ class Hue extends utils.Adapter {
             await this.setStateAsync(`${deviceId}.${resource.rid}`, devicePowerData.power_state.battery_level, true);
             return;
         }
+        if (resource.rtype === 'tamper') {
+            const tamperStateResponse = await this.clientV2.getTamperState(resource.rid);
+            const tamperData = tamperStateResponse.data[0];
+            await this.extendObjectAsync(`${deviceId}.${resource.rid}`, {
+                type: 'state',
+                common: {
+                    name: 'Tamper Alarm',
+                    type: 'boolean',
+                    role: 'sensor.alarm',
+                    write: false,
+                    read: true
+                },
+                native: {
+                    data: tamperData
+                }
+            });
+            await this.setStateAsync(`${deviceId}.${resource.rid}`, this.tamperToStateVal(tamperData.tamper_reports[0].state), true);
+            return;
+        }
         this.log.debug(`Do not create service for "${resource.rtype}"`);
     }
     /**
@@ -215,6 +234,14 @@ class Hue extends utils.Adapter {
      */
     contactToStateVal(contactState) {
         return contactState === 'no_contact';
+    }
+    /**
+     * Convert tamper state to ioBroker state value, true means tampered
+     *
+     * @param tamperState tamper state from HUE API
+     */
+    tamperToStateVal(tamperState) {
+        return tamperState === 'tampered';
     }
     /**
      * Creates smart scenes for existing groups and deletes no longer existing ones
@@ -1194,6 +1221,10 @@ class Hue extends utils.Adapter {
             await this.handleContactSensorUpdate(update);
             return;
         }
+        if (update.type === 'tamper') {
+            await this.handleTamperUpdate(update);
+            return;
+        }
         if (update.type === 'device_power') {
             await this.handleDevicePowerUpdate(update);
             return;
@@ -1325,6 +1356,22 @@ class Hue extends utils.Adapter {
         }
         const deviceId = update.owner.rid;
         await this.setStateAsync(`${deviceId}.${update.id}`, this.contactToStateVal(update.contact_report.state), true);
+    }
+    /**
+     * Handle tamper update
+     *
+     * @param update the update sent by bridge
+     */
+    async handleTamperUpdate(update) {
+        if (!update.tamper_reports) {
+            return;
+        }
+        const deviceId = update.owner.rid;
+        const iobId = `${deviceId}.${update.id}`;
+        const stateExists = await this.objectExists(iobId);
+        if (stateExists) {
+            await this.setStateAsync(iobId, this.tamperToStateVal(update.tamper_reports[0].state), true);
+        }
     }
     /**
      * Handle update for device power

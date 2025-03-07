@@ -73,6 +73,26 @@ export interface DevicePowerData extends BaseData {
     };
 }
 
+export type TamperState = 'tampered' | 'not_tampered';
+export interface TamperReport {
+    /**
+     * Last time the value of this property is changed.
+     */
+    changed: string;
+    /**
+     * Source of tamper and time expired since last change of tamper-state.
+     */
+    source: 'battery_door';
+    /**
+     * One of `tampered` and `not_tampered` are the state of tamper after last change of tamper_state.
+     */
+    state: TamperState;
+}
+
+export interface TamperData extends BaseData {
+    tamper_reports: TamperReport[];
+}
+
 export type ResourceType =
     | 'zigbee_connectivity'
     | 'contact'
@@ -350,6 +370,22 @@ export class HueV2Client {
 
         return res.data;
     }
+
+    /**
+     * Get tamper state for a single resource by UUID
+     *
+     * @param uuid uuid of the device power resource
+     */
+    async getTamperState(uuid: HueUuid): Promise<Response<TamperData>> {
+        const res = await this.restClient.get(`${this.baseUrl}/resource/tamper/${uuid}`, {
+            headers: {
+                'hue-application-key': this.user
+            }
+        });
+
+        return res.data;
+    }
+
     /**
      * Get all smart scenes
      */

@@ -47,6 +47,9 @@ class HueV2Client {
         });
         return res.data;
     }
+    /**
+     * Get all contact sensors from bridge
+     */
     async getContactSensors() {
         const res = await this.restClient.get(`${this.baseUrl}/resource/contact`, {
             headers: {
@@ -75,6 +78,19 @@ class HueV2Client {
      */
     async getDevicePower(uuid) {
         const res = await this.restClient.get(`${this.baseUrl}/resource/device_power/${uuid}`, {
+            headers: {
+                'hue-application-key': this.user
+            }
+        });
+        return res.data;
+    }
+    /**
+     * Get tamper state for a single resource by UUID
+     *
+     * @param uuid uuid of the device power resource
+     */
+    async getTamperState(uuid) {
+        const res = await this.restClient.get(`${this.baseUrl}/resource/tamper/${uuid}`, {
             headers: {
                 'hue-application-key': this.user
             }
