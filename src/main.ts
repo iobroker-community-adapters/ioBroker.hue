@@ -196,18 +196,20 @@ class Hue extends utils.Adapter {
 
         await this.connect();
 
-        this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
+        if (this.config.ssl) {
+            this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
 
-        try {
-            await this.syncSmartScenes();
-        } catch (e: any) {
-            this.log.warn(`Could not create smart scenes: ${e.message}`);
-        }
+            try {
+                await this.syncSmartScenes();
+            } catch (e: any) {
+                this.log.warn(`Could not create smart scenes: ${e.message}`);
+            }
 
-        try {
-            await this.syncContactSensors();
-        } catch (e: any) {
-            this.log.warn(`Could not create contact scenes: ${e.message}`);
+            try {
+                await this.syncContactSensors();
+            } catch (e: any) {
+                this.log.warn(`Could not create contact scenes: ${e.message}`);
+            }
         }
 
         if (this.config.polling) {
