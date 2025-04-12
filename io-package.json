@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.16.1",
+    "version": "3.16.2",
     "tier": 2,
     "news": {
+      "3.16.2": {
+        "en": "do not try to use v2 functionality on legacy Hue bridges (closes #720)",
+        "de": "nicht versuchen, v2 Funktionalität auf Vermächtnis zu verwenden Hue Brücken (schließt #720)",
+        "ru": "не пытайтесь использовать функциональность v2 в наследии Мосты Хюэ (закрывает #720)",
+        "pt": "não tente usar a funcionalidade v2 no legado Pontes Hue (fecha #720)",
+        "nl": "geen gebruik maken van v2 functionaliteit op legacy Tintbruggen (sluit #720)",
+        "fr": "n'essayez pas d'utiliser la fonctionnalité v2 sur le legs Ponts de Hue (ferme #720)",
+        "it": "non cercare di utilizzare la funzionalità v2 su legacy ponti Hue (chiude n. 720)",
+        "es": "no trate de utilizar la funcionalidad v2 en el legado Puentes de Hue (closes #720)",
+        "pl": "nie próbuj używać funkcji v2 na dziedzictwie Mosty odcieniowe (zamyka # 720)",
+        "uk": "не намагайтеся використовувати функцію v2 на Legacy Хати міст (закривається #720)",
+        "zh-cn": "不尝试在遗留物上使用 v2 功能 彩色桥梁( 关闭 # 720)"
+      },
       "3.16.1": {
         "en": "fix if no tamper report is present on state creation",
         "de": "fix, wenn kein manipulationsbericht vorhanden ist",
@@ -81,19 +94,6 @@
         "pl": "poprawna temperatura koloru min do 2000 (ważna dla świateł) zamiast 2200",
         "uk": "правильну м'язову температуру до 2000 (повністю для кольорових світильників) замість 2200",
         "zh-cn": "正确的分色温度到2000( 彩色灯的正确性) 而不是 2200"
-      },
-      "3.13.0": {
-        "en": "optimized settings page for mobile devices (ported to json-config)",
-        "de": "optimierte einstellungsseite für mobile geräte (portiert auf json-config)",
-        "ru": "оптимизированная страница настроек для мобильных устройств (включена в json-config)",
-        "pt": "página de configurações otimizadas para dispositivos móveis (portado para json-config)",
-        "nl": "geoptimaliseerde instellingen pagina voor mobiele apparaten (geporteerd naar json-config)",
-        "fr": "page de configuration optimisée pour les appareils mobiles (portée à json-config)",
-        "it": "pagina delle impostazioni ottimizzate per dispositivi mobili (portato a json-config)",
-        "es": "página de configuración optimizada para dispositivos móviles (portado a json-config)",
-        "pl": "zoptymalizowana strona ustawień urządzeń mobilnych (przeniesiona do json- config)",
-        "uk": "оптимізована сторінка налаштувань для мобільних пристроїв (портується на json-config)",
-        "zh-cn": "优化移动设备设置页面( 移植到 json- config)"
       }
     },
     "titleLang": {
