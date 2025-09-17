@@ -55,6 +55,31 @@ export function HelperRGBtoXY(Red: number, Green: number, Blue: number): { x: nu
     return { x: X / (X + Y + Z), y: Y / (X + Y + Z) };
 }
 
+// Zentral definiertes Gamut-Mapping
+const gamuts: { a: string[]; b: string[]; c: string[] } = {
+    a: ['LST001', 'LLC010', 'LLC011', 'LLC012', 'LLC006', 'LLC007', 'LLC013'],
+    b: ['LCT001', 'LCT007', 'LCT002', 'LCT003', 'LLM001'],
+    c: ['LCT010', 'LCT014', 'LCT011', 'LLC020', 'LST002']
+};
+
+/**
+ * Gibt den Gamut-Typ für ein Modell zurück (A, B, C oder default)
+ * @param modelId Die Modell-ID der Lampe (z.B. "LCT010")
+ * @returns 'A', 'B', 'C' oder 'default'
+ */
+export function getGamutTypeForModel(modelId: string): 'A' | 'B' | 'C' | 'default' {
+    if (gamuts.a.includes(modelId)) {
+        return 'A';
+    }
+    if (gamuts.b.includes(modelId)) {
+        return 'B';
+    }
+    if (gamuts.c.includes(modelId)) {
+        return 'C';
+    }
+    return 'default';
+}
+
 /**
  * Tests if the Px,Py resides within the Gamut for the model.
  * Otherwise, it will calculate the closest point on the Gamut.
@@ -68,12 +93,6 @@ export function GamutXYforModel(Px: number, Py: number, Model: string): { x: num
     let PGreen;
     let PBlue;
     let NormDot;
-
-    const gamuts = {
-        a: ['LST001', 'LLC010', 'LLC011', 'LLC012', 'LLC006', 'LLC007', 'LLC013'],
-        b: ['LCT001', 'LCT007', 'LCT002', 'LCT003', 'LLM001'],
-        c: ['LCT010', 'LCT014', 'LCT011', 'LLC020', 'LST002']
-    };
 
     //http://www.developers.meethue.com/documentation/supported-lights
     if (gamuts.b.indexOf(Model) !== -1) {
