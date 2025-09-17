@@ -1,6 +1,6 @@
 /**
  *
- *      ioBroker Philips Hue Bridge Adapter
+ *      ioBroker Philips Hue Bridge Adapter 
  *
  *      Copyright (c) 2017-2023 Bluefox <dogafox@gmail.com>
  *      Copyright (c) 2014-2016 hobbyquaker
