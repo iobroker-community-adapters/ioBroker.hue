@@ -47,7 +47,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.5.4",
     "gulp": "^4.0.2",
-    "mocha": "^11.7.4",
+    "mocha": "^11.7.5",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
