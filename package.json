@@ -29,7 +29,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.1.4",
+    "@iobroker/adapter-core": "^3.3.2",
     "axios": "^1.7.9",
     "hue-push-client": "^1.0.5",
     "node-hue-api": "^4.0.11"
