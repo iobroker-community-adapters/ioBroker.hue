@@ -1,6 +1,6 @@
 /**
  *
- *      ioBroker Philips Hue Bridge Adapter
+ *      ioBroker Philips Hue Bridge Adapter 
  *
  *      Copyright (c) 2017-2023 Bluefox <dogafox@gmail.com>
  *      Copyright (c) 2014-2016 hobbyquaker
@@ -487,7 +487,12 @@ class Hue extends utils.Adapter {
                     const res = await this.createUser(obj.message.ip as string, obj.message.port);
                     if (obj.callback) {
                         if (res.error === 0) {
-                            this.sendTo(obj.from, obj.command, { user: res.message }, obj.callback);
+                            this.sendTo(
+                                obj.from,
+                                obj.command,
+                                { native: { user: res.message }, saveConfig: true },
+                                obj.callback
+                            );
                         } else if (res.error === 403) {
                             this.sendTo(obj.from, obj.command, { error: 'Not open' }, obj.callback);
                         } else {
