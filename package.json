@@ -39,7 +39,7 @@
     "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@iobroker/testing": "^5.1.1",
-    "@iobroker/types": "^5.0.19",
+    "@iobroker/types": "^7.1.0",
     "@peter-murray/hue-bridge-model": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
