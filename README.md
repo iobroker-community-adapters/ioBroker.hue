@@ -533,6 +533,8 @@ __ATTENTION: Remove all objects once, ids have changed__
 
 * (hobbyquaker) first release
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## Roadmap/Todo
 
 * Automatic bridge discovery
