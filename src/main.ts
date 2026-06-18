@@ -2028,9 +2028,10 @@ class Hue extends utils.Adapter {
             }
 
             for (const state of Object.keys(light.state)) {
+                // ...existing code für die State-Objekte...
+                // (unverändert, siehe oben)
                 let value = light.state[state];
                 const objId = `${channelName}.${state}`;
-
                 const lobj: ioBroker.SettableStateObject = {
                     _id: `${this.namespace}.${objId.replace(/\s/g, '_')}`,
                     type: 'state',
@@ -2045,7 +2046,7 @@ class Hue extends utils.Adapter {
                         id: lid
                     }
                 };
-
+                // ...switch/case wie gehabt...
                 switch (state) {
                     case 'on':
                         lobj.common.type = 'boolean';
@@ -2085,18 +2086,14 @@ class Hue extends utils.Adapter {
                         let ctObj = { min: 153, max: 500 }; // fallback object
                         try {
                             const light = await this.api.lights.getLight(parseInt(lid));
-                            // often max: 454 or 500, min: 153
                             ctObj = light._populationData.capabilities.control.ct || ctObj;
-                            //fix invalid bridge values
                             if (ctObj.min === 0) {
                                 ctObj.min = 153;
                             }
                             if (ctObj.max === 65535 || ctObj.max === 0) {
                                 ctObj.max = 500;
                             }
-                        } catch {
-                            // ignore
-                        }
+                        } catch {}
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.temperature';
                         lobj.common.unit = '°K';
@@ -2104,8 +2101,6 @@ class Hue extends utils.Adapter {
                         lobj.common.max = hueHelper.miredToKelvin(ctObj.min);
                         value = hueHelper.miredToKelvin(value);
                         if (!isFinite(value)) {
-                            // issue #234
-                            // invalid value we cannot determine the meant value, fallback to max
                             value = lobj.common.max;
                         }
                         break;
@@ -2169,7 +2164,6 @@ class Hue extends utils.Adapter {
                         this.log.info(`skip light: ${objId}`);
                         break;
                 }
-
                 lobj.common.def = value && typeof value === 'object' ? JSON.stringify(value) : value;
                 objs.push(lobj);
             }
@@ -2180,7 +2174,13 @@ class Hue extends utils.Adapter {
             } else if (light.type.startsWith('On/Off')) {
                 role = 'switch';
             }
-
+            // Gamut-Information für das Channel-Objekt bestimmen
+            let gamutType: string | undefined = undefined;
+            if (light.capabilities && light.capabilities.control && light.capabilities.control.colorgamuttype) {
+                gamutType = light.capabilities.control.colorgamuttype;
+            } else {
+                gamutType = hueHelper.getGamutTypeForModel(light.modelid ? light.modelid.trim() : 'default');
+            }
             objs.push({
                 _id: `${this.namespace}.${channelName.replace(/\s/g, '_')}`,
                 type: 'channel',
@@ -2194,7 +2194,8 @@ class Hue extends utils.Adapter {
                     name: light.name,
                     modelid: light.modelid,
                     swversion: light.swversion,
-                    pointsymbol: light.pointsymbol
+                    pointsymbol: light.pointsymbol,
+                    gamutType: gamutType // Gamut-Info im native-Block
                 }
             });
         }
@@ -2840,15 +2841,6 @@ class Hue extends utils.Adapter {
                     if (states.ct !== undefined) {
                         // convert color temperature from mired to kelvin
                         states.ct = hueHelper.miredToKelvin(states.ct);
-
-                        // some devices send 0 -> infinity (issue #234)
-                        if (!isFinite(states.ct)) {
-                            // invalid value we cannot determine the meant value
-                            this.log.debug(
-                                `Cannot determine ct value of "${light.name}", received value "${states.ct}"`
-                            );
-                            delete states.ct;
-                        }
                     }
                     for (const stateB of Object.keys(states)) {
                         values.push({
