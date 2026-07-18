@@ -50,7 +50,7 @@
     "eslint-plugin-prettier": "^5.5.6",
     "gulp": "^4.0.2",
     "mocha": "^11.7.6",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
