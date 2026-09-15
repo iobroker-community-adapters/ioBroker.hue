@@ -2,7 +2,6 @@
 ## 3.16.0 (2025-03-07)
 * (@foxriver76) added tamper states for contact sensors
 
-
 ## 3.15.0 (2025-03-06)
 * (@foxriver76) added support for contact sensors
 

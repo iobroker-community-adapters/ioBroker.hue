@@ -74,7 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__)
+### 3.17.4 (2026-09-15))
 - (mcm1957) support to install from github has been dropped
 
 ### 3.17.2 (2026-09-15)
@@ -91,6 +91,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 ### 3.16.1 (2025-03-07)
 * (@foxriver76) fix if no tamper report is present on state creation
+
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

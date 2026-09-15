@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.17.3",
+    "version": "3.17.4",
     "tier": 2,
     "news": {
+      "3.17.4": {
+        "en": "support to install from github has been dropped",
+        "de": "Installation über Github wird nicht mehr unterstützt",
+        "ru": "поддержка установки с github прекращена",
+        "pt": "o suporte à instalação do github foi retirado",
+        "nl": "ondersteuning voor de installatie via github is ingetrokken",
+        "fr": "l'aide à l'installation depuis Github a été supprimée",
+        "it": "il supporto per l'installazione da GitHub è caduto",
+        "es": "se ha retirado el soporte para instalar desde github",
+        "pl": "obsługa instalacji z githuba została porzucona",
+        "uk": "підтримка встановлення з github припинена",
+        "zh-cn": "对从 github 安装的支持已取消"
+      },
       "3.17.2": {
         "en": "Fixed user creation not updating configuration field automatically- #776",
         "de": "Behoben, bei der Benutzererstellung das Feld nicht automatisch ändert. #776",
