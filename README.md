@@ -74,8 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-
-### __WORK IN PROGRESS__
+### 3.17.0 (2026-09-15)
 - (a-i-ks) fix ct object min/max being stricter than the adapter's supported color temperature range, causing "less than min"/"greater than max" warnings (closes #586)
 - (copilot) Adapter requires node.js >= 22 now
 - (copilot) Adapter requires admin >= 7.7.22 now
@@ -92,6 +91,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 ### 3.15.0 (2025-03-06)
 * (@foxriver76) added support for contact sensors
+
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 
