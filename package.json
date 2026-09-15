@@ -62,6 +62,7 @@
     "test:package": "mocha -r ts-node/register test/packageFiles.ts --exit",
     "test:integration": "mocha -r ts-node/register test/integrationAdapter.ts --exit",
     "test": "mocha -r ts-node/register test/*.ts --exit",
+    "check": "tsc --noEmit",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",

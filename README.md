@@ -74,6 +74,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+- (mcm1957) support to install from github has been dropped
+
 ### 3.17.2 (2026-09-15)
 - (copilot) Fixed user creation not updating configuration field automatically- #776
 
