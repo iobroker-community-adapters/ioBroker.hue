@@ -74,7 +74,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 3.17.2 (2026-09-15)
 - (copilot) Fixed user creation not updating configuration field automatically- #776
 
 ### 3.17.1 (2026-09-15)
@@ -91,11 +91,6 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 
 ### 3.16.0 (2025-03-07)
 * (@foxriver76) added tamper states for contact sensors
-
-### 3.15.0 (2025-03-06)
-* (@foxriver76) added support for contact sensors
-
-
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

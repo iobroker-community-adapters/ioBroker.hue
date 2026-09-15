@@ -1,9 +1,22 @@
 {
   "common": {
     "name": "hue",
-    "version": "3.17.1",
+    "version": "3.17.2",
     "tier": 2,
     "news": {
+      "3.17.2": {
+        "en": "Fixed user creation not updating configuration field automatically- #776",
+        "de": "Behoben, bei der Benutzererstellung das Feld nicht automatisch ändert. #776",
+        "ru": "Исправлено, что создание пользователя не обновляло поле конфигурации автоматически- #776",
+        "pt": "Criação de usuário corrigida sem atualização automática- #776",
+        "nl": "Het probleem is opgelost dat een gebruiker het configuratieveld niet automatisch bijwerkte- #776",
+        "fr": "Corrigé, le champ de configuration ne se mettait pas à jour automatiquement- #776",
+        "it": "Creazione utente fissa che non aggiorna automaticamente- #776",
+        "es": "Se corrigió la creación de usuarios que no actualizaba el campo de configuración automáticamente - #776",
+        "pl": "Poprawiono tworzenie użytkownika, które nie aktualizuje automatycznie pola konfiguracji- #776",
+        "uk": "Виправлено створення користувача, яке автоматично не оновлює поле конфігурації- #776",
+        "zh-cn": "修复了创建用户时无法自动更新配置字段的问题-#776"
+      },
       "3.17.1": {
         "en": "fixed: ct object min/max being stricter than the adapter's supported color temperature range, causing \"less than min\"/\"greater than max\" warnings (closes #586)\nAdapter requires node.js >= 22 now\nAdapter requires admin >= 7.7.22 now\nAdapter requires js-controller >= 6.0.11 now",
         "de": "behoben: ct-Objekt min/max ist strenger als der vom Adapter unterstützte Farbtemperaturbereich, was zu Warnungen „unter min“ /\"größer als max“ führt (schließt #586)\nAdapter benötigt jetzt node.js >= 22\nAdapter benötigt jetzt admin >= 7.7.22\nAdapter benötigt jetzt JS-Controller >= 6.0.11",
