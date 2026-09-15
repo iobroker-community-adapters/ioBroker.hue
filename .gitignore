@@ -4,7 +4,7 @@ tmp
 admin/i18n/flat.txt
 admin/i18n/*/flat.txt
 iob_npm.done
-
+build/
 
 # ioBroker dev-server
 .dev-server/

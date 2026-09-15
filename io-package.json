@@ -168,6 +168,7 @@
     "type": "lighting",
     "connectionType": "local",
     "dataSource": "poll",
+    "nogit": true,
     "globalDependencies": [
       {
         "admin": ">=7.7.22"
