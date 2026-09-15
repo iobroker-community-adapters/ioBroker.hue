@@ -1775,8 +1775,9 @@ class Hue extends utils.Adapter {
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.temperature';
                         lobj.common.unit = '°K';
-                        lobj.common.min = hueHelper.miredToKelvin(ctObj.max);
-                        lobj.common.max = hueHelper.miredToKelvin(ctObj.min);
+                        // never narrower than what the write path accepts, else js-controller warns on valid values
+                        lobj.common.min = Math.min(hueHelper.miredToKelvin(ctObj.max), constants_1.MIN_CT);
+                        lobj.common.max = Math.max(hueHelper.miredToKelvin(ctObj.min), constants_1.MAX_CT);
                         value = hueHelper.miredToKelvin(value);
                         if (!isFinite(value)) {
                             // issue #234
