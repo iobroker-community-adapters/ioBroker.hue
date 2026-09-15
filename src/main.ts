@@ -2100,8 +2100,11 @@ class Hue extends utils.Adapter {
                         lobj.common.type = 'number';
                         lobj.common.role = 'level.color.temperature';
                         lobj.common.unit = '°K';
-                        lobj.common.min = hueHelper.miredToKelvin(ctObj.max);
-                        lobj.common.max = hueHelper.miredToKelvin(ctObj.min);
+                        // use the wider of the bridge-reported range and the range the adapter
+                        // itself accepts (MIN_CT/MAX_CT), so that values in between never trigger
+                        // a "less than min"/"greater than max" warning (issue #586)
+                        lobj.common.min = Math.min(hueHelper.miredToKelvin(ctObj.max), MIN_CT);
+                        lobj.common.max = Math.max(hueHelper.miredToKelvin(ctObj.min), MAX_CT);
                         value = hueHelper.miredToKelvin(value);
                         if (!isFinite(value)) {
                             // issue #234
