@@ -76,6 +76,7 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 -->
 
 ### **WORK IN PROGRESS**
+- (a-i-ks) fix ct object min/max being stricter than the adapter's supported color temperature range, causing "less than min"/"greater than max" warnings (closes #586)
 - (copilot) Adapter requires node.js >= 22 now
 - (copilot) Adapter requires admin >= 7.7.22 now
 - (copilot) Adapter requires js-controller >= 6.0.11 now
