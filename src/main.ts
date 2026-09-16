@@ -1469,7 +1469,8 @@ class Hue extends utils.Adapter {
         }
 
         if (update.type === 'zigbee_connectivity') {
-            // ignore for now
+            await this.handleLightUpdate(id, update);
+            await this.handleSensorUpdate(id, update);
             return;
         }
 
@@ -1523,6 +1524,10 @@ class Hue extends utils.Adapter {
                 true
             );
         }
+
+        if (update.status) {
+            await this.setStateAsync(`${channelName}.reachable`, update.status === 'connected', true);
+        }
     }
 
     /**
@@ -1571,6 +1576,10 @@ class Hue extends utils.Adapter {
         if (update.color) {
             await this.setStateAsync(`${channelName}.xy`, `${update.color.xy.x},${update.color.xy.y}`, true);
             await this.updateColorStatesByXY(channelName, update.color.xy.x, update.color.xy.y);
+        }
+
+        if (update.status) {
+            await this.setStateAsync(`${channelName}.reachable`, update.status === 'connected', true);
         }
     }
 
