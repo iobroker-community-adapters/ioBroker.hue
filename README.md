@@ -61,6 +61,31 @@ To do this, pass the scene argument to the corresponding command.
 setState('hue.0.All.Wohnzimmer', { "scene": "hell", "transitiontime": 30 }, false);
 ```
 
+### MotionAware (Hue API v2)
+
+With SSL enabled, configured MotionAware areas are discovered from
+`motion_area_configuration` and `convenience_area_motion`. Live updates use the
+existing push connection, including resources without a legacy `id_v1`.
+
+Read-only states are created under `hue.0.motionAreas.<convenience-resource-id>`:
+
+- `presence`: last valid convenience motion value. This is motion detection, not proof that a room is occupied or empty.
+- `valid`: whether the value is usable (enabled sensor and area, healthy area, valid motion signal).
+- `enabled`: both the area and its convenience sensor are enabled.
+- `lastupdated`: timestamp of the last bridge motion report, not a heartbeat.
+
+Always check `valid` before using `presence` in an automation; also re-evaluate
+when `valid` changes to true after startup or recovery. Invalid signals,
+push disconnects, adapter shutdown and removed resources invalidate the value
+without falsely publishing absence. Existing objects for removed resources are
+retained with `valid=false`. Discovery is repeated after reconnects and resource
+additions/deletions/configuration changes. Older bridges returning HTTP 404 for
+these endpoints are supported without creating MotionAware objects.
+
+This feature does not enable MotionAware, change sensitivity, alter Hue lighting
+automations or use `security_area_motion`. Configure areas and any direct light
+actions in the Hue app separately.
+
 ### Additional information
 With version 3.3.0 the group states `anyOn` and `allOn` became controllable, note that they will just act like the `on` state,
 when controlled. In some cases, it may be desirable to have a controllable `anyOn` state in your visualization.
@@ -74,6 +99,9 @@ In den Adapter-Settings muss die IP der Hue Bridge sowie ein Username konfigurie
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+- (ooooli) Added read-only MotionAware convenience motion states via Hue API v2 and push updates.
+
 ### 3.17.4 (2026-09-15))
 - (mcm1957) support to install from github has been dropped
 
