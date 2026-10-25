@@ -29,6 +29,7 @@ import {
     ZoneData
 } from './lib/v2/v2-client';
 import { MAX_CT, MIN_CT } from './lib/constants';
+import { MotionAreas } from './lib/v2/motion-areas';
 
 interface PollSensor {
     /** Sensor id in Hue */
@@ -155,6 +156,7 @@ class Hue extends utils.Adapter {
     private api!: Api;
     /** Instance of the V2 API */
     private clientV2!: InstanceType<typeof HueV2Client>;
+    private motionAreas?: MotionAreas;
     /** Instance of the Hue push client */
     private pushClient: any;
     /** Object which contains all UUIDs and the corresponding metadata */
@@ -194,11 +196,18 @@ class Hue extends utils.Adapter {
             return;
         }
 
+        const previousMotionValidity = await this.getStatesAsync('motionAreas.*.valid');
+        for (const id of Object.keys(previousMotionValidity)) {
+            await this.setStateAsync(id, false, true);
+        }
+        if (this.config.ssl) {
+            this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
+            this.motionAreas = new MotionAreas(this, this.clientV2);
+        }
+
         await this.connect();
 
         if (this.config.ssl) {
-            this.clientV2 = new HueV2Client({ user: this.config.user, address: this.config.bridge });
-
             try {
                 await this.syncSmartScenes();
             } catch (e: any) {
@@ -456,6 +465,7 @@ class Hue extends utils.Adapter {
                 this.reconnectTimeout = undefined;
             }
 
+            await this.motionAreas?.invalidate();
             this.pushClient.close();
 
             await this.setStateAsync('info.connection', false, true);
@@ -1386,6 +1396,7 @@ class Hue extends utils.Adapter {
 
         this.pushClient.addEventListener('open', async () => {
             this.log.info('Push connection established');
+            await this.syncMotionAreas();
             try {
                 this.UUIDs = await this.pushClient.uuids();
             } catch (e: any) {
@@ -1395,10 +1406,12 @@ class Hue extends utils.Adapter {
 
         this.pushClient.addEventListener('close', () => {
             this.log.info('Push connection closed');
+            void this.motionAreas?.invalidate().catch(() => this.log.warn('Could not invalidate MotionAware states'));
         });
 
         this.pushClient.addEventListener('error', (e: any) => {
             this.log.info(`Push connection error: ${e.message}`);
+            void this.motionAreas?.invalidate().catch(() => this.log.warn('Could not invalidate MotionAware states'));
         });
 
         this.pushClient.addEventListener('message', (message: any) => {
@@ -1412,6 +1425,16 @@ class Hue extends utils.Adapter {
 
                 for (const timestepData of data) {
                     for (const entry of timestepData.data) {
+                        if (entry.type === 'convenience_area_motion' || entry.type === 'motion_area_configuration') {
+                            if (timestepData.type === 'update' && entry.type === 'convenience_area_motion') {
+                                void this.motionAreas
+                                    ?.update(entry)
+                                    .catch(() => this.log.warn('Could not update MotionAware states'));
+                            } else {
+                                void this.syncMotionAreas();
+                            }
+                            continue;
+                        }
                         this.handleUpdate(entry);
                     }
                 }
@@ -1419,6 +1442,15 @@ class Hue extends utils.Adapter {
                 this.log.error(`Could not parse data from push connection: ${e.message}`);
             }
         });
+    }
+
+    private async syncMotionAreas(): Promise<void> {
+        try {
+            await this.motionAreas?.refresh();
+        } catch {
+            await this.motionAreas?.invalidate().catch(() => undefined);
+            this.log.warn('Could not synchronize MotionAware resources');
+        }
     }
 
     /**
