@@ -32,6 +32,26 @@ export interface BaseData {
     type: string;
 }
 
+export interface MotionAreaData {
+    id: string;
+    type: 'motion_area_configuration';
+    name: string;
+    enabled: boolean;
+    health: string;
+}
+
+export interface ConvenienceMotionData {
+    id: string;
+    type: 'convenience_area_motion';
+    owner: { rid: string; rtype: string };
+    enabled: boolean;
+    motion: {
+        motion?: boolean;
+        motion_valid?: boolean;
+        motion_report?: { changed: string; motion: boolean };
+    };
+}
+
 export interface DeviceData extends BaseData {
     /** Product data for this device */
     product_data: DeviceProductData;
@@ -287,6 +307,33 @@ export class HueV2Client {
         this.restClient = axios.create({
             httpsAgent: new https.Agent({ rejectUnauthorized: false })
         });
+    }
+
+    /** Unsupported endpoints on older bridges are equivalent to no MotionAware areas. */
+    private async getMotionResource<T>(resource: string): Promise<Response<T>> {
+        try {
+            const res = await this.restClient.get(`${this.baseUrl}/resource/${resource}`, {
+                headers: { 'hue-application-key': this.user },
+                timeout: 10000
+            });
+            if (res.data.errors?.length || !Array.isArray(res.data.data)) {
+                throw new Error(`Invalid Hue response for ${resource}`);
+            }
+            return res.data;
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+                return { errors: [], data: [] };
+            }
+            throw error;
+        }
+    }
+
+    getMotionAreas(): Promise<Response<MotionAreaData>> {
+        return this.getMotionResource('motion_area_configuration');
+    }
+
+    getConvenienceMotion(): Promise<Response<ConvenienceMotionData>> {
+        return this.getMotionResource('convenience_area_motion');
     }
 
     /**
