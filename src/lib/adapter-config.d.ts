@@ -2,18 +2,15 @@
 declare global {
     namespace ioBroker {
         interface AdapterConfig {
+            /** IP address or hostname of the bridge */
             bridge: string;
-            port: number;
+            /** Application key created via the link button */
             user: string;
-            polling: boolean;
-            pollingInterval: number;
+            /** Do not create rooms, zones and the "all" group */
             ignoreGroups: boolean;
-            ignoreOsram: boolean;
+            /** Do not create scenes and smart scenes */
             ignoreScenes: boolean;
-            useLegacyStructure: boolean;
-            nativeTurnOffBehaviour: boolean;
-            ssl: boolean;
-            syncSoftwareSensors: boolean;
+            /** Turn lights on when color, color temperature or effect is changed */
             turnOnWithOthers: boolean;
         }
     }

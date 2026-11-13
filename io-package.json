@@ -110,17 +110,17 @@
       "uk": "Philips Hue Bridge"
     },
     "desc": {
-      "en": "Connects Philips Hue LED Bulbs, Friends of Hue LED Lamps and Stripes and other SmartLink capable Devices (LivingWhites, some LivingColors) via Philips Hue Bridges with ioBroker",
-      "de": "Verbinden Sie Philips Hue LED Birnen, Friends of Hue LED Lampen und Streifen und andere SmartLink fähige Geräte (LivingWhites, einige LivingColors) über Philips Hue Bridges mit ioBroker",
-      "ru": "Соединяет светодиодные лампы Philips Hue, светодиодные лампы и ленты Friends of Hue и другие устройства, поддерживающие SmartLink (LivingWhites, некоторые LivingColors) через Philips Hue Bridges",
-      "pt": "Conecta Lâmpadas LED Philips Hue, Lâmpadas LED e Listras Friends of Hue e outros Dispositivos com capacidade para SmartLink (LivingWhites, alguns LivingColors) via Philips Hue Bridges com ioBroker",
-      "nl": "Verbindt Philips Hue LED-lampen, Friends of Hue LED-lampen en -stroken en andere SmartLink-compatibele apparaten (LivingWhites, sommige LivingColors) via Philips Hue Bridges met ioBroker",
-      "fr": "Permet de connecter les ampoules LED Philips Hue, les lampes et les bandes LED Friends of Hue et d'autres périphériques compatibles SmartLink (LivingWhites, certains LivingColors) via Philips Hue Bridges avec ioBroker",
-      "it": "Collega lampadine LED Philips Hue, lampade e strisce LED Friends of Hue e altri dispositivi compatibili SmartLink (LivingWhite, alcuni LivingColors) tramite Philips Hue Bridges con ioBroker",
-      "es": "Conecta bombillas LED Philips Hue, lámparas y rayas LED Friends of Hue y otros dispositivos compatibles con SmartLink (LivingWhites, algunos LivingColors) a través de Philips Hue Bridges con ioBroker",
-      "pl": "Łączy żarówki Philips Hue LED, lampy i paski Friends of Hue oraz inne urządzenia z funkcją SmartLink (LivingWhites, niektóre kolory LivingColors) za pośrednictwem Philips Hue Bridges z ioBroker",
-      "zh-cn": "通过飞利浦 Hue 桥接器与 ioBroker 连接飞利浦 Hue LED 灯泡、Hue LED 灯和条纹之友以及其他支持 SmartLink 的设备（LivingWhites、一些 LivingColors）",
-      "uk": "Підключає світлодіодні лампи Philips Hue, світлодіодні лампи та смуги Friends of Hue та інші пристрої, що підтримують SmartLink (LivingWhites, деякі LivingColors) через мости Philips Hue з ioBroker"
+      "en": "Connects Philips Hue lights, sensors, switches, rooms, zones and scenes via the Hue Bridge (API v2)",
+      "de": "Verbindet Philips Hue Lampen, Sensoren, Schalter, Räume, Zonen und Szenen über die Hue Bridge (API v2)",
+      "ru": "Подключает лампы, датчики, выключатели, комнаты, зоны и сцены Philips Hue через Hue Bridge (API v2)",
+      "pt": "Liga luzes, sensores, interruptores, divisões, zonas e cenas Philips Hue através da Hue Bridge (API v2)",
+      "nl": "Verbindt Philips Hue-lampen, sensoren, schakelaars, kamers, zones en scènes via de Hue Bridge (API v2)",
+      "fr": "Connecte les lampes, capteurs, interrupteurs, pièces, zones et scènes Philips Hue via le pont Hue (API v2)",
+      "it": "Collega luci, sensori, interruttori, stanze, zone e scene Philips Hue tramite il bridge Hue (API v2)",
+      "es": "Conecta luces, sensores, interruptores, habitaciones, zonas y escenas Philips Hue a través del puente Hue (API v2)",
+      "pl": "Łączy światła, czujniki, przełączniki, pokoje, strefy i sceny Philips Hue przez mostek Hue (API v2)",
+      "uk": "Підключає лампи, датчики, вимикачі, кімнати, зони та сцени Philips Hue через Hue Bridge (API v2)",
+      "zh-cn": "通过 Hue 网桥 (API v2) 连接飞利浦 Hue 灯、传感器、开关、房间、区域和场景"
     },
     "authors": [
       "hobbyquaker <hq@ccu.io>",
@@ -169,27 +169,61 @@
     "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.hue/master/admin/hue.jpeg",
     "type": "lighting",
     "connectionType": "local",
-    "dataSource": "poll",
+    "dataSource": "push",
     "nogit": true,
     "globalDependencies": [
       {
         "admin": ">=7.7.22"
       }
+    ],
+    "messages": [
+      {
+        "condition": {
+          "operand": "and",
+          "rules": [
+            "oldVersion<4.0.0",
+            "newVersion>=4.0.0"
+          ]
+        },
+        "title": {
+          "en": "Breaking change: Hue API v2",
+          "de": "Inkompatible Änderung: Hue API v2",
+          "ru": "Критическое изменение: Hue API v2",
+          "pt": "Alteração incompatível: Hue API v2",
+          "nl": "Ingrijpende wijziging: Hue API v2",
+          "fr": "Changement majeur : API Hue v2",
+          "it": "Modifica incompatibile: Hue API v2",
+          "es": "Cambio importante: Hue API v2",
+          "pl": "Zmiana niekompatybilna: Hue API v2",
+          "uk": "Несумісна зміна: Hue API v2",
+          "zh-cn": "重大变更：Hue API v2"
+        },
+        "text": {
+          "en": "Version 4 uses the Hue API v2 exclusively. The complete object structure changes, all old objects of the instance are deleted on the first start and scripts, visualizations, aliases and history settings have to be adjusted. Port, SSL, polling and legacy structure options were removed. Please read the README before updating.",
+          "de": "Version 4 verwendet ausschließlich die Hue API v2. Die komplette Objektstruktur ändert sich, alle alten Objekte der Instanz werden beim ersten Start gelöscht und Skripte, Visualisierungen, Aliase und History-Einstellungen müssen angepasst werden. Die Optionen Port, SSL, Polling und Legacy-Struktur entfallen. Bitte vor dem Update die README lesen.",
+          "ru": "Версия 4 использует только Hue API v2. Структура объектов полностью меняется, все старые объекты экземпляра удаляются при первом запуске, скрипты, визуализации, алиасы и настройки истории нужно адаптировать. Параметры порта, SSL, опроса и устаревшей структуры удалены. Перед обновлением прочитайте README.",
+          "pt": "A versão 4 usa exclusivamente a Hue API v2. Toda a estrutura de objetos muda, todos os objetos antigos da instância são eliminados no primeiro arranque e scripts, visualizações, aliases e configurações de histórico têm de ser ajustados. As opções de porta, SSL, polling e estrutura antiga foram removidas. Leia o README antes de atualizar.",
+          "nl": "Versie 4 gebruikt uitsluitend de Hue API v2. De volledige objectstructuur verandert, alle oude objecten van de instantie worden bij de eerste start verwijderd en scripts, visualisaties, aliassen en historie-instellingen moeten worden aangepast. De opties poort, SSL, polling en legacy-structuur zijn verwijderd. Lees de README voor het bijwerken.",
+          "fr": "La version 4 utilise exclusivement l'API Hue v2. Toute la structure des objets change, tous les anciens objets de l'instance sont supprimés au premier démarrage et les scripts, visualisations, alias et paramètres d'historique doivent être adaptés. Les options port, SSL, interrogation et structure héritée ont été supprimées. Veuillez lire le README avant la mise à jour.",
+          "it": "La versione 4 utilizza esclusivamente la Hue API v2. L'intera struttura degli oggetti cambia, tutti i vecchi oggetti dell'istanza vengono eliminati al primo avvio e script, visualizzazioni, alias e impostazioni della cronologia devono essere adattati. Le opzioni porta, SSL, polling e struttura legacy sono state rimosse. Leggere il README prima dell'aggiornamento.",
+          "es": "La versión 4 utiliza exclusivamente la Hue API v2. Cambia toda la estructura de objetos, todos los objetos antiguos de la instancia se eliminan en el primer inicio y hay que adaptar scripts, visualizaciones, alias y ajustes de historial. Se han eliminado las opciones de puerto, SSL, sondeo y estructura heredada. Lea el README antes de actualizar.",
+          "pl": "Wersja 4 korzysta wyłącznie z Hue API v2. Cała struktura obiektów się zmienia, wszystkie stare obiekty instancji zostaną usunięte przy pierwszym uruchomieniu, a skrypty, wizualizacje, aliasy i ustawienia historii trzeba dostosować. Usunięto opcje portu, SSL, odpytywania i starej struktury. Przed aktualizacją przeczytaj README.",
+          "uk": "Версія 4 використовує виключно Hue API v2. Структура об'єктів повністю змінюється, усі старі об'єкти екземпляра видаляються під час першого запуску, а скрипти, візуалізації, аліаси та налаштування історії потрібно адаптувати. Параметри порту, SSL, опитування та застарілої структури видалено. Перед оновленням прочитайте README.",
+          "zh-cn": "版本 4 仅使用 Hue API v2。整个对象结构发生变化，实例的所有旧对象将在首次启动时被删除，脚本、可视化、别名和历史设置需要调整。端口、SSL、轮询和旧结构选项已被移除。更新前请阅读 README。"
+        },
+        "level": "warn",
+        "buttons": [
+          "agree",
+          "cancel"
+        ]
+      }
     ]
   },
   "native": {
     "bridge": "",
-    "port": 443,
     "user": "",
-    "polling": true,
-    "pollingInterval": 10,
     "ignoreGroups": false,
-    "ignoreOsram": false,
     "ignoreScenes": false,
-    "useLegacyStructure": false,
-    "nativeTurnOffBehaviour": false,
-    "ssl": true,
-    "syncSoftwareSensors": false,
     "turnOnWithOthers": true
   },
   "protectedNative": [

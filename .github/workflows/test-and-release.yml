@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: '24.x'
           type-checking: true
-          lint: false
+          lint: true
 
   adapter-tests:
     needs: [check-and-lint]
