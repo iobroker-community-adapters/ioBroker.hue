@@ -1523,6 +1523,10 @@ class Hue extends utils.Adapter {
                 true
             );
         }
+
+        if (update.enabled !== undefined) {
+            await this.setStateAsync(`${channelName}.on`, update.enabled, true);
+        }
     }
 
     /**
